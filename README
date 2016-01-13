@@ -1,0 +1,14 @@
+Usage:
+
+	tc <source file> <algorithm> <options>
+
+Algorithms:
+
+	--stencil-tiling		- concurrent start tiling for stencils
+	--free-schedule-tile	- dynamic free scheduling for tiles
+
+Options:
+
+	-b		- block size, e.g. -b 256 -b S1:128,128
+
+e.g.: 	tc ./examples/polybench/gemm.scop.c --free-schedule-tiling -b S1:256,256 -b S2:128

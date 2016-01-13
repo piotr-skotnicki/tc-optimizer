@@ -1,0 +1,15 @@
+Dependencies:
+
+	automake autoconf libtool pkg-config libgmp3-dev libclang-dev llvm
+
+Downloading:
+
+	git clone git://git.code.sf.net/p/tc-optimizer/code tc
+	cd tc
+	git submodule update --init --recursive
+
+Compilation:
+
+	sh autogen.sh
+	./configure
+	make
