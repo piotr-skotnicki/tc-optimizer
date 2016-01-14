@@ -110,9 +110,10 @@ std::map<std::string, std::vector<int> > tc_options_blocks(int argc, char* argv[
                             size = strtok(NULL, ",");
                         }
                         
+                        int s = blocks[label].back();
                         for (int j = blocks[label].size(); j < 20; ++j)
                         {
-                            blocks[label].push_back(blocks[label].back());
+                            blocks[label].push_back(s);
                         }
                     }
                 }
