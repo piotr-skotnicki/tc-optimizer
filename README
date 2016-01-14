@@ -5,7 +5,7 @@ Usage:
 Algorithms:
 
 	--stencil-tiling		- concurrent start tiling for stencils
-	--free-schedule-tile	- dynamic free scheduling for tiles
+	--free-schedule-tiling	- dynamic free scheduling for tiles
 
 Options:
 

@@ -18,7 +18,7 @@ void tc_options_help()
         "Algorithms:\n"
         "\n"
         "\t--stencil-tiling\t- concurrent start tiling for stencils\n"
-        "\t--free-schedule-tile\t- dynamic free scheduling for tiles\n"
+        "\t--free-schedule-tiling\t- dynamic free scheduling for tiles\n"
         "\n"
         "Options:\n"
         "\n"
