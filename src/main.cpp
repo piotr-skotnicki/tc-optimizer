@@ -7,6 +7,7 @@
 
 #include "stencil.h"
 #include "free_schedule_tiling.h"
+#include "static_tile_correction.h"
 #include "options.h"
 
 int main(int argc, char* argv[])
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
         {
             tc_options_error("Invalid input file `%s'", file);
         }
-        else            
+        else
         {
             switch (algorithm)
             {
@@ -48,6 +49,12 @@ int main(int argc, char* argv[])
                 case tc_algorithm_enum_free_schedule_tiling:
                 {
                     tc_algorithm_free_schedule_tiling(argc - 3, argv + 3, scop);
+                }
+                break;
+
+                case tc_algorithm_enum_static_correction_tiling:
+                {
+                    tc_algorithm_static_tile_correction(argc - 3, argv + 3, scop);
                 }
                 break;
             }

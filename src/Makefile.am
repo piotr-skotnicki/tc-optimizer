@@ -11,6 +11,7 @@ tc_SOURCES = \
 	slicing.cpp \
 	stencil.cpp \
 	free_schedule_tiling.cpp \
+	static_tile_correction.cpp \
 	transitive_closure.cpp \
 	options.cpp
 

@@ -8,7 +8,8 @@
 enum tc_algorithm_enum
 {
     tc_algorithm_enum_stencil_tiling,
-    tc_algorithm_enum_free_schedule_tiling,    
+    tc_algorithm_enum_free_schedule_tiling,
+    tc_algorithm_enum_static_correction_tiling,
     tc_algorithm_enum_unknown
 };
 

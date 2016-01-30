@@ -19,6 +19,7 @@ void tc_options_help()
         "\n"
         "\t--stencil-tiling\t- concurrent start tiling for stencils\n"
         "\t--free-schedule-tiling\t- dynamic free scheduling for tiles\n"
+        "\t--static-correction-tiling\t- static tiling with tiles correction\n"
         "\n"
         "Options:\n"
         "\n"
@@ -63,6 +64,10 @@ enum tc_algorithm_enum tc_options_algorithm(int argc, char* argv[])
     else if (0 == strcmp(algorithm, "--free-schedule-tiling"))
     {
         value = tc_algorithm_enum_free_schedule_tiling;
+    }
+    else if (0 == strcmp(algorithm, "--static-correction-tiling"))
+    {
+        value = tc_algorithm_enum_static_correction_tiling;
     }
     
     return value;
