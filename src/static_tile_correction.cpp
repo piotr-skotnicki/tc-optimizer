@@ -54,6 +54,8 @@ void tc_algorithm_static_tile_correction(int argc, char* argv[], struct tc_scop*
         
     isl_set* tile_vld_ext = tc_lift_up_set_params(tile_vld, II);
     
+    tile_vld_ext = isl_set_coalesce(tile_vld_ext);
+    
     isl_union_map* S_ext = NULL;
     isl_map_list* S_maps = tc_collect_maps(S);
     

@@ -8,6 +8,7 @@
 #include "stencil.h"
 #include "free_schedule_tiling.h"
 #include "static_tile_correction.h"
+#include "sfs_tiling.h"
 #include "options.h"
 
 int main(int argc, char* argv[])
@@ -55,6 +56,12 @@ int main(int argc, char* argv[])
                 case tc_algorithm_enum_static_correction_tiling:
                 {
                     tc_algorithm_static_tile_correction(argc - 3, argv + 3, scop);
+                }
+                break;
+
+                case tc_algorithm_enum_sfs_tiling:
+                {
+                    tc_algorithm_sfs_tiling(argc - 3, argv + 3, scop);
                 }
                 break;
             }

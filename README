@@ -7,6 +7,7 @@ Algorithms:
 	--stencil-tiling		- concurrent start tiling for stencils
 	--free-schedule-tiling	- dynamic free scheduling for tiles
 	--static-correction-tiling	- static tiling with tiles correction
+	--sfs-tiling	- synchronization free slices of tiles
 
 Options:
 
