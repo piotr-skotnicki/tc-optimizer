@@ -7,6 +7,9 @@
 #include <isl/map.h>
 #include <isl/union_set.h>
 #include <isl/union_map.h>
+#include <isl/point.h>
+
+#include <barvinok/isl.h>
 
 #include <string>
 
@@ -82,6 +85,8 @@ __isl_give isl_set* tc_parameterize_all(__isl_take isl_set* set, __isl_keep isl_
 
 __isl_give isl_id_list* tc_get_set_params_names(__isl_keep isl_set* set);
 
+__isl_give isl_id_list* tc_get_union_set_params_names(__isl_keep isl_union_set* uset);
+
 __isl_give isl_id_list* tc_get_map_params_names(__isl_keep isl_map* map);
 
 __isl_give isl_set* tc_make_set_constraints(__isl_take isl_set* set, __isl_keep isl_id_list* names);
@@ -90,7 +95,11 @@ __isl_give isl_set* tc_make_set_constraints_for(__isl_take isl_set* set, int pos
 
 __isl_give isl_set* tc_make_map_constraints(__isl_take isl_map* map, __isl_keep isl_id_list* in, __isl_keep isl_id_list* out);
 
-__isl_give isl_set* tc_fix_param_value(__isl_take isl_set* set, __isl_take isl_id* name, int value);
+__isl_give isl_set* tc_set_fix_param_value(__isl_take isl_set* set, __isl_take isl_id* name, int value);
+
+__isl_give isl_map* tc_map_fix_param_value(__isl_take isl_map* map, __isl_take isl_id* name, int value);
+
+__isl_give isl_set* tc_set_fix_params_bounds(__isl_take isl_set* set, __isl_take isl_set* bounds);
 
 __isl_give isl_map* tc_make_identity(__isl_take isl_map* map);
 
@@ -154,9 +163,13 @@ __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, c
 
 int tc_get_statement_depth(const char* label, __isl_keep isl_union_map* umap);
 
-__isl_give isl_set* tc_normalize_union_set(__isl_keep isl_union_set* uset, __isl_keep isl_union_map* scattering);
+__isl_give isl_set* tc_normalize_union_set(__isl_keep isl_union_set* uset, __isl_keep isl_union_map* S);
 
-__isl_give isl_map* tc_normalize_union_map(__isl_keep isl_union_map* umap, __isl_keep isl_union_map* scattering);
+__isl_give isl_map* tc_normalize_union_map(__isl_keep isl_union_map* umap, __isl_keep isl_union_map* S);
+
+__isl_give isl_union_set* tc_denormalize_set(__isl_keep isl_set* set, __isl_keep isl_union_map* S);
+
+__isl_give isl_union_map* tc_denormalize_map(__isl_keep isl_map* map, __isl_keep isl_union_map* S);
 
 __isl_give isl_basic_set_list* tc_collect_basic_sets(__isl_keep isl_set* set);
 
@@ -167,5 +180,24 @@ __isl_give isl_basic_map_list* tc_collect_basic_maps(__isl_keep isl_map* map);
 __isl_give isl_map_list* tc_collect_maps(__isl_keep isl_union_map* umap);
 
 __isl_give isl_union_map* tc_unwrap_range(__isl_take isl_union_map* umap);
+
+struct tc_qpolynomials
+{
+    isl_qpolynomial** polys;
+    
+    isl_set_list* domains;
+};
+
+struct tc_qpolynomials* tc_collect_qpolynomials(__isl_keep isl_pw_qpolynomial* pw);
+
+void tc_qpolynomials_free(struct tc_qpolynomials* polys);
+
+__isl_give isl_point* tc_set_to_point(__isl_take isl_set* set);
+
+isl_bool tc_points_compare(__isl_keep isl_point* lhs, __isl_keep isl_point* rhs);
+
+isl_bool tc_is_lex_forward(__isl_keep isl_map* R);
+
+__isl_give isl_union_map* tc_simplify_schedule(__isl_take isl_union_map* S);
 
 #endif // TC_UTILITY_H

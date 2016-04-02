@@ -6,10 +6,15 @@
 #include <isl/map.h>
 #include <isl/union_set.h>
 #include <isl/union_map.h>
+#include <isl/polynomial.h>
+#include <isl/point.h>
+
+#include <barvinok/isl.h>
 
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <string>
 
@@ -428,6 +433,17 @@ __isl_give isl_id_list* tc_get_set_params_names(__isl_keep isl_set* set)
     return list;
 }
 
+__isl_give isl_id_list* tc_get_union_set_params_names(__isl_keep isl_union_set* uset)
+{
+    isl_set* params = isl_union_set_params(isl_union_set_copy(uset));
+    
+    isl_id_list* list = tc_get_set_params_names(params);
+    
+    isl_set_free(params);
+    
+    return list;
+}
+
 __isl_give isl_id_list* tc_get_map_params_names(__isl_keep isl_map* map)
 {
     int n_params_dim = isl_map_dim(map, isl_dim_param);
@@ -469,7 +485,7 @@ __isl_give isl_set* tc_make_map_constraints(__isl_take isl_map* map, __isl_keep 
     return params;
 }
 
-__isl_give isl_set* tc_fix_param_value(__isl_take isl_set* set, __isl_take isl_id* name, int value)
+__isl_give isl_set* tc_set_fix_param_value(__isl_take isl_set* set, __isl_take isl_id* name, int value)
 {
     int pos = isl_set_find_dim_by_id(set, isl_dim_param, name);
     
@@ -482,6 +498,37 @@ __isl_give isl_set* tc_fix_param_value(__isl_take isl_set* set, __isl_take isl_i
     return set;
 }
 
+__isl_give isl_map* tc_map_fix_param_value(__isl_take isl_map* map, __isl_take isl_id* name, int value)
+{    
+    int pos = isl_map_find_dim_by_id(map, isl_dim_param, name);
+    
+    map = isl_map_fix_si(map, isl_dim_param, pos, value);
+    
+    map = isl_map_project_out(map, isl_dim_param, pos, 1);
+    
+    isl_id_free(name);
+    
+    return map;
+}
+
+__isl_give isl_set* tc_set_fix_params_bounds(__isl_take isl_set* set, __isl_take isl_set* bounds)
+{
+    if (NULL == bounds)
+    {
+        return set;
+    }
+    
+    isl_id_list* params = tc_get_set_params_names(bounds);
+    
+    set = isl_set_intersect_params(set, bounds);
+    
+    set = tc_project_out_params(set, params);
+    
+    isl_id_list_free(params);
+    
+    return set;
+}
+
 __isl_give isl_map* tc_make_identity(__isl_take isl_map* map)
 {
     isl_map* result = isl_map_identity(isl_map_get_space(map));
@@ -489,6 +536,32 @@ __isl_give isl_map* tc_make_identity(__isl_take isl_map* map)
     result = isl_map_intersect_domain(result, isl_map_domain(isl_map_copy(map)));
     
     result = isl_map_intersect_range(result, isl_map_domain(map));
+    
+    return result;    
+}
+
+__isl_give isl_union_map* tc_union_map_make_identity(__isl_take isl_union_map* umap)
+{
+    isl_map_list* maps = tc_collect_maps(umap);
+    
+    isl_union_map* result = NULL;
+    
+    for (int i = 0; i < isl_map_list_n_map(maps); ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps, i);
+        map = tc_make_identity(map);
+        
+        if (NULL == result)
+        {
+            result = isl_union_map_from_map(map);
+        }
+        else
+        {
+            result = isl_union_map_add_map(result, map);
+        }
+    }
+    
+    isl_map_list_free(maps);
     
     return result;    
 }
@@ -545,7 +618,11 @@ __isl_give isl_union_map* tc_union_map_closure(__isl_take isl_union_map* umap, i
     {
         k_power = isl_union_map_apply_range(k_power, isl_union_map_copy(umap));
         
+        k_power = isl_union_map_coalesce(k_power);
+        
         k_closure = isl_union_map_union(k_closure, isl_union_map_copy(k_power));
+        
+        k_closure = isl_union_map_coalesce(k_closure);
     }
     
     isl_union_map_free(k_power);
@@ -913,7 +990,7 @@ struct tc_get_map_for_input_tuple_user
 
 static isl_stat tc_get_map_for_input_tuple_callback(__isl_take isl_map* map, void* user)
 {
-    tc_get_map_for_input_tuple_user* data = (tc_get_map_for_input_tuple_user*)user;
+    struct tc_get_map_for_input_tuple_user* data = (struct tc_get_map_for_input_tuple_user*)user;
     
     if (0 == strcmp(data->name, isl_map_get_tuple_name(map, isl_dim_in)))
     {
@@ -938,7 +1015,7 @@ __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, c
 {
     isl_map* result = NULL;
     
-    tc_get_map_for_input_tuple_user user;
+    struct tc_get_map_for_input_tuple_user user;
     user.name = name;
     user.result = &result;
     
@@ -958,20 +1035,36 @@ int tc_get_statement_depth(const char* label, __isl_keep isl_union_map* umap)
     return depth;
 }
 
-__isl_give isl_set* tc_normalize_union_set(__isl_keep isl_union_set* uset, __isl_keep isl_union_map* scattering)
+__isl_give isl_set* tc_normalize_union_set(__isl_keep isl_union_set* uset, __isl_keep isl_union_map* S)
 {
-    isl_union_set* uset_normalized = isl_union_set_apply(isl_union_set_copy(uset), isl_union_map_copy(scattering));
+    isl_union_set* uset_normalized = isl_union_set_apply(isl_union_set_copy(uset), isl_union_map_copy(S));
                 
     return isl_set_from_union_set(uset_normalized);
 }
 
-__isl_give isl_map* tc_normalize_union_map(__isl_keep isl_union_map* umap, __isl_keep isl_union_map* scattering)
+__isl_give isl_map* tc_normalize_union_map(__isl_keep isl_union_map* umap, __isl_keep isl_union_map* S)
 {
-    isl_union_map* umap_normalized = isl_union_map_apply_domain(isl_union_map_copy(umap), isl_union_map_copy(scattering));
+    isl_union_map* umap_normalized = isl_union_map_apply_domain(isl_union_map_copy(umap), isl_union_map_copy(S));
     
-    umap_normalized = isl_union_map_apply_range(umap_normalized, isl_union_map_copy(scattering));
-            
+    umap_normalized = isl_union_map_apply_range(umap_normalized, isl_union_map_copy(S));
+    
     return isl_map_from_union_map(umap_normalized);
+}
+
+__isl_give isl_union_set* tc_denormalize_set(__isl_keep isl_set* set, __isl_keep isl_union_map* S)
+{
+    isl_union_set* uset_denormalized = isl_union_set_apply(isl_union_set_from_set(isl_set_copy(set)), isl_union_map_reverse(isl_union_map_copy(S)));
+
+    return uset_denormalized;
+}
+
+__isl_give isl_union_map* tc_denormalize_map(__isl_keep isl_map* map, __isl_keep isl_union_map* S)
+{
+    isl_union_map* umap_denormalized = isl_union_map_apply_domain(isl_union_map_from_map(isl_map_copy(map)), isl_union_map_reverse(isl_union_map_copy(S)));
+    
+    umap_denormalized = isl_union_map_apply_range(umap_denormalized, isl_union_map_reverse(isl_union_map_copy(S)));
+
+    return umap_denormalized;
 }
 
 static isl_stat tc_collect_basic_sets_callback(__isl_take isl_basic_set* bset, void* user)
@@ -1068,4 +1161,234 @@ __isl_give isl_union_map* tc_unwrap_range(__isl_take isl_union_map* umap)
     isl_union_map_free(umap);
     
     return unwrapped_umap;
+}
+
+static isl_stat tc_collect_qpolynomials_callback(__isl_take isl_set* domain, __isl_take isl_qpolynomial* poly, void* user)
+{
+    struct tc_qpolynomials* polys = (tc_qpolynomials*)user;
+    
+    if (NULL == polys->domains)
+    {
+        isl_ctx* ctx = isl_set_get_ctx(domain);
+    
+        polys->polys = (isl_qpolynomial**)malloc(sizeof(isl_qpolynomial*));
+        polys->domains = isl_set_list_alloc(ctx, 1);
+        
+        polys->polys[0] = poly;
+        polys->domains = isl_set_list_add(polys->domains, domain);
+    }
+    else
+    {
+        int size = isl_set_list_n_set(polys->domains);
+
+        polys->polys = (isl_qpolynomial**)realloc(polys->polys, (size + 1) * sizeof(isl_qpolynomial*));
+        
+        polys->polys[size] = poly;
+        polys->domains = isl_set_list_add(polys->domains, domain);
+    }
+    
+    return isl_stat_ok;
+}
+
+struct tc_qpolynomials* tc_collect_qpolynomials(__isl_keep isl_pw_qpolynomial* pw)
+{    
+    struct tc_qpolynomials* polys = (struct tc_qpolynomials*)malloc(sizeof(struct tc_qpolynomials));
+    
+    polys->polys = NULL;
+    polys->domains = NULL;
+    
+    isl_pw_qpolynomial_foreach_piece(pw, &tc_collect_qpolynomials_callback, polys);    
+    
+    return polys;
+}
+
+void tc_qpolynomials_free(struct tc_qpolynomials* polys)
+{
+    if (NULL == polys)
+        return;
+    
+    for (int i = 0; i < isl_set_list_n_set(polys->domains); ++i)
+    {
+        isl_qpolynomial_free(polys->polys[i]);
+    }
+    free(polys->polys);
+    
+    isl_set_list_free(polys->domains);
+    
+    free(polys);
+}
+
+static isl_stat tc_set_to_point_callback(__isl_take isl_point* point, void* user)
+{
+    isl_point** data = (isl_point**)user;
+    
+    if (*data != NULL)
+    {
+        isl_point_free(point);
+        
+        return isl_stat_error;
+    }
+    
+    *data = point;
+    
+    return isl_stat_ok;
+}
+
+__isl_give isl_point* tc_set_to_point(__isl_take isl_set* set)
+{
+    isl_point* point = NULL;
+    
+    isl_stat ret = isl_set_foreach_point(set, &tc_set_to_point_callback, &point);
+    
+    isl_set_free(set);
+    
+    if (isl_stat_ok != ret)
+    {
+        return NULL;
+    }
+    
+    return point;
+}
+
+isl_bool tc_points_compare(__isl_keep isl_point* lhs, __isl_keep isl_point* rhs)
+{
+    isl_space* space = isl_point_get_space(lhs);
+    int n = isl_space_dim(space, isl_dim_set);
+    isl_space_free(space);
+
+    for (int i = 0; i < n; ++i)
+    {
+        isl_val* lhs_val = isl_point_get_coordinate_val(lhs, isl_dim_set, i);
+        isl_val* rhs_val = isl_point_get_coordinate_val(rhs, isl_dim_set, i);
+        
+        long lhs_value = isl_val_get_num_si(lhs_val);
+        long rhs_value = isl_val_get_num_si(rhs_val);
+        
+        isl_val_free(lhs_val);
+        isl_val_free(rhs_val);
+
+        if (lhs_value != rhs_value)
+        {
+            return lhs_value < rhs_value ? isl_bool_true : isl_bool_false;
+        }
+    }
+
+    return isl_bool_false;
+}
+
+isl_bool tc_is_lex_forward(__isl_keep isl_map* R)
+{
+    isl_ctx* ctx = isl_map_get_ctx(R);
+    
+    int n_in = isl_map_n_in(R);
+    
+    isl_id_list* e_in = tc_ids_sequence(ctx, "in", n_in);
+    isl_id_list* e_out = tc_ids_sequence(ctx, "out", n_in);
+    
+    isl_map* lex_forward_map = tc_make_map(ctx, NULL, e_in, e_out, tc_tuples_gt(e_out, e_in).c_str());
+        
+    isl_map* lex_forward_map_intersection = isl_map_intersect(isl_map_copy(R), lex_forward_map);
+    
+    isl_bool is_lex_forward = isl_map_is_equal(R, lex_forward_map_intersection);
+    
+    isl_map_free(lex_forward_map_intersection);
+    
+    isl_id_list_free(e_in);
+    isl_id_list_free(e_out);
+    
+    return is_lex_forward;    
+}
+
+__isl_give isl_union_map* tc_simplify_schedule(__isl_take isl_union_map* S)
+{
+    isl_ctx* ctx = isl_union_map_get_ctx(S);
+    
+    isl_map_list* maps = tc_collect_maps(S);
+    
+    isl_union_map_free(S);
+    
+    isl_map_list* maps_filtered = isl_map_list_alloc(ctx, isl_map_list_n_map(maps));
+    
+    int n_out = 0;
+        
+    for (int i = 0; i < isl_map_list_n_map(maps); ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps, i);
+        
+        if (isl_map_n_in(map) == 0)
+        {
+            isl_map_free(map);
+        }
+        else
+        {            
+            n_out = isl_map_n_out(map);
+            
+            maps_filtered = isl_map_list_add(maps_filtered, map);
+        }      
+    }
+    
+    isl_map_list_free(maps);
+    
+    isl_map* map_sample = isl_map_list_get_map(maps_filtered, 0);
+    
+    for (int i = n_out - 1; i >= 0; --i)
+    {        
+        isl_val* val = isl_map_plain_get_val_if_fixed(map_sample, isl_dim_out, i);
+
+        if (!isl_val_is_nan(val))
+        {            
+            isl_bool all_equal = isl_bool_true;
+            
+            for (int j = 0; j < isl_map_list_n_map(maps_filtered); ++j)
+            {
+                isl_map* map = isl_map_list_get_map(maps_filtered, j);
+                
+                isl_val* val_other = isl_map_plain_get_val_if_fixed(map, isl_dim_out, i);
+                
+                if (!isl_val_eq(val, val_other))
+                {
+                    all_equal = isl_bool_false;
+                }
+                
+                isl_val_free(val_other);                
+                isl_map_free(map);
+            }
+            
+            if (all_equal)
+            {
+                for (int j = 0; j < isl_map_list_n_map(maps_filtered); ++j)
+                {
+                    isl_map* map = isl_map_list_get_map(maps_filtered, j);
+                    
+                    map = isl_map_remove_dims(map, isl_dim_out, i, 1);
+                    
+                    maps_filtered = isl_map_list_set_map(maps_filtered, j, map);
+                }
+            }
+        }
+        
+        isl_val_free(val);
+    }
+    
+    isl_map_free(map_sample);
+    
+    isl_union_map* S_prim = NULL;
+    
+    for (int i = 0; i < isl_map_list_n_map(maps_filtered); ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps_filtered, i);
+        
+        if (NULL == S_prim)
+        {
+            S_prim = isl_union_map_from_map(map);
+        }
+        else
+        {
+            S_prim = isl_union_map_add_map(S_prim, map);
+        }
+    }
+    
+    isl_map_list_free(maps_filtered);
+    
+    return S_prim;
 }
