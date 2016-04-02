@@ -14,6 +14,7 @@ tc_SOURCES = \
 	static_tile_correction.cpp \
 	sfs_tiling.cpp \
 	transitive_closure.cpp \
+	for_decorator.cpp \
 	options.cpp
 
 tc_CPPFLAGS = \

@@ -1,6 +1,7 @@
 #include "stencil.h"
 #include "scop.h"
 #include "tiling.h"
+#include "for_decorator.h"
 #include "utility.h"
 #include "options.h"
 
@@ -14,29 +15,6 @@
 #include <vector>
 #include <map>
 #include <string>
-
-__isl_give isl_printer* tc_algorithm_stencil_print_for(__isl_take isl_printer* printer, __isl_take isl_ast_print_options* options, __isl_keep isl_ast_node* node, void* user)
-{    
-    isl_ast_expr* expr = isl_ast_node_for_get_iterator(node);
-    
-    isl_id* id = isl_ast_expr_get_id(expr);
-    
-    isl_id* parallel_id = (isl_id*)user;
-    
-    if (0 == strcmp(isl_id_get_name(id), isl_id_get_name(parallel_id)))
-    {
-        printer = isl_printer_start_line(printer);
-        printer = isl_printer_print_str(printer, "#pragma omp parallel for");
-        printer = isl_printer_end_line(printer);
-    }    
-
-    printer = isl_ast_node_for_print(node, printer, options);
-    
-    isl_id_free(id);
-    isl_ast_expr_free(expr);
-    
-    return printer;
-}
 
 std::string tc_algorithm_stencil_tuples_tlt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs)
 {
@@ -88,9 +66,9 @@ void tc_algorithm_stencil(int argc, char* argv[], struct tc_scop* scop)
     isl_id_list* IIbis = tc_ids_bis(II);
     
     int is_exact;
-    isl_union_map* Rplus = isl_union_map_transitive_closure(isl_union_map_copy(R), &is_exact);
+    isl_union_map* R_plus = isl_union_map_transitive_closure(isl_union_map_copy(R), &is_exact);
             
-    isl_map* Rplus_normalized = tc_normalize_union_map(Rplus, S);
+    isl_map* R_plus_normalized = tc_normalize_union_map(R_plus, S);
         
     std::map<std::string, std::vector<int> > blocks = tc_options_blocks(argc, argv);
     
@@ -113,9 +91,9 @@ void tc_algorithm_stencil(int argc, char* argv[], struct tc_scop* scop)
         
         isl_set* subtile = isl_set_copy(tile);
         
-        subtile = isl_set_subtract(subtile, isl_set_apply(tile_lt, isl_map_copy(Rplus_normalized)));
+        subtile = isl_set_subtract(subtile, isl_set_apply(tile_lt, isl_map_copy(R_plus_normalized)));
         
-        subtile = isl_set_subtract(subtile, isl_set_apply(tile_gt, isl_map_copy(Rplus_normalized)));
+        subtile = isl_set_subtract(subtile, isl_set_apply(tile_gt, isl_map_copy(R_plus_normalized)));
         
         tile = isl_set_subtract(tile, isl_set_copy(subtile));
         
@@ -158,16 +136,14 @@ void tc_algorithm_stencil(int argc, char* argv[], struct tc_scop* scop)
     }
     
     isl_map_list_free(S_maps);
-            
-    const int INDENT_SIZE = 2;
-        
+                    
     isl_ast_build* ast_build = isl_ast_build_from_context(isl_set_copy(scop->pet->context));
         
     isl_id_list* iterators = isl_id_list_copy(II);
     iterators = isl_id_list_concat(iterators, isl_id_list_copy(I));
     iterators = isl_id_list_insert(iterators, 1, isl_id_alloc(ctx, "k", NULL));
     
-    isl_id* parallel_iterator = isl_id_list_get_id(II, 1);
+    isl_id_list* parallel_iterators = isl_id_list_drop(isl_id_list_copy(II), 0, 1);
     
     ast_build = isl_ast_build_set_iterators(ast_build, iterators);
     //ast_build = isl_ast_build_set_at_each_domain(ast_build, &at_each_domain, scop);
@@ -182,7 +158,7 @@ void tc_algorithm_stencil(int argc, char* argv[], struct tc_scop* scop)
     
     isl_ast_print_options* ast_options = isl_ast_print_options_alloc(ctx);
     
-    ast_options = isl_ast_print_options_set_print_for(ast_options, &tc_algorithm_stencil_print_for, parallel_iterator);
+    ast_options = isl_ast_print_options_set_print_for(ast_options, &tc_for_decorator_omp_parallel_for_first, parallel_iterators);
     
     printer = isl_printer_print_str(printer, "#include <omp.h>\n");
     
@@ -191,7 +167,6 @@ void tc_algorithm_stencil(int argc, char* argv[], struct tc_scop* scop)
     printer = tc_print_statements_macros(scop, printer, ast_build);
     
     printer = isl_printer_print_str(printer, "#pragma scop\n");
-    printer = isl_printer_set_indent(printer, INDENT_SIZE);
     printer = isl_ast_node_print(ast_tile, printer, ast_options);
     printer = isl_printer_print_str(printer, "#pragma endscop\n");
     
@@ -201,15 +176,15 @@ void tc_algorithm_stencil(int argc, char* argv[], struct tc_scop* scop)
     
     free(code);
     
-    isl_id_free(parallel_iterator);
+    isl_id_list_free(parallel_iterators);
     isl_printer_free(printer);
     isl_ast_node_free(ast_tile);
     isl_ast_build_free(ast_build);
     isl_set_free(ii_set);
     isl_set_free(tile);
     isl_basic_set_free(sample);
-    isl_union_map_free(Rplus);
-    isl_map_free(Rplus_normalized);
+    isl_union_map_free(R_plus);
+    isl_map_free(R_plus_normalized);
     isl_id_list_free(I);
     isl_id_list_free(Iprim);
     isl_id_list_free(Ibis);
