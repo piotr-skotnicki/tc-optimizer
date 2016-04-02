@@ -50,6 +50,8 @@ struct tc_scop* tc_scop_extract(__isl_keep isl_ctx* ctx, const char* filename)
             
     scop->schedule = isl_schedule_get_map(pet->schedule);
     
+    scop->schedule = tc_simplify_schedule(scop->schedule);
+    
     scop->relation = tc_dependence_analysis(pet);
     
     scop->pet = pet;
