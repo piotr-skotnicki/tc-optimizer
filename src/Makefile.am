@@ -6,16 +6,25 @@ tc_SOURCES = \
 	main.cpp \
 	utility.cpp \
 	scop.cpp \
+	options.cpp \
+	debug.cpp \
 	tiling.cpp \
-	tarjan.cpp \
 	slicing.cpp \
-	stencil.cpp \
-	free_schedule_tiling.cpp \
-	static_tile_correction.cpp \
-	sfs_tiling.cpp \
+	regular_tiling.cpp \
+	stencil_tiling.cpp \
+	merge_tiling.cpp \
+	correction_tiling.cpp \
+	lex_scheduling.cpp \
+	sfs_scheduling.cpp \
+	free_scheduling.cpp \
+	dynamic_free_scheduling.cpp \
+	serial_codegen.cpp \
+	omp_cpu_codegen.cpp \    
 	transitive_closure.cpp \
-	for_decorator.cpp \
-	options.cpp
+	tarjan_transitive_closure.cpp \
+	floyd_warshall_transitive_closure.cpp \
+	tile_statistics.cpp \
+	for_decorator.cpp
 
 tc_CPPFLAGS = \
 	-I$(top_srcdir)/isl/include \

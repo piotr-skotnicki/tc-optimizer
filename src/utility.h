@@ -33,9 +33,19 @@ __isl_give isl_set* tc_project_out_dims_except(__isl_take isl_set* set, isl_dim_
 
 __isl_give isl_set* tc_project_out_params_except(__isl_take isl_set* set, __isl_take isl_id* id);
 
+__isl_give isl_union_set* tc_union_set_project_out_dim_names(__isl_take isl_union_set* uset, isl_dim_type dim, __isl_keep isl_id_list* names);
+
+__isl_give isl_union_set* tc_union_set_project_out_params(__isl_take isl_union_set* uset, __isl_keep isl_id_list* names);
+
 __isl_give isl_map* tc_map_project_out_dim_names(__isl_take isl_map* map, isl_dim_type dim, __isl_keep isl_id_list* names);
 
 __isl_give isl_map* tc_map_project_out_params(__isl_take isl_map* map, __isl_keep isl_id_list* names);
+
+__isl_give isl_union_map* tc_union_map_project_out_dim_names(__isl_take isl_union_map* umap, isl_dim_type dim, __isl_keep isl_id_list* names);
+
+__isl_give isl_union_map* tc_union_map_project_out_params(__isl_take isl_union_map* umap, __isl_keep isl_id_list* names);
+
+__isl_give isl_map* tc_map_set_dim_names(__isl_take isl_map* map, isl_dim_type dim, __isl_keep isl_id_list* names);
 
 __isl_give isl_set* tc_flatten_union_set(__isl_take isl_union_set* uset);
 
@@ -83,11 +93,15 @@ __isl_give isl_set* tc_parameterize(__isl_take isl_set* set, int pos, __isl_take
 
 __isl_give isl_set* tc_parameterize_all(__isl_take isl_set* set, __isl_keep isl_id_list* names);
 
+__isl_give isl_map* tc_parameterize_map_all_in(__isl_take isl_map* set, __isl_keep isl_id_list* names);
+
 __isl_give isl_id_list* tc_get_set_params_names(__isl_keep isl_set* set);
 
 __isl_give isl_id_list* tc_get_union_set_params_names(__isl_keep isl_union_set* uset);
 
 __isl_give isl_id_list* tc_get_map_params_names(__isl_keep isl_map* map);
+
+__isl_give isl_id_list* tc_get_union_map_params_names(__isl_keep isl_union_map* umap);
 
 __isl_give isl_set* tc_make_set_constraints(__isl_take isl_set* set, __isl_keep isl_id_list* names);
 
@@ -101,11 +115,21 @@ __isl_give isl_map* tc_map_fix_param_value(__isl_take isl_map* map, __isl_take i
 
 __isl_give isl_set* tc_set_fix_params_bounds(__isl_take isl_set* set, __isl_take isl_set* bounds);
 
+__isl_give isl_map* tc_map_fix_params_bounds(__isl_take isl_map* map, __isl_take isl_set* bounds);
+
+__isl_give isl_union_set* tc_union_set_fix_params_bounds(__isl_take isl_union_set* uset, __isl_take isl_set* bounds);
+
+__isl_give isl_union_map* tc_union_map_fix_params_bounds(__isl_take isl_union_map* umap, __isl_take isl_set* bounds);
+
 __isl_give isl_map* tc_make_identity(__isl_take isl_map* map);
 
 void tc_scan_set(__isl_keep isl_set* set);
 
 void tc_scan_map(__isl_keep isl_map* map);
+
+void tc_scan_union_set(__isl_keep isl_union_set* uset);
+
+void tc_scan_union_map(__isl_keep isl_union_map* umap);
 
 __isl_give isl_map* tc_map_closure(__isl_take isl_map* map, int k);
 
@@ -161,11 +185,17 @@ __isl_give isl_set* tc_get_set_bounds(__isl_keep isl_set* set, __isl_keep isl_id
 
 __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name);
 
+__isl_give isl_union_map* tc_remove_map_with_tuple(__isl_take isl_union_map* umap, const char* name);
+
 int tc_get_statement_depth(const char* label, __isl_keep isl_union_map* umap);
 
 __isl_give isl_set* tc_normalize_union_set(__isl_keep isl_union_set* uset, __isl_keep isl_union_map* S);
 
 __isl_give isl_map* tc_normalize_union_map(__isl_keep isl_union_map* umap, __isl_keep isl_union_map* S);
+
+__isl_give isl_set* tc_normalize_set(__isl_keep isl_set* set, __isl_keep isl_union_map* S);
+
+__isl_give isl_map* tc_normalize_map(__isl_keep isl_map* map, __isl_keep isl_union_map* S);
 
 __isl_give isl_union_set* tc_denormalize_set(__isl_keep isl_set* set, __isl_keep isl_union_map* S);
 
@@ -196,8 +226,20 @@ __isl_give isl_point* tc_set_to_point(__isl_take isl_set* set);
 
 isl_bool tc_points_compare(__isl_keep isl_point* lhs, __isl_keep isl_point* rhs);
 
+__isl_give isl_map* tc_get_lex_forward(__isl_keep isl_map* R);
+
+__isl_give isl_map* tc_get_lex_backward(__isl_keep isl_map* R);
+
 isl_bool tc_is_lex_forward(__isl_keep isl_map* R);
 
 __isl_give isl_union_map* tc_simplify_schedule(__isl_take isl_union_map* S);
+
+__isl_give isl_union_map* tc_extend_schedule(__isl_take isl_union_map* S, int n);
+
+__isl_give isl_union_map* tc_extend_union_map(__isl_take isl_union_map* umap, int n);
+
+__isl_give isl_set* tc_get_params_set(__isl_take isl_set* set, __isl_keep isl_id_list* params);
+
+isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos);
 
 #endif // TC_UTILITY_H

@@ -1,4 +1,4 @@
-#include "tarjan.h"
+#include "tarjan_transitive_closure.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>

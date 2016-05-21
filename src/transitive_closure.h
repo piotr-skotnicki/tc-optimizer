@@ -4,8 +4,20 @@
 #include <isl/map.h>
 #include <isl/union_map.h>
 
-__isl_give isl_map* tc_transitive_closure(__isl_take isl_map* R, int max);
+extern __isl_give isl_map* (*tc_transitive_closure)(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
 
-__isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_union_map* R);
+extern __isl_give isl_map* (*tc_map_power)(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
+__isl_give isl_map* tc_transitive_closure_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
+__isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
+__isl_give isl_map* tc_transitive_closure_adapter_floyd_warshall(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
+__isl_give isl_map* tc_transitive_closure_adapter_tarjan(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
+__isl_give isl_map* tc_map_power_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
+__isl_give isl_map* tc_map_power_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
 
 #endif // TC_TRANSITIVE_CLOSURE_H

@@ -1,70 +1,30 @@
-#include "free_schedule_tiling.h"
-#include "tiling.h"
+#include "free_scheduling.h"
+#include "config.h"
 #include "utility.h"
-#include "options.h"
+#include "scop.h"
 
 #include <isl/ctx.h>
-#include <isl/space.h>
 #include <isl/id.h>
 #include <isl/set.h>
 #include <isl/map.h>
-#include <isl/union_set.h>
 #include <isl/union_map.h>
+#include <isl/union_set.h>
+#include <isl/ast_build.h>
+#include <isl/printer.h>
 
-#include <vector>
-#include <map>
-#include <string>
+#include <stdio.h>
+#include <stddef.h>
 
-void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* scop)
+void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II)
 {
-    isl_ctx* ctx = scop->ctx;
+    isl_ctx* ctx = isl_union_set_get_ctx(LD);
     
-    isl_union_set* LD = scop->domain;
-    
-    isl_union_map* S = scop->schedule;
-    
-    isl_union_map* R = scop->relation;
-    
-    isl_basic_set* sample = isl_set_sample(tc_normalize_union_set(LD, S));
-    
-    isl_space* space = isl_basic_set_get_space(sample);
-            
-    isl_id_list* I = tc_ids_sequence(ctx, "i", isl_space_dim(space, isl_dim_set));
-    isl_id_list* II = tc_ids_sequence(ctx, "ii", isl_space_dim(space, isl_dim_set));
-    
-    isl_id_list* IIprim = tc_ids_prim(II);
-    isl_id_list* IIbis = tc_ids_bis(II);
-        
-    std::map<std::string, std::vector<int> > blocks = tc_options_blocks(argc, argv);
-        
-    isl_set* tile;
-    isl_set* ii_set;
-    
-    tc_tile_loop_nest(scop->domain, scop->schedule, blocks, II, I, &tile, &ii_set);
-        
-    isl_map* R_normalized = tc_normalize_union_map(R, S);
-        
-    isl_map* Rtile = tc_Rtile_map(tile, R_normalized);
-    
-    isl_map* backward = tc_make_map(ctx, NULL, IIprim, IIbis, tc_tuples_gt(IIprim, IIbis).c_str());
-    backward = isl_map_intersect(isl_map_copy(Rtile), backward);
-    int is_backward_relation = !isl_map_is_empty(backward);
-    isl_map_free(backward);
-    
-    if (is_backward_relation)
-    {
-        fprintf(stderr, "Error: Backward relation detected");
-        return;
-    }
-    
-    const int INDENT_SIZE = 2;
-        
     isl_ast_build* ast_build = isl_ast_build_from_context(isl_set_copy(scop->pet->context));
+    
+    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_scop_at_each_domain, scop);
 
     isl_union_map* S_prim = isl_union_map_intersect_range(isl_union_map_copy(S), isl_union_set_from_set(isl_set_copy(tile)));
-    
-    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S_prim);
-    
+        
     char buff[1024];
     
     isl_printer* printer = isl_printer_to_str(ctx);    
@@ -73,8 +33,12 @@ void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* s
         
     isl_ast_print_options* ast_options = isl_ast_print_options_alloc(ctx);
     
+    if (!tc_options_is_set(options, NULL, "--use-macros"))
+    {
+        ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_scop_print_user, NULL);
+    }
+    
     printer = isl_printer_print_str(printer,
-        "#include <omp.h>\n"
         "#include <isl/ctx.h>\n"
         "#include <isl/space.h>\n"
         "#include <isl/point.h>\n"
@@ -83,9 +47,14 @@ void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* s
         "#include <isl/map.h>\n"
     );
     
+    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S_prim);
+    
     printer = isl_ast_node_print_macros(ast_tile, printer);
     
-    printer = tc_print_statements_macros(scop, printer, ast_build);
+    if (tc_options_is_set(options, NULL, "--use-macros"))
+    {
+        printer = tc_print_statements_macros(scop, printer);
+    }
     
     printer = isl_printer_print_str(printer, "\n");
     printer = isl_printer_print_str(printer, "int create_task(isl_point* point, void* user) {\n");
@@ -112,7 +81,7 @@ void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* s
         "  {\n"
     );
     
-    printer = isl_printer_set_indent(printer, INDENT_SIZE*2);
+    printer = isl_printer_set_indent(printer, TC_CONF_INDENT_SIZE*2);
     printer = isl_ast_node_print(ast_tile, printer, ast_options);
     
     printer = isl_printer_print_str(printer,
@@ -122,6 +91,7 @@ void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* s
         "\n"
     );
     
+    printer = tc_print_prologue(scop, options, printer);
     printer = isl_printer_print_str(printer,
         "#pragma scop\n"
         "  isl_ctx* ctx = isl_ctx_alloc();\n"
@@ -185,6 +155,7 @@ void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* s
         "  isl_ctx_free(ctx);\n"
         "#pragma endscop\n"
     );
+    printer = tc_print_epilogue(scop, options, printer);
     
     char* code = isl_printer_get_str(printer);
     
@@ -196,14 +167,11 @@ void tc_algorithm_free_schedule_tiling(int argc, char* argv[], struct tc_scop* s
     isl_ast_node_free(ast_tile);
     isl_ast_build_free(ast_build);
     
-    isl_id_list_free(I);
     isl_id_list_free(II);
-    isl_id_list_free(IIprim);
-    isl_id_list_free(IIbis);
     isl_set_free(tile);
     isl_set_free(ii_set);
     isl_map_free(Rtile);
-    isl_map_free(R_normalized);
-    isl_basic_set_free(sample);
-    isl_space_free(space);
+    isl_union_set_free(LD);
+    isl_union_map_free(S);
+    isl_union_map_free(R);
 }
