@@ -1,6 +1,6 @@
 int main()
 {
-#if 1
+#if 0
 # define N 150
 # define T 100
 #else
