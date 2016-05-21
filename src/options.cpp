@@ -9,8 +9,6 @@
 #include <stdarg.h>
 #include <limits.h>
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 void tc_options_help()
 {
     fprintf(stderr,
@@ -566,14 +564,16 @@ static int tc_options_editorial_distance(const char* a, const char* b)
         tab[0][j] = j;
     }
 
-    for (int i = 1; i <= M; ++i)
-    {
-        for (int j = 1; j <= N; ++j)
-        {
-            const int cost = (a[i - 1] == b[j - 1]) ? 0 : 1;
-            tab[i][j] = MIN(MIN(tab[i - 1][j] + 1, tab[i][j - 1] + 1), tab[i - 1][j - 1] + cost);
-        }
-    }
+    /* ./tc ../examples/other/levenshtein.scop.c --regular-tiling --lex-scheduling --serial-codegen -b 4 */
+    #define min(x,y)    ((x) < (y) ? (x) : (y))
+    #define floord(n,d) (((n)<0) ? -((-(n)+(d)-1)/(d)) : (n)/(d))
+    #pragma scop
+    for (int ii0 = 0; ii0 <= floord(M - 1, 4); ii0 += 1)
+      for (int ii1 = 0; ii1 <= floord(N - 1, 4); ii1 += 1)
+        for (int c2 = 4 * ii0 + 1; c2 <= min(M, 4 * ii0 + 4); c2 += 1)
+          for (int c3 = 4 * ii1 + 1; c3 <= min(N, 4 * ii1 + 4); c3 += 1)
+            tab[c2][c3] = min(min(tab[c2 - 1][c3] + 1, tab[c2][c3 - 1] + 1), tab[c2 - 1][c3 - 1] + ((a[c2 - 1] == b[c3 - 1]) ? 0 : 1));
+    #pragma endscop
     
     const int retval = tab[M][N];
     
