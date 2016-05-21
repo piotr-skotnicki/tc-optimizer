@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <limits.h>
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 void tc_options_help()
 {
@@ -545,6 +548,44 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
     return bounds;
 }
 
+static int tc_options_editorial_distance(const char* a, const char* b)
+{
+    const int M = strlen(a);
+    const int N = strlen(b);
+    
+    int** tab = (int**)malloc((M + 1) * sizeof(int*));
+
+    for (int i = 0; i <= M; ++i)
+    {
+        tab[i] = (int*)malloc((N + 1) * sizeof(int));
+        tab[i][0] = i;
+    }
+
+    for (int j = 1; j <= N; ++j)
+    {
+        tab[0][j] = j;
+    }
+
+    for (int i = 1; i <= M; ++i)
+    {
+        for (int j = 1; j <= N; ++j)
+        {
+            const int cost = (a[i - 1] == b[j - 1]) ? 0 : 1;
+            tab[i][j] = MIN(MIN(tab[i - 1][j] + 1, tab[i][j - 1] + 1), tab[i - 1][j - 1] + cost);
+        }
+    }
+    
+    const int retval = tab[M][N];
+    
+    for (int i = 0; i <= M; ++i)
+    {
+        free(tab[i]);
+    }
+    free(tab);
+
+    return retval;
+}
+
 void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
@@ -576,8 +617,24 @@ void tc_options_check_spelling(struct tc_options* options)
     
             if (!found)
             {
-                tc_options_error("Unknown option: `%s'\nType `--help' for the list of available options", argv[i]);
+                int best_score = INT_MAX;
+                
+                const char* best_string = "";
+                
+                for (int j = 0; j < sizeof(strings) / sizeof(*strings); ++j)
+                {
+                    const int score = tc_options_editorial_distance(argv[i], strings[j]);
+                    
+                    if (score < best_score)
+                    {
+                        best_score = score;
+                        best_string = strings[j];
+                    }
+                }
+                
+                tc_options_error("Unknown option: `%s'. Did you mean `%s' ?\nIf not, type `--help' for the list of available options.", argv[i], best_string);                
             }    
         }
     }
 }
+
