@@ -16,15 +16,17 @@ int main()
   double alpha,beta;
 
 #pragma scop
-  for (i = 0; i < N; i++)
-    for (j = 0; j < N; j++)
+  for (i = 0; i < N; i++) {
+    for (j = 0; j < N; j++) {
 S1:   C[i][j] *= beta;
+    }
+  }
       
   for (i = 0; i < N; i++) {
     for (k = 0; k < M; k++) {
       for (j = 0; j < N; j++) {
-S2:     C[i][j] += A[j][k] * alpha*B[i][k] + B[j][k] * alpha*A[i][k];
-	  }
+S2:     C[i][j] += A[j][k] * alpha * B[i][k] + B[j][k] * alpha * A[i][k];
+      }
     }
   }
 #pragma endscop

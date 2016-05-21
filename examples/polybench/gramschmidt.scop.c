@@ -4,8 +4,8 @@ double SCALAR_VAL(double);
 int main()
 {
 #if 0
-# define N 1000
-# define M 1000
+# define M 2000
+# define N 2600
 #else
   int N;
   int M;
@@ -33,7 +33,7 @@ S4:   Q[i][k] = A[i][k] / R[k][k];
       
     for (j = k + 1; j < N; j++) {
 S5:   R[k][j] = SCALAR_VAL(0.0);
-	  for (i = 0; i < M; i++) {
+      for (i = 0; i < M; i++) {
 S6:     R[k][j] += Q[i][k] * A[i][j];
       }
       for (i = 0; i < M; i++) {

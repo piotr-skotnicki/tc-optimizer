@@ -3,8 +3,13 @@ int match(int, int);
 
 int main()
 {
-  int i,j,k;
+#if 0
+#define N 4000
+#else
   int N;
+#endif
+
+  int i,j,k;
   int table[N][N];
   int seq[N];
 

@@ -25,7 +25,7 @@ int main()
 S1: mean[j] = SCALAR_VAL(0.0);
     for (i = 0; i < N; i++) {
 S2:   mean[j] += data[i][j];
-	  }
+    }
 S3: mean[j] /= float_n;
   }
 
