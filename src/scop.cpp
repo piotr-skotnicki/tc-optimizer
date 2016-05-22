@@ -20,13 +20,13 @@
 #include <stdlib.h>
 
 struct tc_scop* tc_scop_extract(__isl_keep isl_ctx* ctx, const char* filename)
-{
-    struct tc_scop* scop = (struct tc_scop*)malloc(sizeof(struct tc_scop));
-    
+{    
     struct pet_scop* pet = pet_scop_extract_from_C_source(ctx, filename, NULL);
-    
+
     if (NULL == pet)
         return NULL;
+
+    struct tc_scop* scop = (struct tc_scop*)malloc(sizeof(struct tc_scop));
             
     scop->domain = isl_union_set_empty(isl_set_get_space(pet->context));
             

@@ -125,6 +125,8 @@ char* tc_options_get_command_line(struct tc_options* options)
         len += strlen(argv[i]) + 1;
     }
     
+    len += (len % sizeof(int));
+    
     char* command_line = (char*)malloc(len * sizeof(char));
     command_line[0] = '\0';
         
