@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         
         if (NULL == scop)
         {
-            tc_options_error("Invalid input file `%s'", file);
+            tc_options_error("No SCoP was found in file `%s'.", file);
         }
         else
         {
@@ -70,6 +70,11 @@ int main(int argc, char* argv[])
             scop->writes = tc_union_map_fix_params_bounds(scop->writes, isl_set_copy(defines));
 
             scop->schedule = tc_union_map_fix_params_bounds(scop->schedule, defines);
+            
+            if (isl_union_set_is_empty(scop->domain))
+            {
+                tc_options_error("SCoP is empty.");
+            }
             
             enum tc_transitive_closure_enum transitive_closure = tc_options_transitive_closure(options);
 
