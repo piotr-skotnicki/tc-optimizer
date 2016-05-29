@@ -418,13 +418,13 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
                 }
                 else
                 {
-                    char* size = strtok(sizes, ",");
+                    char* size = strtok(sizes, ",xX-./");
 
                     while (size != NULL)
                     {                            
                         blocks[label].push_back(atoi(size));
 
-                        size = strtok(NULL, ",");
+                        size = strtok(NULL, ",xX-./");
                     }
 
                     int s = blocks[label].back();
