@@ -737,6 +737,7 @@ void tc_scan_set(__isl_keep isl_set* set)
 {
     isl_set_foreach_point(set, &tc_scan_set_callback, NULL);
 }
+
 void tc_scan_map(__isl_keep isl_map* map)
 {
     isl_set* set = isl_map_wrap(isl_map_copy(map));
@@ -1232,18 +1233,48 @@ int tc_get_statement_depth(const char* label, __isl_keep isl_union_map* umap)
 
 __isl_give isl_set* tc_normalize_union_set(__isl_keep isl_union_set* uset, __isl_keep isl_union_map* S)
 {
-    isl_union_set* uset_normalized = isl_union_set_apply(isl_union_set_copy(uset), isl_union_map_copy(S));
+    if (isl_union_set_is_empty(uset))
+    {
+        isl_set* range_set = isl_set_from_union_set(isl_union_map_range(isl_union_map_copy(S)));
                 
-    return isl_set_from_union_set(uset_normalized);
+        isl_set* uset_normalized = isl_set_empty(isl_set_get_space(range_set));
+        
+        isl_set_free(range_set);
+        
+        return uset_normalized;
+    }
+    else
+    {
+        isl_union_set* uset_normalized = isl_union_set_apply(isl_union_set_copy(uset), isl_union_map_copy(S));
+                
+        return isl_set_from_union_set(uset_normalized);
+    }
 }
 
 __isl_give isl_map* tc_normalize_union_map(__isl_keep isl_union_map* umap, __isl_keep isl_union_map* S)
 {
-    isl_union_map* umap_normalized = isl_union_map_apply_domain(isl_union_map_copy(umap), isl_union_map_copy(S));
+    if (isl_union_map_is_empty(umap))
+    {
+        isl_set* range_set = isl_set_from_union_set(isl_union_map_range(isl_union_map_copy(S)));
+                
+        isl_map* range_map = isl_map_from_domain_and_range(isl_set_copy(range_set), isl_set_copy(range_set));
+        
+        isl_set_free(range_set);
+                
+        isl_map* umap_normalized = isl_map_empty(isl_map_get_space(range_map));
+        
+        isl_map_free(range_map);
+        
+        return umap_normalized;
+    }
+    else
+    {    
+        isl_union_map* umap_normalized = isl_union_map_apply_domain(isl_union_map_copy(umap), isl_union_map_copy(S));
     
-    umap_normalized = isl_union_map_apply_range(umap_normalized, isl_union_map_copy(S));
-    
-    return isl_map_from_union_map(umap_normalized);
+        umap_normalized = isl_union_map_apply_range(umap_normalized, isl_union_map_copy(S));
+        
+        return isl_map_from_union_map(umap_normalized);
+    }
 }
 
 __isl_give isl_set* tc_normalize_set(__isl_keep isl_set* set, __isl_keep isl_union_map* S)
