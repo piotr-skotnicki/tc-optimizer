@@ -1,7 +1,7 @@
 Dependencies:
 
 	automake autoconf libtool pkg-config libgmp3-dev libclang-dev
-	llvm ntl-6.0.0
+	llvm libntl-dev
 
 Downloading:
 
