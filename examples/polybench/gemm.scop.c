@@ -1,30 +1,30 @@
 int main()
 {
 #if 0
-# define NI 1000
-# define NJ 1000
-# define NK 1000
+# define _PB_NI 1000
+# define _PB_NJ 1000
+# define _PB_NK 1000
 #else
-  int NI;
-  int NJ;
-  int NK;
+  int _PB_NI;
+  int _PB_NJ;
+  int _PB_NK;
 #endif
 
   int i,j,k;
   
   double alpha;
   double beta;
-  double C[NI][NJ];
-  double A[NI][NK];
-  double B[NK][NJ];
+  double C[_PB_NI][_PB_NJ];
+  double A[_PB_NI][_PB_NK];
+  double B[_PB_NK][_PB_NJ];
 
 #pragma scop
-  for (i = 0; i < NI; i++) {
-    for (j = 0; j < NJ; j++) {
+  for (i = 0; i < _PB_NI; i++) {
+    for (j = 0; j < _PB_NJ; j++) {
 S1:   C[i][j] *= beta;
     }
-    for (k = 0; k < NK; k++) {
-      for (j = 0; j < NJ; j++) {
+    for (k = 0; k < _PB_NK; k++) {
+      for (j = 0; j < _PB_NJ; j++) {
 S2:     C[i][j] += alpha * A[i][k] * B[k][j];
       }
     }

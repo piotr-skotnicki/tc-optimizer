@@ -3,22 +3,22 @@ double SCALAR_VAL(double);
 int main()
 {
 #if 0
-# define N 1000
+# define _PB_N 4000
 #else
-  int N;
+  int _PB_N;
 #endif
 
   int i,k;
  
-  double z[N];
+  double z[_PB_N];
   double alpha;
   double beta;
   double sum;
-  double r[N];
-  double y[N];
+  double r[_PB_N];
+  double y[_PB_N];
 
 #pragma scop
-  for (k = 1; k < N; k++) {
+  for (k = 1; k < _PB_N; k++) {
 S1: beta = (1-alpha*alpha)*beta;
 S2: sum = SCALAR_VAL(0.0);
     for (i = 0; i < k; i++) {

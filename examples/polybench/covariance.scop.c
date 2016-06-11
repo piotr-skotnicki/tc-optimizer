@@ -3,39 +3,39 @@ double SCALAR_VAL(double);
 int main()
 {
 #if 0
-# define N 1000
-# define M 1000
+# define _PB_N 1000
+# define _PB_M 1000
 #else
-  int N;
-  int M;
+  int _PB_N;
+  int _PB_M;
 #endif
 
   int i,j,k;
   
   double float_n;
-  double data[N][M];
-  double cov[M][M];
-  double mean[M];
+  double data[_PB_N][_PB_M];
+  double cov[_PB_M][_PB_M];
+  double mean[_PB_M];
 
 #pragma scop
-  for (j = 0; j < M; j++) {
+  for (j = 0; j < _PB_M; j++) {
 S1: mean[j] = SCALAR_VAL(0.0);
-    for (i = 0; i < N; i++) {
+    for (i = 0; i < _PB_N; i++) {
 S2:   mean[j] += data[i][j];
     }
 S3: mean[j] /= float_n;
   }
 
-  for (i = 0; i < N; i++) {
-    for (j = 0; j < M; j++) {
+  for (i = 0; i < _PB_N; i++) {
+    for (j = 0; j < _PB_M; j++) {
 S4:   data[i][j] -= mean[j];
     }
   }
 
-  for (i = 0; i < M; i++) {
-    for (j = i; j < M; j++) {
+  for (i = 0; i < _PB_M; i++) {
+    for (j = i; j < _PB_M; j++) {
 S5:   cov[i][j] = SCALAR_VAL(0.0);
-      for (k = 0; k < N; k++) {
+      for (k = 0; k < _PB_N; k++) {
 S6:     cov[i][j] += data[k][i] * data[k][j];
 	    }
 S7:   cov[i][j] /= (float_n - SCALAR_VAL(1.0));

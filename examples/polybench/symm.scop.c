@@ -1,11 +1,11 @@
 int main()
 {
 #if 0
-# define M 1000
-# define N 1000
+# define _PB_M 2000
+# define _PB_N 2600
 #else
-  int M;
-  int N;
+  int _PB_M;
+  int _PB_N;
 #endif
 
   int i,j,k;
@@ -13,13 +13,13 @@ int main()
   double temp2;
   double alpha;
   double beta;
-  double C[M][N];
-  double A[M][M];
-  double B[M][N];
+  double C[_PB_M][_PB_N];
+  double A[_PB_M][_PB_M];
+  double B[_PB_M][_PB_N];
 
 #pragma scop
-   for (i = 0; i < M; i++) {
-     for (j = 0; j < N; j++) {
+   for (i = 0; i < _PB_M; i++) {
+     for (j = 0; j < _PB_N; j++) {
 S1:    temp2 = 0;
        for (k = 0; k < i; k++) {
 S2:      C[k][j] += alpha * B[i][j] * A[i][k];
