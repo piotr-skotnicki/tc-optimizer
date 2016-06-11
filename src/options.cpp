@@ -79,7 +79,7 @@ void tc_options_credits()
         "\n"
         "West Pomeranian University of Technology\n"
         "Faculty of Computer Science and Information Technology\n"
-        "ul. Zolnierska 49, 70-210 Szczecin, Poland\n"
+        "ul. Zolnierska 49, 71-210 Szczecin, Poland\n"
         "\n"
     );
 }
