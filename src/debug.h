@@ -1,6 +1,7 @@
 #ifndef TC_DEBUG_H
 #define TC_DEBUG_H
 
+#include <isl/space.h>
 #include <isl/set.h>
 #include <isl/map.h>
 #include <isl/union_set.h>
@@ -13,6 +14,8 @@
 extern int tc_debug_flag;
 
 void tc_debug(const char* msg, ...);
+
+void tc_debug_space(__isl_keep isl_space* set, const char* msg, ...);
 
 void tc_debug_set(__isl_keep isl_set* set, const char* msg, ...);
 

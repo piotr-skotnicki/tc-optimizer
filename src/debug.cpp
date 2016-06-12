@@ -20,6 +20,24 @@ void tc_debug(const char* msg, ...)
     fflush(stderr);
 }
 
+void tc_debug_space(__isl_keep isl_space* set, const char* msg, ...)
+{
+    if (!tc_debug_flag)
+        return;
+    
+    va_list varargs;
+    va_start(varargs, msg);
+    vfprintf(stderr, msg, varargs);    
+    va_end(varargs);
+    
+    char* str = isl_space_to_str(set);
+    
+    fprintf(stderr, " := %s;\n\n", str);
+    fflush(stderr);
+    
+    free(str);
+}
+
 void tc_debug_set(__isl_keep isl_set* set, const char* msg, ...)
 {
     if (!tc_debug_flag)
