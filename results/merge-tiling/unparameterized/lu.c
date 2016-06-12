@@ -86,7 +86,7 @@ void kernel_lu(int n,
 {
   int i, j, k;
 
-/* ./tc ../examples/polybench/lu.scop.c --merge-tiling --free-scheduling --omp-for-codegen --debug -b 64 -D N=4000 --isl-union-map-tc */
+/* ./tc ../examples/polybench/lu.scop.c --merge-tiling --free-scheduling --omp-for-codegen --debug -b 64 -D _PB_N=4000 --isl-union-map-tc */
 #define min(x,y)    ((x) < (y) ? (x) : (y))
 #define max(x,y)    ((x) > (y) ? (x) : (y))
 #pragma scop
@@ -171,6 +171,7 @@ for (int k = 0; k <= 186; k += 1) {
     }
 }
 #pragma endscop
+
 }
 
 

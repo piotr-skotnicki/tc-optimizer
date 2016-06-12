@@ -70,34 +70,34 @@ void kernel_trisolv(int n,
 {
   int i, j;
 
-/* ./tc ../examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-for-codegen --debug -b 64 */
+/* ./tc ../examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-for-codegen -b 64 --debug */
 #define min(x,y)    ((x) < (y) ? (x) : (y))
 #define floord(n,d) (((n)<0) ? -((-(n)+(d)-1)/(d)) : (n)/(d))
 #pragma scop
 {
   #pragma omp parallel for
-  for (int ii0 = 0; ii0 <= floord(N - 1, 64); ii0 += 1)
-    for (int c4 = 64 * ii0; c4 <= min(N - 1, 64 * ii0 + 63); c4 += 1)
+  for (int ii0 = 0; ii0 <= floord(_PB_N - 1, 64); ii0 += 1)
+    for (int c4 = 64 * ii0; c4 <= min(_PB_N - 1, 64 * ii0 + 63); c4 += 1)
       x[c4] = b[c4];
-  for (int k = 1; k <= (N + 30) / 32; k += 1)
+  for (int k = 1; k <= (_PB_N + 30) / 32; k += 1)
     #pragma omp parallel for
-    for (int ii0 = k / 2; ii0 <= min(k - 1, (N - 1) / 64); ii0 += 1) {
+    for (int ii0 = k / 2; ii0 <= min(k - 1, (_PB_N - 1) / 64); ii0 += 1) {
       if (k >= 2) {
-        for (int c4 = 64 * ii0; c4 <= min(N - 1, 64 * ii0 + 63); c4 += 1) {
+        for (int c4 = 64 * ii0; c4 <= min(_PB_N - 1, 64 * ii0 + 63); c4 += 1) {
           for (int c6 = 64 * k - 64 * ii0 - 64; c6 < min(64 * k - 64 * ii0, c4); c6 += 1)
             x[c4] -= (L[c4][c6] * x[c6]);
           if (2 * ii0 + 1 == k)
             x[c4] = (x[c4] / L[c4][c4]);
         }
       } else
-        for (int c4 = 0; c4 <= min(63, N - 1); c4 += 1) {
+        for (int c4 = 0; c4 <= min(63, _PB_N - 1); c4 += 1) {
           for (int c6 = 0; c6 < c4; c6 += 1)
             x[c4] -= (L[c4][c6] * x[c6]);
           x[c4] = (x[c4] / L[c4][c4]);
         }
     }
-  if ((N - 1) % 64 == 0)
-    x[N - 1] = (x[N - 1] / L[N - 1][N - 1]);
+  if ((_PB_N - 1) % 64 == 0)
+    x[_PB_N - 1] = (x[_PB_N - 1] / L[_PB_N - 1][_PB_N - 1]);
 }
 #pragma endscop
 

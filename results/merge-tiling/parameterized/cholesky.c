@@ -85,57 +85,49 @@ void kernel_cholesky(int n,
 {
   int i, j, k;
 
-
-/* ./tc ../examples/polybench/cholesky.scop.c --merge-tiling --free-scheduling --omp-for-codegen --isl-union-map-tc --debug -b 64 */
+/* ./tc ../examples/polybench/cholesky.scop.c --merge-tiling --free-scheduling --omp-for-codegen -b 64 --debug */
 #define min(x,y)    ((x) < (y) ? (x) : (y))
 #define max(x,y)    ((x) > (y) ? (x) : (y))
-#define floord(n,d) (((n)<0) ? -((-(n)+(d)-1)/(d)) : (n)/(d))
 #pragma scop
 {
-  if (N >= 65) {
-    for (int k = 0; k < (3 * N - 3) / 64; k += 1) {
+  if (_PB_N >= 65)
+    for (int k = 0; k <= (3 * _PB_N - 6) / 64; k += 1) {
       #pragma omp parallel for
-      for (int ii0 = (k + 1) / 3; ii0 <= min(min(2 * k - 3, k), (N - 1) / 64); ii0 += 1) {
-        if (k == 2 && ii0 == 1) {
-          for (int c6 = 65; c6 <= min(127, N - 1); c6 += 1)
-            for (int c8 = 64; c8 < c6; c8 += 1)
-              for (int c10 = 0; c10 <= 63; c10 += 1)
-                A[c6][c8] -= (A[c6][c10] * A[c8][c10]);
-        } else
-          for (int ii2 = -ii0 + (k + ii0 + 1) / 2; ii2 <= min(min(ii0, k - ii0), (N - 2) / 64); ii2 += 1) {
+      for (int ii0 = max(k - (_PB_N + 29) / 32 + 1, (k + 1) / 3); ii0 <= min(k, (_PB_N - 1) / 64); ii0 += 1) {
+        if (k >= 1) {
+          for (int ii2 = -ii0 + (k + ii0 + 1) / 2; ii2 <= min(min(ii0, k - ii0), (_PB_N - 2) / 64); ii2 += 1) {
             if (3 * ii0 == k && 3 * ii2 == k) {
               A[64 * k / 3][64 * k / 3] = SQRT_FUN(A[64 * k / 3][64 * k / 3]);
-              A[(64 * k / 3) + 1][64 * k / 3] /= A[64 * k / 3][64 * k / 3];
-              A[(64 * k / 3) + 1][(64 * k / 3) + 1] -= (A[(64 * k / 3) + 1][64 * k / 3] * A[(64 * k / 3) + 1][64 * k / 3]);
-              A[(64 * k / 3) + 1][(64 * k / 3) + 1] = SQRT_FUN(A[(64 * k / 3) + 1][(64 * k / 3) + 1]);
+              if (64 * k + 195 >= 3 * _PB_N) {
+                A[(64 * k / 3) + 1][64 * k / 3] /= A[64 * k / 3][64 * k / 3];
+                A[(64 * k / 3) + 1][(64 * k / 3) + 1] -= (A[(64 * k / 3) + 1][64 * k / 3] * A[(64 * k / 3) + 1][64 * k / 3]);
+                A[(64 * k / 3) + 1][(64 * k / 3) + 1] = SQRT_FUN(A[(64 * k / 3) + 1][(64 * k / 3) + 1]);
+              } else {
+                A[(64 * k / 3) + 1][64 * k / 3] /= A[64 * k / 3][64 * k / 3];
+                A[(64 * k / 3) + 1][(64 * k / 3) + 1] -= (A[(64 * k / 3) + 1][64 * k / 3] * A[(64 * k / 3) + 1][64 * k / 3]);
+                A[(64 * k / 3) + 1][(64 * k / 3) + 1] = SQRT_FUN(A[(64 * k / 3) + 1][(64 * k / 3) + 1]);
+              }
             }
-            for (int c6 = max(max(64 * ii0, 32 * k - 32 * ii0 + 2), 64 * ii2 + 1); c6 <= min(N - 1, 64 * ii0 + 63); c6 += 1) {
+            for (int c6 = max(max(64 * ii0, 32 * k - 32 * ii0 + 2), 64 * ii2 + 1); c6 <= min(_PB_N - 1, 64 * ii0 + 63); c6 += 1) {
               for (int c8 = 64 * ii2; c8 <= min(64 * ii2 + 63, c6 - 1); c8 += 1) {
                 for (int c10 = 64 * k - 64 * ii0 - 64 * ii2; c10 <= min(64 * k - 64 * ii0 - 64 * ii2 + 63, c8 - 1); c10 += 1)
                   A[c6][c8] -= (A[c6][c10] * A[c8][c10]);
                 if (ii0 + 2 * ii2 == k)
                   A[c6][c8] /= A[c8][c8];
               }
-              if (3 * ii0 == k && 3 * ii2 == k) {
-                for (int c8 = 64 * k / 3; c8 < c6; c8 += 1)
+              if (_PB_N >= 64 * ii0 + 2 && ii0 + 2 * ii2 == k) {
+                for (int c8 = 32 * k - 32 * ii0; c8 <= min(32 * k - 32 * ii0 + 63, c6 - 1); c8 += 1)
                   A[c6][c6] -= (A[c6][c8] * A[c6][c8]);
-                A[c6][c6] = SQRT_FUN(A[c6][c6]);
-              }
+                if (3 * ii0 == k)
+                  A[c6][c6] = SQRT_FUN(A[c6][c6]);
+              } else if (3 * _PB_N >= 64 * k + 259 && 64 * ii0 + 1 == _PB_N && _PB_N + 128 * ii2 == 64 * k + 1 && c6 + 1 == _PB_N)
+                for (int c8 = ((-_PB_N + 1) / 2) + 32 * k; c8 <= ((-_PB_N + 127) / 2) + 32 * k; c8 += 1)
+                  A[_PB_N - 1][_PB_N - 1] -= (A[_PB_N - 1][c8] * A[_PB_N - 1][c8]);
             }
           }
-        if (3 * ii0 >= k + 1 && (k - ii0 + 1) % 2 == 0)
-          for (int c6 = 64 * ii0; c6 <= min(N - 1, 64 * ii0 + 63); c6 += 1)
-            for (int c8 = 32 * k - 32 * ii0 - 32; c8 <= 32 * k - 32 * ii0 + 31; c8 += 1)
-              A[c6][c6] -= (A[c6][c8] * A[c6][c8]);
-      }
-      if (k <= 2 && N >= 64 * k + 1) {
-        if (k >= 1) {
-          for (int c6 = 64 * k; c6 <= min(N - 1, 64 * k + 63); c6 += 1)
-            for (int c8 = 0; c8 <= 63; c8 += 1) {
-              for (int c10 = 0; c10 < c8; c10 += 1)
-                A[c6][c8] -= (A[c6][c10] * A[c8][c10]);
-              A[c6][c8] /= A[c8][c8];
-            }
+          if (64 * k + 67 == 3 * _PB_N && 64 * ii0 + 1 == _PB_N)
+            for (int c8 = _PB_N - 65; c8 < _PB_N - 1; c8 += 1)
+              A[_PB_N - 1][_PB_N - 1] -= (A[_PB_N - 1][c8] * A[_PB_N - 1][c8]);
         } else
           for (int c6 = 0; c6 <= 63; c6 += 1) {
             for (int c8 = 0; c8 < c6; c8 += 1) {
@@ -148,31 +140,17 @@ void kernel_cholesky(int n,
             A[c6][c6] = SQRT_FUN(A[c6][c6]);
           }
       }
-    }
-    if (3 * N >= 64 * floord(3 * N - 3, 64) + 6) {
-      if ((N - 23) % 64 >= 44) {
-        for (int c6 = -((N - 3) % 64) + N - 3; c6 < N; c6 += 1) {
-          for (int c8 = -((N - 3) % 64) + N - 3; c8 < c6; c8 += 1) {
-            for (int c10 = -((N - 3) % 64) + N - 3; c10 < c8; c10 += 1)
-              A[c6][c8] -= (A[c6][c10] * A[c8][c10]);
-            A[c6][c8] /= A[c8][c8];
-          }
-          for (int c8 = -((N - 3) % 64) + N - 3; c8 < c6; c8 += 1)
-            A[c6][c6] -= (A[c6][c8] * A[c6][c8]);
-          A[c6][c6] = SQRT_FUN(A[c6][c6]);
-        }
-      } else if ((N - 2) % 64 == 0)
-        for (int c6 = N - 2; c6 < N; c6 += 1) {
-          if (c6 + 1 == N) {
-            A[N - 1][N - 2] /= A[N - 2][N - 2];
-            A[N - 1][N - 1] -= (A[N - 1][N - 2] * A[N - 1][N - 2]);
+      if (64 * k + 6 == 3 * _PB_N)
+        for (int c6 = _PB_N - 2; c6 < _PB_N; c6 += 1) {
+          if (c6 + 1 == _PB_N) {
+            A[_PB_N - 1][_PB_N - 2] /= A[_PB_N - 2][_PB_N - 2];
+            A[_PB_N - 1][_PB_N - 1] -= (A[_PB_N - 1][_PB_N - 2] * A[_PB_N - 1][_PB_N - 2]);
           }
           A[c6][c6] = SQRT_FUN(A[c6][c6]);
         }
     }
-  }
-  if ((N - 1) % 64 == 0)
-    A[N - 1][N - 1] = SQRT_FUN(A[N - 1][N - 1]);
+  if ((_PB_N - 1) % 64 == 0)
+    A[_PB_N - 1][_PB_N - 1] = SQRT_FUN(A[_PB_N - 1][_PB_N - 1]);
 }
 #pragma endscop
 

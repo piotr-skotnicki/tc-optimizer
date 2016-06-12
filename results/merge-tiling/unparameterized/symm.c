@@ -89,7 +89,7 @@ void kernel_symm(int m, int n,
 // B is MxN
 // C is MxN
 //note that due to Fortran array layout, the code below more closely resembles upper triangular case in BLAS
-/* ./tc ../examples/polybench/symm.scop.c --merge-tiling --free-scheduling --omp-for-codegen --debug -b 64 -D M=2000 -D N=2600 */
+/* ./tc ../examples/polybench/symm.scop.c --merge-tiling --free-scheduling --omp-for-codegen --debug -b 64 -D _PB_M=2000 -D _PB_N=2600 */
 #define min(x,y)    ((x) < (y) ? (x) : (y))
 #define max(x,y)    ((x) > (y) ? (x) : (y))
 #pragma scop
