@@ -2,6 +2,7 @@
 #include "utility.h"
 #include "debug.h"
 #include "transitive_closure.h"
+#include "options.h"
 
 #include <isl/ctx.h>
 #include <isl/set.h>
@@ -274,6 +275,8 @@ __isl_give isl_set* tc_Sk_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     *k_param = isl_map_get_dim_id(R_k, isl_dim_param, 0);
         
     R_k = isl_set_unwrap(isl_map_range(R_k));
+    
+    tc_debug_map(R_k, "R^k (exact=%d)", exact);
         
     isl_set* uds = tc_uds_set(R);
     isl_set* ind = tc_ind_set(LD, R);
@@ -295,7 +298,7 @@ __isl_give isl_set* tc_Sk_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     uds_ind = isl_set_fix_si(uds_ind, isl_dim_param, 0, 0);
     
     Sk = isl_set_union(Sk, uds_ind);
-                
+                    
     isl_map_free(R_k);
     
     return Sk;
@@ -341,7 +344,7 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     isl_map* Rprim_star = isl_map_union(isl_map_copy(Rprim_plus), tc_make_identity(Rprim));
     
     tc_debug_map(Rprim_plus, "R'+ (exact=%d)", exact);
-            
+    
     isl_set* uds = tc_uds_set(R);
     isl_set* ind = tc_ind_set(LD, R);
     
@@ -387,7 +390,7 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     
     FS = isl_set_subtract(FS, FS_uds_range);
     FS = isl_set_coalesce(FS);
-        
+            
     isl_id_list_free(Y);
     isl_id_list_free(Yprim);
     isl_id_list_free(Y_0_1);

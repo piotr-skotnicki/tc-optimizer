@@ -27,6 +27,8 @@ enum tc_scheduling_enum
     tc_scheduling_enum_free_karl,
     tc_scheduling_enum_free_finite,
     tc_scheduling_enum_free_dynamic,
+    tc_scheduling_enum_sfs_single,
+    tc_scheduling_enum_sfs_multiple,
     tc_scheduling_enum_unknown
 };
 

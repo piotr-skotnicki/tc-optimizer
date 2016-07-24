@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II)
+void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II, __isl_take isl_id_list* I)
 {
     int exact;    
     
@@ -40,9 +40,9 @@ void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* opt
     tile_ext = tc_lift_up_set_params(tile_ext, k_param_list);
     tile_ext = isl_set_coalesce(tile_ext);
     
-    isl_id_list* iterators = isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II));
-
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(iterators));
+    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    
+    isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II)), isl_id_list_copy(I));
     
     enum tc_codegen_enum codegen = tc_options_codegen(options);
     
@@ -67,11 +67,12 @@ void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* opt
     isl_map_free(Rtile);
     isl_map_free(Rtile_plus);
     isl_set_free(ii_set);
+    isl_id_list_free(I);
     isl_id_list_free(II);
     isl_id_list_free(iterators);
 }
 
-void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II)
+void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II, __isl_take isl_id_list* I)
 {
     isl_ctx* ctx = isl_union_set_get_ctx(LD);
     
@@ -91,10 +92,10 @@ void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* o
     tile_ext = isl_set_coalesce(tile_ext);
         
     tile_ext = isl_set_intersect(tile_ext, FS);
+                    
+    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
     
-    isl_id_list* iterators = isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II));
-                
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(iterators));
+    isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II)), isl_id_list_copy(I));
     
     enum tc_codegen_enum codegen = tc_options_codegen(options);
     
@@ -118,11 +119,12 @@ void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* o
     isl_id_free(k_param);
     isl_map_free(Rtile);
     isl_set_free(ii_set);
+    isl_id_list_free(I);
     isl_id_list_free(II);
     isl_id_list_free(iterators);
 }
 
-void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II)
+void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II, __isl_take isl_id_list* I)
 {
     isl_ctx* ctx = isl_union_set_get_ctx(LD);
             
@@ -178,9 +180,9 @@ void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options*
     
     tc_debug_set(tile_ext, "TILE_EXT");
     
-    isl_id_list* iterators = isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II));
-                
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(iterators));
+    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    
+    isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II)), isl_id_list_copy(I));
     
     enum tc_codegen_enum codegen = tc_options_codegen(options);
     
@@ -204,6 +206,7 @@ void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options*
     isl_id_free(k_param);
     isl_map_free(Rtile);
     isl_set_free(ii_set);
+    isl_id_list_free(I);
     isl_id_list_free(II);
     isl_id_list_free(iterators);
 }

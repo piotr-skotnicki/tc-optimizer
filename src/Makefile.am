@@ -9,6 +9,8 @@ tc_SOURCES = \
 	options.cpp \
 	debug.cpp \
 	tiling.cpp \
+	codegen.cpp \
+	ast.cpp \
 	slicing.cpp \
 	regular_tiling.cpp \
 	stencil_tiling.cpp \

@@ -1,4 +1,6 @@
-#include "free_scheduling.h"
+#include "dynamic_free_scheduling.h"
+#include "ast.h"
+#include "codegen.h"
 #include "config.h"
 #include "utility.h"
 #include "scop.h"
@@ -15,13 +17,13 @@
 #include <stdio.h>
 #include <stddef.h>
 
-void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II)
+void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II, __isl_take isl_id_list* I)
 {
     isl_ctx* ctx = isl_union_set_get_ctx(LD);
     
     isl_ast_build* ast_build = isl_ast_build_from_context(isl_set_copy(scop->pet->context));
     
-    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_scop_at_each_domain, scop);
+    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, scop);
 
     isl_union_map* S_prim = isl_union_map_intersect_range(isl_union_map_copy(S), isl_union_set_from_set(isl_set_copy(tile)));
         
@@ -35,7 +37,7 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
     
     if (!tc_options_is_set(options, NULL, "--use-macros"))
     {
-        ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_scop_print_user, NULL);
+        ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_codegen_print_user, NULL);
     }
     
     printer = isl_printer_print_str(printer,
@@ -53,7 +55,7 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
     
     if (tc_options_is_set(options, NULL, "--use-macros"))
     {
-        printer = tc_print_statements_macros(scop, printer);
+        printer = tc_codegen_print_statements_macros(scop, printer);
     }
     
     printer = isl_printer_print_str(printer, "\n");
@@ -91,7 +93,7 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
         "\n"
     );
     
-    printer = tc_print_prologue(scop, options, printer);
+    printer = tc_codegen_print_prologue(scop, options, printer);
     printer = isl_printer_print_str(printer,
         "#pragma scop\n"
         "  isl_ctx* ctx = isl_ctx_alloc();\n"
@@ -155,7 +157,7 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
         "  isl_ctx_free(ctx);\n"
         "#pragma endscop\n"
     );
-    printer = tc_print_epilogue(scop, options, printer);
+    printer = tc_codegen_print_epilogue(scop, options, printer);
     
     char* code = isl_printer_get_str(printer);
     
@@ -167,6 +169,7 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
     isl_ast_node_free(ast_tile);
     isl_ast_build_free(ast_build);
     
+    isl_id_list_free(I);
     isl_id_list_free(II);
     isl_set_free(tile);
     isl_set_free(ii_set);

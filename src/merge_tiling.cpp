@@ -133,30 +133,37 @@ void tc_algorithm_merge_tiling(struct tc_scop* scop, struct tc_options* options)
     
     if (tc_scheduling_enum_lex == scheduling)
     {
-        tc_scheduling_lex(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II);
+        tc_scheduling_lex(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     }
     else if (tc_scheduling_enum_sfs_tile == scheduling)
     {
-        tc_scheduling_sfs_tiles(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II);
+        tc_scheduling_sfs_tiles(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
+    }
+    else if (tc_scheduling_enum_sfs_single == scheduling)
+    {
+        tc_scheduling_sfs_single(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
+    }
+    else if (tc_scheduling_enum_sfs_multiple == scheduling)
+    {
+        tc_scheduling_sfs_multiple(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     }
     else if (tc_scheduling_enum_free_rk == scheduling)
     {
-        tc_scheduling_free_schedule_rk(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II);
+        tc_scheduling_free_schedule_rk(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     }
     else if (tc_scheduling_enum_free_karl == scheduling)
     {
-        tc_scheduling_free_schedule_karl(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II);
+        tc_scheduling_free_schedule_karl(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     }
     else if (tc_scheduling_enum_free_finite == scheduling)
     {
-        tc_scheduling_free_schedule_finite(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II);
+        tc_scheduling_free_schedule_finite(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     }
     else if (tc_scheduling_enum_free_dynamic == scheduling)
     {
-        tc_scheduling_dynamic_free_schedule(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II);
+        tc_scheduling_dynamic_free_schedule(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     }
     
-    isl_id_list_free(I);
     isl_set_free(tile);
     isl_set_free(ii_set);
     isl_map_free(Rtile);

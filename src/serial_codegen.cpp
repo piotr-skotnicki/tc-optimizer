@@ -1,4 +1,6 @@
 #include "serial_codegen.h"
+#include "ast.h"
+#include "codegen.h"
 #include "scop.h"
 
 #include <isl/ctx.h>
@@ -19,7 +21,7 @@ void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_t
     
     ast_build = isl_ast_build_set_iterators(ast_build, isl_id_list_copy(iterators));
     
-    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_scop_at_each_domain, scop);
+    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, scop);
                 
     isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
             
@@ -31,24 +33,24 @@ void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_t
     
     if (!tc_options_is_set(options, NULL, "--use-macros"))
     {
-        ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_scop_print_user, NULL);
+        ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_codegen_print_user, NULL);
     }
 
     isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S_prim);
     
-    printer = tc_print_prologue(scop, options, printer);
+    printer = tc_codegen_print_prologue(scop, options, printer);
     
     printer = isl_ast_node_print_macros(ast_tile, printer);
     
     if (tc_options_is_set(options, NULL, "--use-macros"))
     {
-        printer = tc_print_statements_macros(scop, printer);
+        printer = tc_codegen_print_statements_macros(scop, printer);
     }
     
     printer = isl_printer_print_str(printer, "#pragma scop\n");    
     printer = isl_ast_node_print(ast_tile, printer, ast_options);
     printer = isl_printer_print_str(printer, "#pragma endscop\n");    
-    printer = tc_print_epilogue(scop, options, printer);
+    printer = tc_codegen_print_epilogue(scop, options, printer);
     
     char* code = isl_printer_get_str(printer);
     

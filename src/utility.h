@@ -242,4 +242,6 @@ __isl_give isl_set* tc_get_params_set(__isl_take isl_set* set, __isl_keep isl_id
 
 isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos);
 
+__isl_give isl_id_list* tc_id_list_remove_duplicates(__isl_take isl_id_list* list);
+
 #endif // TC_UTILITY_H

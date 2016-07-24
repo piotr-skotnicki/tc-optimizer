@@ -10,7 +10,7 @@
 #include <isl/union_map.h>
 #include <isl/union_set.h>
 
-void tc_scheduling_lex(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II)
+void tc_scheduling_lex(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_set* LD, __isl_take isl_union_map* S, __isl_take isl_union_map* R, __isl_take isl_set* ii_set, __isl_take isl_set* tile, __isl_take isl_map* Rtile, __isl_take isl_id_list* II, __isl_take isl_id_list* I)
 {   
     if (!tc_is_lex_forward(Rtile))
     {
@@ -24,8 +24,12 @@ void tc_scheduling_lex(struct tc_scop* scop, struct tc_options* options, __isl_t
     
     isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II));
     
-    tc_codegen_serial(scop, options, S_ext, tile_ext, II);
+    isl_id_list* iterators = isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(I));
     
+    tc_codegen_serial(scop, options, S_ext, tile_ext, iterators);
+    
+    isl_id_list_free(iterators);
+    isl_id_list_free(I);
     isl_id_list_free(II);
     isl_union_set_free(LD);
     isl_union_map_free(S);

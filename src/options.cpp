@@ -28,7 +28,9 @@ void tc_options_help()
         " Scheduling:\n"
         "\n"
         "    --lex-scheduling               Lexicographic order execution\n"
-        "    --sfs-tile-scheduling          Tile-wise synchronization free slices\n"
+        "    --sfs-single-scheduling        Tiling of synchronization-free slices with single sources\n"
+        "    --sfs-multiple-scheduling      Tiling of synchronization-free slices with multiple sources\n"
+        "    --sfs-tile-scheduling          Tile-wise synchronization-free slices\n"
         "    --free-scheduling              Free scheduling based on R^+\n"
         "    --free-rk-scheduling           Free scheduling based on R^k\n"
         "    --free-finite-scheduling       Exact free scheduling for finite graphs\n"
@@ -53,7 +55,7 @@ void tc_options_help()
         "    --debug   | -d       Verbose mode\n"
         "    --report             Generate tile statistics report (use -R for each parameter)\n"
         "    --time               Measure calculations time\n"
-        "    --braces             Always insert braces around loop body\n"
+        "    --inline             Always inline loop bounds expressions\n"
         "    -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600\n"
         "    -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600\n"
         "    --use-macros         Use macro definitions in place of statements\n"
@@ -62,7 +64,7 @@ void tc_options_help()
         "\n"
         " e.g.:\n"
         "    ./src/tc ./examples/stencils/heat-1d.scop.c --stencil-tiling --omp-for-codegen -b 150,25000 --debug\n"
-        "    ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-tile-scheduling --omp-for-codegen -b 8 --time\n"
+        "    ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-single-scheduling --omp-for-codegen -b 8 --time\n"
         "    ./src/tc ./examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -b S1:16 -b S2:16,8 -b S3:16\n"
         "\n"
     );
@@ -151,7 +153,7 @@ int tc_options_get_int(struct tc_options* options, const char* short_name, const
     
     if (!isdigit(str[0]))
     {
-        tc_options_error("Missing integer value for %s", short_name);
+        tc_options_error("Missing integer value for %s.", short_name);
     }
     else
     {
@@ -169,7 +171,7 @@ long tc_options_get_long(struct tc_options* options, const char* short_name, con
     
     if (!isdigit(str[0]))
     {
-        tc_options_error("Missing integer value for %s", short_name);
+        tc_options_error("Missing integer value for %s.", short_name);
     }
     else
     {
@@ -197,7 +199,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
             found = 1;
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing value for %s", name);
+                tc_options_error("Missing value for %s.", name);
             }
             else
             {
@@ -211,7 +213,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
     
     if (!found)
     {
-        tc_options_error("Missing required option %s", name);
+        tc_options_error("Missing required option %s.", name);
     }
     
     return value;
@@ -275,14 +277,14 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
             }
             else
             {
-                tc_options_error("More than one algorithms specified");
+                tc_options_error("More than one algorithms specified.");
             }
         }
     }
     
     if (tc_algorithm_enum_unknown == value)
     {
-        tc_options_error("No algorithm specified");
+        tc_options_error("No algorithm specified.");
     }
     
     return value;
@@ -292,8 +294,8 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
 {    
     enum tc_scheduling_enum value = tc_scheduling_enum_unknown;
     
-    static const char* strings[] = { "--lex-scheduling", "--sfs-tile-scheduling", "--free-rk-scheduling", "--free-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling" };
-    static enum tc_scheduling_enum values[] = { tc_scheduling_enum_lex, tc_scheduling_enum_sfs_tile, tc_scheduling_enum_free_rk, tc_scheduling_enum_free_karl, tc_scheduling_enum_free_finite, tc_scheduling_enum_free_dynamic };
+    static const char* strings[] = { "--lex-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-rk-scheduling", "--free-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling" };
+    static enum tc_scheduling_enum values[] = { tc_scheduling_enum_lex, tc_scheduling_enum_sfs_tile, tc_scheduling_enum_sfs_single, tc_scheduling_enum_sfs_multiple, tc_scheduling_enum_free_rk, tc_scheduling_enum_free_karl, tc_scheduling_enum_free_finite, tc_scheduling_enum_free_dynamic };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -305,14 +307,14 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
             }
             else
             {
-                tc_options_error("More than one scheduling specified");
+                tc_options_error("More than one scheduling specified.");
             }
         }
     }
     
     if (tc_scheduling_enum_unknown == value)
     {
-        tc_options_error("No scheduling specified");
+        tc_options_error("No scheduling specified.");
     }
     
     return value;
@@ -335,14 +337,14 @@ enum tc_codegen_enum tc_options_codegen(struct tc_options* options)
             }
             else
             {
-                tc_options_error("More than one code generators specified");
+                tc_options_error("More than one code generators specified.");
             }
         }
     }
     
     if (tc_codegen_enum_unknown == value)
     {
-        tc_options_error("No code generator specified");
+        tc_options_error("No code generator specified.");
     }
     
     return value;
@@ -365,7 +367,7 @@ enum tc_transitive_closure_enum tc_options_transitive_closure(struct tc_options*
             }
             else
             {
-                tc_options_error("More than one transitive closure algorithms specified");
+                tc_options_error("More than one transitive closure algorithms specified.");
             }
         }
     }
@@ -388,7 +390,7 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
         {
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing block size");
+                tc_options_error("Missing block size.");
             }
             else
             {
@@ -414,7 +416,7 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
                 
                 if (NULL == label || NULL == sizes)
                 {
-                    tc_options_error("Invalid block size");
+                    tc_options_error("Invalid block size.");
                 }
                 else
                 {
@@ -453,7 +455,7 @@ std::vector<std::vector<std::string> > tc_options_groups(struct tc_options* opti
         {
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing group specification");
+                tc_options_error("Missing group specification.");
             }
             else
             {
@@ -465,7 +467,7 @@ std::vector<std::vector<std::string> > tc_options_groups(struct tc_options* opti
 
                 if (NULL == statement)
                 {
-                    tc_options_error("Invalid group specification");
+                    tc_options_error("Invalid group specification.");
                 }
                 else
                 {
@@ -516,7 +518,7 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
         {
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing value for %s", name);
+                tc_options_error("Missing value for %s.", name);
             }
             else
             {
@@ -529,7 +531,7 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
 
                 if (NULL == param || NULL == value_str)
                 {
-                    tc_options_error("Invalid value for %s", name);
+                    tc_options_error("Invalid value for %s.", name);
                 }
                 else
                 {
@@ -592,10 +594,10 @@ void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
         "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--merge-tiling",
-        "--lex-scheduling", "--sfs-tile-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
+        "--lex-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--tarjan-tc",
-        "-b", "-R", "--report", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", "--braces", "--time", "--use-macros",
+        "-b", "-R", "--report", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", "--time", "--use-macros",
         "-g", "--out", "-o",
     };
     

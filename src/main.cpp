@@ -46,10 +46,7 @@ int main(int argc, char* argv[])
 
         pet_options_set_autodetect(ctx, 0);
         
-        if (tc_options_is_set(options, NULL, "--braces"))
-        {
-            isl_options_set_ast_always_print_block(ctx, 1);
-        }
+        isl_options_set_ast_always_print_block(ctx, 1);
 
         struct tc_scop* scop = tc_scop_extract(ctx, file);
         

@@ -35,6 +35,9 @@ void tc_algorithm_regular_tiling(struct tc_scop* scop, struct tc_options* option
     
     isl_union_map* R = isl_union_map_copy(scop->relation);
     tc_debug_umap(R, "R");
+            
+    tc_debug_umap(scop->reads, "RA");
+    tc_debug_umap(scop->writes, "WA");
     
     isl_basic_set* sample = isl_set_sample(tc_normalize_union_set(LD, S));
     
@@ -44,16 +47,19 @@ void tc_algorithm_regular_tiling(struct tc_scop* scop, struct tc_options* option
     isl_id_list* II = tc_ids_sequence(ctx, "ii", isl_space_dim(space, isl_dim_set));
                 
     std::map<std::string, std::vector<int> > blocks = tc_options_blocks(options);
+    
+    std::vector<std::vector<std::string> > groups = tc_options_groups(options);
         
     isl_set* tile;
     isl_set* ii_set;
     
-    tc_tile_loop_nest(LD, S, II, I, &tile, &ii_set, blocks);
+    tc_tile_loop_nest(LD, S, II, I, &tile, &ii_set, blocks, groups);
     
     tc_debug_set(tile, "TILE");
     tc_debug_set(ii_set, "II_SET");
     
     isl_map* R_normalized = tc_normalize_union_map(R, S);
+    tc_debug_map(R_normalized, "R_norm");
         
     if (tc_options_is_report(options))
     {
@@ -68,32 +74,45 @@ void tc_algorithm_regular_tiling(struct tc_scop* scop, struct tc_options* option
     }
     
     isl_map* Rtile = tc_Rtile_map(II, tile, R_normalized);
+    
+    tc_debug_map(Rtile, "R_TILE");
 
     enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
     
     if (tc_scheduling_enum_lex == scheduling)
     {
-        tc_scheduling_lex(scop, options, LD, S, R, ii_set, tile, Rtile, II);
+        tc_scheduling_lex(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
     }
     else if (tc_scheduling_enum_sfs_tile == scheduling)
     {
-        tc_scheduling_sfs_tiles(scop, options, LD, S, R, ii_set, tile, Rtile, II);
+        tc_scheduling_sfs_tiles(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
+    }
+    else if (tc_scheduling_enum_sfs_single == scheduling)
+    {
+        tc_scheduling_sfs_single(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
+    }
+    else if (tc_scheduling_enum_sfs_multiple == scheduling)
+    {
+        tc_scheduling_sfs_multiple(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
     }
     else if (tc_scheduling_enum_free_rk == scheduling)
     {
-        tc_scheduling_free_schedule_rk(scop, options, LD, S, R, ii_set, tile, Rtile, II);
+        tc_scheduling_free_schedule_rk(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
     }
     else if (tc_scheduling_enum_free_karl == scheduling)
     {
-        tc_scheduling_free_schedule_karl(scop, options, LD, S, R, ii_set, tile, Rtile, II);
+        tc_scheduling_free_schedule_karl(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
+    }
+    else if (tc_scheduling_enum_free_finite == scheduling)
+    {
+        tc_scheduling_free_schedule_finite(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
     }
     else if (tc_scheduling_enum_free_dynamic == scheduling)
     {
-        tc_scheduling_dynamic_free_schedule(scop, options, LD, S, R, ii_set, tile, Rtile, II);
+        tc_scheduling_dynamic_free_schedule(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
     }
     
     isl_map_free(R_normalized);
-    isl_id_list_free(I);
     isl_basic_set_free(sample);
     isl_space_free(space);
 }

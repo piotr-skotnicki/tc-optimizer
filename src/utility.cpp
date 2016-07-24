@@ -1749,3 +1749,31 @@ isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos)
     
     return carries_dependences;
 }
+
+__isl_give isl_id_list* tc_id_list_remove_duplicates(__isl_take isl_id_list* list)
+{
+    for (int i = 0; i < isl_id_list_n_id(list); ++i)
+    {
+        isl_id* id_i = isl_id_list_get_id(list, i);
+        
+        for (int j = i + 1; j < isl_id_list_n_id(list); )
+        {
+            isl_id* id_j = isl_id_list_get_id(list, j);
+            
+            if (0 == strcmp(isl_id_get_name(id_i), isl_id_get_name(id_j)))
+            {
+                list = isl_id_list_drop(list, j, 1);
+            }
+            else
+            {
+                ++j;
+            }
+            
+            isl_id_free(id_j);
+        }
+        
+        isl_id_free(id_i);
+    }
+    
+    return list;
+}
