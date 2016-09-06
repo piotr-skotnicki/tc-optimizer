@@ -9,6 +9,7 @@
 #include <isl/union_map.h>
 #include <isl/polynomial.h>
 #include <isl/point.h>
+#include <isl/val.h>
 
 #include <barvinok/isl.h>
 
@@ -1185,6 +1186,38 @@ __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, c
     return result;
 }
 
+__isl_give isl_union_map* tc_get_union_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name)
+{
+    isl_union_map* result = NULL;
+    
+    isl_map_list* maps = tc_collect_maps(umap);
+    
+    for (int i = 0; i < isl_map_list_n_map(maps); ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps, i);
+        
+        if (0 == strcmp(name, isl_map_get_tuple_name(map, isl_dim_in)))
+        {
+            if (NULL == result)
+            {
+                result = isl_union_map_from_map(map);
+            }
+            else
+            {
+                result = isl_union_map_add_map(result, map);
+            }
+        }
+        else
+        {
+            isl_map_free(map);
+        }
+    }
+    
+    isl_map_list_free(maps);
+    
+    return result;
+}
+
 __isl_give isl_union_map* tc_remove_map_with_tuple(__isl_take isl_union_map* umap, const char* name)
 {
     isl_union_map* result = NULL;
@@ -1776,4 +1809,17 @@ __isl_give isl_id_list* tc_id_list_remove_duplicates(__isl_take isl_id_list* lis
     }
     
     return list;
+}
+
+long tc_set_card_value(__isl_take isl_set* set)
+{
+    isl_pw_qpolynomial* set_card = isl_set_card(set);
+        
+    isl_val* set_card_val = isl_pw_qpolynomial_max(set_card);
+
+    long card = isl_val_get_num_si(set_card_val);
+
+    isl_val_free(set_card_val);
+    
+    return card;
 }

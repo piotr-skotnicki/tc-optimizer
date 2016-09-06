@@ -86,6 +86,8 @@ int tc_options_is_verbose(struct tc_options* options);
 
 int tc_options_is_report(struct tc_options* options);
 
+int tc_options_cache_line(struct tc_options* options);
+
 enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options);
 
 enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options);

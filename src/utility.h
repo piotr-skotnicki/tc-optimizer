@@ -185,6 +185,8 @@ __isl_give isl_set* tc_get_set_bounds(__isl_keep isl_set* set, __isl_keep isl_id
 
 __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name);
 
+__isl_give isl_union_map* tc_get_union_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name);
+
 __isl_give isl_union_map* tc_remove_map_with_tuple(__isl_take isl_union_map* umap, const char* name);
 
 int tc_get_statement_depth(const char* label, __isl_keep isl_union_map* umap);
@@ -243,5 +245,7 @@ __isl_give isl_set* tc_get_params_set(__isl_take isl_set* set, __isl_keep isl_id
 isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos);
 
 __isl_give isl_id_list* tc_id_list_remove_duplicates(__isl_take isl_id_list* list);
+
+long tc_set_card_value(__isl_take isl_set* set);
 
 #endif // TC_UTILITY_H

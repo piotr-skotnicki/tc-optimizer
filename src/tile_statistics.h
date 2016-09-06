@@ -43,7 +43,11 @@ struct tc_tile_statistics_group
     
     int n_blocks_capacity;
     
+    int dimensionality;
+    
     long card;
+    
+    long memory;
     
     long n_occurrences;
     
@@ -57,6 +61,8 @@ struct tc_tile_statistics_group
 struct tc_tile_statistics
 {    
     struct tc_scop* scop;
+    
+    struct tc_options* options;
     
     isl_union_set* LD;
     
@@ -76,12 +82,35 @@ struct tc_tile_statistics
     
     long n_statement_instances;
     
+    long n_dimensionality_tiles[10];
+    
     const std::map<std::string, std::vector<int> >* blocks;
 };
 
-struct tc_tile_statistics* tc_compute_tile_statistics(__isl_keep isl_set* tile, __isl_keep isl_set* ii_set, __isl_keep isl_id_list* II, __isl_keep isl_set* bounds, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, struct tc_scop* scop, const std::map<std::string, std::vector<int> >& blocks);
+struct tc_tile_statistics* tc_compute_tile_statistics(__isl_keep isl_set* tile
+                                                    , __isl_keep isl_set* ii_set
+                                                    , __isl_keep isl_id_list* II
+                                                    , __isl_keep isl_set* bounds
+                                                    , __isl_keep isl_union_set* LD
+                                                    , __isl_keep isl_union_map* S
+                                                    , __isl_keep isl_union_map* RA
+                                                    , __isl_keep isl_union_map* WA
+                                                    , struct tc_scop* scop
+                                                    , struct tc_options* options
+                                                    , const std::map<std::string, std::vector<int> >& blocks);
 
-void tc_compute_tile_statistics_trend(FILE* out, __isl_keep isl_set* tile, __isl_keep isl_set* ii_set, __isl_keep isl_id_list* II, __isl_keep isl_set_list* bounds_list, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, struct tc_scop* scop, const std::map<std::string, std::vector<int> >& blocks);
+void tc_compute_tile_statistics_trend(FILE* out
+                                    , __isl_keep isl_set* tile
+                                    , __isl_keep isl_set* ii_set    
+                                    , __isl_keep isl_id_list* II
+                                    , __isl_keep isl_set_list* bounds_list
+                                    , __isl_keep isl_union_set* LD
+                                    , __isl_keep isl_union_map* S
+                                    , __isl_keep isl_union_map* RA
+                                    , __isl_keep isl_union_map* WA
+                                    , struct tc_scop* scop
+                                    , struct tc_options* options
+                                    , const std::map<std::string, std::vector<int> >& blocks);
 
 void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats);
 

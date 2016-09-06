@@ -11,6 +11,16 @@
 #include "debug.h"
 #include "transitive_closure.h"
 
+#include <isl/ctx.h>
+#include <isl/space.h>
+#include <isl/id.h>
+#include <isl/set.h>
+#include <isl/map.h>
+#include <isl/union_set.h>
+#include <isl/union_map.h>
+
+#include <barvinok/isl.h>
+
 #include <stdio.h>
 
 #include <string>
@@ -29,6 +39,12 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
     
     isl_union_map* R = isl_union_map_copy(scop->relation);
     tc_debug_umap(R, "R");
+    
+    isl_union_map* RA = scop->reads;
+    tc_debug_umap(RA, "RA");
+    
+    isl_union_map* WA = scop->writes;
+    tc_debug_umap(WA, "WA");
     
     isl_set* LD_normalized = tc_normalize_union_set(LD, S);
     
@@ -76,8 +92,8 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
     
     // TVLD_LT = (R+(TILE_ITR) * TILE_LT) - R+(TILE_GT)
     isl_set* tvld_lt = isl_set_apply(isl_set_copy(tile_itr), isl_map_copy(R_plus_normalized));
-    tvld_lt = isl_set_intersect(tvld_lt, tile_lt);
-    tvld_lt = isl_set_subtract(tvld_lt, isl_set_apply(tile_gt, isl_map_copy(R_plus_normalized)));
+    tvld_lt = isl_set_intersect(tvld_lt, isl_set_copy(tile_lt));
+    tvld_lt = isl_set_subtract(tvld_lt, isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
     
     tc_debug_set(tvld_lt, "TVLD_LT");
     
@@ -93,9 +109,51 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
     {
         isl_set* bounds = tc_options_get_report_bounds(options, ctx);
         
-        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_vld, ii_set, II, bounds, LD, S, scop, blocks);
+        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_vld, ii_set, II, bounds, LD, S, scop->reads, scop->writes, scop, options, blocks);
         
         tc_tile_statistics_print(options->output, stats);
+        
+        // Tileability
+        
+        long n_inst = stats->n_statement_instances;
+                
+        // INVALID = R+(TILE_GT) * TILE
+        isl_set* invalid = isl_set_intersect(isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)), isl_set_copy(tile));
+                
+        double per_tileable = 0.0;
+        
+        if (isl_set_is_empty(invalid))
+        {
+            per_tileable = 100.0;
+        }
+        else
+        {
+            isl_map* R_plus_normalized_inv = isl_map_reverse(isl_map_copy(R_plus_normalized));
+            
+            isl_map* R_plus_U_R_plus_inv_normalized = isl_map_union(isl_map_copy(R_plus_normalized), isl_map_copy(R_plus_normalized_inv));
+            
+            // PROBLEMATIC = INVALID + (R+ U R+^-1)(INVALID)            
+            isl_set* problematic = isl_set_union(isl_set_copy(invalid), isl_set_apply(isl_set_copy(invalid), isl_map_copy(R_plus_U_R_plus_inv_normalized)));
+            
+            isl_set* problematic_bounded = tc_set_fix_params_bounds(problematic, isl_set_copy(bounds));
+                            
+            isl_pw_qpolynomial* problematic_card = isl_set_card(problematic_bounded);
+
+            isl_val* problematic_card_val = isl_pw_qpolynomial_max(problematic_card);
+
+            long n_prob = isl_val_get_num_si(problematic_card_val);
+            
+            isl_val_free(problematic_card_val);
+            
+            per_tileable = (100.0 * (n_inst - n_prob)) / n_inst;
+            
+            isl_map_free(R_plus_normalized_inv);
+            isl_map_free(R_plus_U_R_plus_inv_normalized);
+        }
+        
+        fprintf(options->output, "Tileability: %.8f %%\n", per_tileable);
+        
+        isl_set_free(invalid);
         
         tc_tile_statistics_free(stats);
         isl_set_free(bounds);
@@ -136,6 +194,8 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
         tc_scheduling_dynamic_free_schedule(scop, options, LD, S, R, ii_set, tile_vld, Rtile, II, I);
     }
     
+    isl_set_free(tile_lt);
+    isl_set_free(tile_gt);
     isl_set_free(tile);
     isl_map_free(R_normalized);
     isl_map_free(R_plus_normalized);

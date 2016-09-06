@@ -1,6 +1,7 @@
 #include "scop.h"
 #include "utility.h"
 #include "options.h"
+#include "debug.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>
@@ -134,6 +135,74 @@ __isl_give isl_union_map* tc_dependence_analysis(struct pet_scop* pet)
     relation = tc_unwrap_range(relation);
     
     return relation;
+}
+
+__isl_give isl_union_map* tc_scop_data_to_cache_lines(struct tc_scop* scop, struct tc_options* options, __isl_keep isl_set* bounds)
+{
+    isl_ctx* ctx = isl_set_get_ctx(bounds);
+    
+    isl_union_map* access_to_address = NULL;
+        
+    for (int i = 0; i < scop->pet->n_array; ++i)
+    {
+        struct pet_array* array = scop->pet->arrays[i];
+        
+        isl_set* extent = isl_set_copy(array->extent);
+        
+        extent = tc_set_fix_params_bounds(extent, isl_set_copy(bounds));
+                    
+        isl_map* address = isl_map_from_domain(isl_set_copy(extent));
+
+        address = isl_map_add_dims(address, isl_dim_out, 2);
+
+        address = isl_map_fix_si(address, isl_dim_out, 0, i); // [x = i, offset]
+        
+        // N[] = [x, 0]
+        // A[i,j,k] = [x, i * j_size * k_size * data_size + j * k_size * data_size + k * data_size]        
+        
+        isl_constraint* constraint = isl_constraint_alloc_equality(isl_local_space_from_space(isl_map_get_space(address)));
+
+        constraint = isl_constraint_set_coefficient_si(constraint, isl_dim_out, 1, -1);
+        
+        const int n_dim_extent = isl_set_n_dim(extent);
+
+        for (int j = 0; j < n_dim_extent; ++j)
+        {
+            int multiplier = 1;
+
+            for (int k = j + 1; k < n_dim_extent; ++k)
+            {
+                multiplier *= tc_lexmax_set_pos_value(extent, k) - tc_lexmin_set_pos_value(extent, k) + 1;
+            }
+
+            multiplier *= array->element_size;
+
+            constraint = isl_constraint_set_coefficient_si(constraint, isl_dim_in, j, multiplier);
+        }
+
+        address = isl_map_add_constraint(address, constraint);
+
+        if (NULL == access_to_address)
+        {
+            access_to_address = isl_union_map_from_map(address);
+        }
+        else
+        {
+            access_to_address = isl_union_map_add_map(access_to_address, address);
+        }
+        
+        isl_set_free(extent);
+    }
+
+    char cache_line_str[256];
+    
+    sprintf(cache_line_str, "{ [x, i] -> [x, j] : j = floor(i/%d) }", tc_options_cache_line(options));    
+    
+    isl_union_map* address_to_cache_line = isl_union_map_read_from_str(ctx, cache_line_str);    
+    
+    isl_union_map* C = isl_union_map_apply_range(access_to_address, address_to_cache_line);
+    
+    return C;
 }
 
 struct pet_stmt* tc_scop_get_pet_stmt(struct tc_scop* scop, const char* label)

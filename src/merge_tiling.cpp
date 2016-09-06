@@ -121,7 +121,7 @@ void tc_algorithm_merge_tiling(struct tc_scop* scop, struct tc_options* options)
     {
         isl_set* bounds = tc_options_get_report_bounds(options, ctx);
         
-        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_m, ii_set_m, II, bounds, LD, S, scop, blocks);
+        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_m, ii_set_m, II, bounds, LD, S, scop->reads, scop->writes, scop, options, blocks);
         
         tc_tile_statistics_print(options->output, stats);
         

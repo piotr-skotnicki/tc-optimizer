@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.2.24
+TC Optimizing Compiler 0.2.25
 
  Usage:
 
@@ -37,13 +37,14 @@ TC Optimizing Compiler 0.2.24
 
  Options:
 
-    -b                   Tile size, e.g. -b 256 -b S1:128,128 (default: 32)
+    -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: 32)
     --debug   | -d       Verbose mode
     --report             Generate tile statistics report (use -R for each parameter)
     --time               Measure calculations time
     --inline             Always inline loop bounds expressions
     -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600
     -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600
+    --cache <value>      Cache line length in bytes (default: 64)
     --use-macros         Use macro definitions in place of statements
     --version | -v       Print compiler info
     --help    | -h       Print help
