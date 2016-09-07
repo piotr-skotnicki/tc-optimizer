@@ -142,8 +142,8 @@ __isl_give isl_union_map* tc_scop_data_to_cache_lines(struct tc_scop* scop, stru
     isl_ctx* ctx = isl_set_get_ctx(bounds);
     
     isl_set* defines = tc_options_get_defines(options, ctx);
-    
-    isl_set* params_bounds = isl_set_union(isl_set_copy(bounds), defines);
+        
+    isl_set* params_bounds = isl_set_intersect_params(isl_set_copy(bounds), defines);
     
     isl_union_map* access_to_address = NULL;
         
