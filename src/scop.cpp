@@ -141,6 +141,10 @@ __isl_give isl_union_map* tc_scop_data_to_cache_lines(struct tc_scop* scop, stru
 {
     isl_ctx* ctx = isl_set_get_ctx(bounds);
     
+    isl_set* defines = tc_options_get_defines(options, ctx);
+    
+    isl_set* params_bounds = isl_set_union(isl_set_copy(bounds), defines);
+    
     isl_union_map* access_to_address = NULL;
         
     for (int i = 0; i < scop->pet->n_array; ++i)
@@ -149,7 +153,7 @@ __isl_give isl_union_map* tc_scop_data_to_cache_lines(struct tc_scop* scop, stru
         
         isl_set* extent = isl_set_copy(array->extent);
         
-        extent = tc_set_fix_params_bounds(extent, isl_set_copy(bounds));
+        extent = tc_set_fix_params_bounds(extent, isl_set_copy(params_bounds));
                     
         isl_map* address = isl_map_from_domain(isl_set_copy(extent));
 
@@ -198,9 +202,11 @@ __isl_give isl_union_map* tc_scop_data_to_cache_lines(struct tc_scop* scop, stru
     
     sprintf(cache_line_str, "{ [x, i] -> [x, j] : j = floor(i/%d) }", tc_options_cache_line(options));    
     
-    isl_union_map* address_to_cache_line = isl_union_map_read_from_str(ctx, cache_line_str);    
+    isl_union_map* address_to_cache_line = isl_union_map_read_from_str(ctx, cache_line_str);
     
     isl_union_map* C = isl_union_map_apply_range(access_to_address, address_to_cache_line);
+    
+    isl_set_free(params_bounds);
     
     return C;
 }
