@@ -100,6 +100,13 @@ int main(int argc, char* argv[])
                 }
                 break;
 
+                case tc_transitive_closure_enum_iterative:
+                {
+                    tc_transitive_closure = &tc_transitive_closure_adapter_iterative;
+                    tc_map_power = &tc_map_power_adapter_isl_map;
+                }
+                break;
+
                 case tc_transitive_closure_enum_tarjan:
                 {
                     tc_transitive_closure = &tc_transitive_closure_adapter_tarjan;

@@ -2,6 +2,7 @@
 #include "ast.h"
 #include "utility.h"
 #include "options.h"
+#include "config.h"
 
 #include <isl/ctx.h>
 #include <isl/id.h>
@@ -107,7 +108,8 @@ __isl_give isl_printer* tc_codegen_print_statements_macros(struct tc_scop* scop,
 __isl_give isl_printer* tc_codegen_print_prologue(struct tc_scop* scop, struct tc_options* options, __isl_take isl_printer* printer)
 {
     char* command_line = tc_options_get_command_line(options);
-    
+
+    printer = isl_printer_print_str(printer, "/* TC Optimizing Compiler " TC_CONF_VERSION " */\n");
     printer = isl_printer_print_str(printer, "/* ");
     printer = isl_printer_print_str(printer, command_line);
     printer = isl_printer_print_str(printer, " */\n");

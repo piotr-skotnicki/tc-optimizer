@@ -1,0 +1,228 @@
+TC Optimizing Compiler 0.2.26 
+Total statement instances: 7996000
+Total tiles: 2016
+Cache line length: 64 B
+
+Parameters values:
+_PB_N = 4000
+_PB_TSTEPS = 1000
+
+Statement S1 has 3998000 instances in space 1000 x 3998, tiles are of size 64 x 64 
+Statement S2 has 3998000 instances in space 1000 x 3998, tiles are of size 64 x 64 
+
+Max tile size: 3.12 kB
+Avg tile size: 2.07 kB
+
+Fixed tiles: 1923 (95.38690476 %) with total of 7504593 statement instances (93.85433967 %)
+Parametric/varied tiles: 77 (3.81944444 %) with total of 490927 statement instances (6.13965733 %)
+Fixed boundary tiles: 16 (0.79365079 %) with total of 480 statement instances (0.00600300 %)
+
+1-D tiles: 1008 (50.00000000 %) with total of 63968 statement instances (0.80000000 %)
+2-D tiles: 1008 (50.00000000 %) with total of 7932032 statement instances (99.20000000 %)
+
+Fixed 1-D tiles: 992 (49.20634921 %) with total of 63488 statement instances (0.79399700 %)
+Fixed 2-D tiles: 931 (46.18055556 %) with total of 7441105 statement instances (93.06034267 %)
+Parametric/varied 2-D tiles: 77 (3.81944444 %) with total of 490927 statement instances (6.13965733 %)
+Fixed boundary 1-D tiles: 16 (0.79365079 %) with total of 480 statement instances (0.00600300 %)
+
+--------------------------------------------------------
+
+900 fixed 2-D tiles (44.64285714 % of all tiles) each including 8128 statement instances (0.10165083 % of all statement instances)
+Tiles contain 91.48574287 % of all statement instances
+Each tile accesses 3200 B (3.12 kB) of memory
+	4032 statement instances of S1 in a tile of size 63 x 188 (tile coverage with statement instances = 34.04255319 %)
+	4096 statement instances of S2 in a tile of size 64 x 190 (tile coverage with statement instances = 33.68421053 %)
+
+if (ii0 == 0 && ii1 == 1 && ii2 == 2) {
+  for (int c0 = 0; c0 <= 63; c0 += 1) {
+    if (c0 >= 1) {
+      for (int c2 = -2 * c0 + 130; c2 <= -2 * c0 + 193; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = -2 * c0 + 129; c2 <= -2 * c0 + 192; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = 8128
+
+--------------------------------------------------------
+
+60 parametric/varied 2-D tiles (2.97619048 % of all tiles) each including 5056 statement instances (0.06323162 % of all statement instances)
+Tiles contain 3.79389695 % of all statement instances
+Each tile accesses 2432 B (2.38 kB) of memory
+	2496 statement instances of S1 in a tile of size 39 x 140 (tile coverage with statement instances = 45.71428571 %)
+	2560 statement instances of S2 in a tile of size 40 x 142 (tile coverage with statement instances = 45.07042254 %)
+
+if (ii0 == 15 && ii1 == 1 && ii2 == 2) {
+  for (int c0 = 960; c0 <= 999; c0 += 1) {
+    if (c0 >= 961) {
+      for (int c2 = -2 * c0 + 2050; c2 <= -2 * c0 + 2113; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = -2 * c0 + 2049; c2 <= -2 * c0 + 2112; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = ((-64 + 128 * _PB_TSTEPS) - 8192 * ii0)
+
+--------------------------------------------------------
+
+15 parametric/varied 2-D tiles (0.74404762 % of all tiles) each including 11811 statement instances (0.14771136 % of all statement instances)
+Tiles contain 2.21567034 % of all statement instances
+Each tile accesses 2560 B (2.50 kB) of memory
+	5859 statement instances of S1 in a tile of size 63 x 155 (tile coverage with statement instances = 60.00000000 %)
+	5952 statement instances of S2 in a tile of size 64 x 156 (tile coverage with statement instances = 59.61538462 %)
+
+if (ii0 == 0 && ii1 == 1 && ii2 == 62) {
+  for (int c0 = 0; c0 <= 63; c0 += 1) {
+    if (c0 >= 1) {
+      for (int c2 = -2 * c0 + 3970; c2 <= 3967; c2 += 1) {
+        S1(c0, c2);
+      }
+      for (int c2 = 3968; c2 <= 3998; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = -2 * c0 + 3969; c2 <= 3998; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = ((7747 + 127 * _PB_N) - 8128 * ii2)
+
+--------------------------------------------------------
+
+15 fixed 2-D tiles (0.74404762 % of all tiles) each including 6175 statement instances (0.07722611 % of all statement instances)
+Tiles contain 1.15839170 % of all statement instances
+Each tile accesses 2176 B (2.12 kB) of memory
+	3071 statement instances of S1 in a tile of size 63 x 127 (tile coverage with statement instances = 38.38270216 %)
+	3104 statement instances of S2 in a tile of size 64 x 128 (tile coverage with statement instances = 37.89062500 %)
+
+if (ii0 == 0 && ii1 == 1 && ii2 == 1) {
+  for (int c0 = 0; c0 <= 63; c0 += 1) {
+    if (c0 >= 1) {
+      for (int c2 = max(1, -2 * c0 + 66); c2 <= -2 * c0 + 129; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = max(1, -2 * c0 + 65); c2 <= -2 * c0 + 128; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = 6175
+
+--------------------------------------------------------
+
+992 fixed 1-D tiles (49.20634921 % of all tiles) each including 64 statement instances (0.00080040 % of all statement instances)
+Tiles contain 0.79399700 % of all statement instances
+Each tile accesses 1152 B (1.12 kB) of memory
+	64 statement instances of S1 in a tile of size 1 x 64 (tile coverage with statement instances = 100.00000000 %)
+
+if (ii0 == 0 && ii1 == 0 && ii2 == 0) {
+  for (int c2 = 1; c2 <= 64; c2 += 1) {
+    S1(0, c2);
+  }
+}
+
+The number of statement instances = 64
+
+--------------------------------------------------------
+
+16 fixed 2-D tiles (0.79365079 % of all tiles) each including 2080 statement instances (0.02601301 % of all statement instances)
+Tiles contain 0.41620810 % of all statement instances
+Each tile accesses 1152 B (1.12 kB) of memory
+	1024 statement instances of S1 in a tile of size 32 x 63 (tile coverage with statement instances = 50.79365079 %)
+	1056 statement instances of S2 in a tile of size 32 x 64 (tile coverage with statement instances = 51.56250000 %)
+
+if (ii0 == 0 && ii1 == 1 && ii2 == 0) {
+  for (int c0 = 0; c0 <= 32; c0 += 1) {
+    if (c0 >= 1) {
+      for (int c2 = 1; c2 <= -2 * c0 + 65; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = 1; c2 <= -2 * c0 + 64; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = 2080
+
+--------------------------------------------------------
+
+1 parametric/varied 2-D tile (0.04960317 % of all tiles) including 5451 statement instances (0.06817159 % of all statement instances)
+Tile contains 0.06817159 % of all statement instances
+Each tile accesses 1792 B (1.75 kB) of memory
+	2691 statement instances of S1 in a tile of size 39 x 107 (tile coverage with statement instances = 64.48598131 %)
+	2760 statement instances of S2 in a tile of size 40 x 108 (tile coverage with statement instances = 63.88888889 %)
+
+if (ii0 == 15 && ii1 == 1 && ii2 == 62) {
+  for (int c0 = 960; c0 <= 999; c0 += 1) {
+    if (c0 >= 961) {
+      for (int c2 = -2 * c0 + 5890; c2 <= 3967; c2 += 1) {
+        S1(c0, c2);
+      }
+      for (int c2 = 3968; c2 <= 3998; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = -2 * c0 + 5889; c2 <= 3998; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = ((((3 - 7 * _PB_TSTEPS + 2 * _PB_TSTEPS*_PB_TSTEPS) + (-1 + 2 * _PB_TSTEPS) * _PB_N) + ((448 - 256 * _PB_TSTEPS) - 128 * _PB_N) * ii0 + 8192 * ii0*ii0) + ((64 - 128 * _PB_TSTEPS) + 8192 * ii0) * ii2)
+
+--------------------------------------------------------
+
+1 parametric/varied 2-D tile (0.04960317 % of all tiles) including 4951 statement instances (0.06191846 % of all statement instances)
+Tile contains 0.06191846 % of all statement instances
+Each tile accesses 2176 B (2.12 kB) of memory
+	2447 statement instances of S1 in a tile of size 39 x 127 (tile coverage with statement instances = 49.40440137 %)
+	2504 statement instances of S2 in a tile of size 40 x 128 (tile coverage with statement instances = 48.90625000 %)
+
+if (ii0 == 15 && ii1 == 1 && ii2 == 1) {
+  for (int c0 = 960; c0 <= 999; c0 += 1) {
+    if (c0 >= 961) {
+      for (int c2 = max(1, -2 * c0 + 1986); c2 <= -2 * c0 + 2049; c2 += 1) {
+        S1(c0, c2);
+      }
+    }
+    for (int c2 = max(1, -2 * c0 + 1985); c2 <= -2 * c0 + 2048; c2 += 1) {
+      S2(c0, c2);
+    }
+  }
+}
+
+The number of statement instances = ((-2209 + 259 * _PB_TSTEPS - 2 * _PB_TSTEPS*_PB_TSTEPS) + (-16576 + 256 * _PB_TSTEPS) * ii0 - 8192 * ii0*ii0)
+
+--------------------------------------------------------
+
+16 fixed boundary 1-D tiles (0.79365079 % of all tiles) each including 30 statement instances (0.00037519 % of all statement instances)
+Tiles contain 0.00600300 % of all statement instances
+Each tile accesses 512 B (0.50 kB) of memory
+	30 statement instances of S1 in a tile of size 1 x 30 (tile coverage with statement instances = 100.00000000 %)
+
+if (ii0 == 0 && ii1 == 0 && ii2 == 62) {
+  for (int c2 = 3969; c2 <= 3998; c2 += 1) {
+    S1(0, c2);
+  }
+}
+
+The number of statement instances = ((((-4 + 2 * _PB_N) + (-125 + 126 * _PB_N) * ii1 + (7753 + 124 * _PB_N) * ii1*ii1 + 7874 * ii1*ii1*ii1) + (-128 - 8064 * ii1 - 7936 * ii1*ii1) * ii2))/2
+
+--------------------------------------------------------
+
+Tileability after: 48.41602051 %
+Tileability before: 48.51602051 %

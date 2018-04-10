@@ -1,6 +1,7 @@
 #include "transitive_closure.h"
 #include "tarjan_transitive_closure.h"
 #include "floyd_warshall_transitive_closure.h"
+#include "iterative_transitive_closure.h"
 #include "utility.h"
 #include "debug.h"
 
@@ -34,23 +35,23 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_m
 }
 
 __isl_give isl_map* tc_transitive_closure_adapter_floyd_warshall(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
-{
-    if (NULL != exact)
-    {
-        *exact = -1;
-    }
-        
+{        
     isl_union_map* R_denorm = tc_denormalize_map(R, S);
     
     isl_map_free(R);
     
-    isl_union_map* R_plus_denorm = tc_floyd_warshall_transitive_closure(R_denorm);
+    isl_union_map* R_plus_denorm = tc_floyd_warshall_transitive_closure(R_denorm, exact);
     
     isl_map* R_plus = tc_normalize_union_map(R_plus_denorm, S);
     
     isl_union_map_free(R_plus_denorm);
     
     return R_plus;
+}
+
+__isl_give isl_map* tc_transitive_closure_adapter_iterative(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+{                    
+    return tc_iterative_transitive_closure(R, 10, 100, exact);
 }
 
 __isl_give isl_map* tc_transitive_closure_adapter_tarjan(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)

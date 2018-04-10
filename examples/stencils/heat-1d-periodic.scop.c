@@ -10,14 +10,13 @@ int main()
   
   int t,i;
   
-  int A[2][N];
+  int A[T+1][N];
   
 #pragma scop
   for (t = 0; t < T; ++t) {
     for (i = 0; i < N; ++i) {
-S1:   A[(t+1)%2][i] = 0.125 * (A[t%2][(N+i+1)%N] - 2.0 * A[t%2][i] + A[t%2][(N+i-1)%N]);
+S1:   A[t+1][i] = 0.125 * (A[t][i == N-1 ? 0 : i+1] - 2.0 * A[t][i] + A[t][i == 0 ? N-1 : i-1]);
     }
   }
 #pragma endscop
 }
-

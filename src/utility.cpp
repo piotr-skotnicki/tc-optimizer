@@ -288,6 +288,22 @@ __isl_give isl_set* tc_lift_up_set_params(__isl_take isl_set* set, __isl_keep is
     return set;
 }
 
+__isl_give isl_map* tc_lift_up_map_params(__isl_take isl_map* map, __isl_keep isl_id_list* params, isl_dim_type dim)
+{    
+    for (int i = 0; i < isl_id_list_n_id(params); ++i)
+    {
+        isl_id* id = isl_id_list_get_id(params, i);
+        
+        int pos = isl_map_find_dim_by_id(map, isl_dim_param, id);
+        
+        map = isl_map_move_dims(map, dim, i, isl_dim_param, pos, 1);
+        
+        isl_id_free(id);
+    }
+    
+    return map;
+}
+
 __isl_give isl_set* tc_lift_down_all_set_vars(__isl_take isl_set* set, __isl_keep isl_id_list* vars)
 {    
     for (int i = isl_id_list_n_id(vars) - 1; i >= 0; --i)
@@ -295,6 +311,18 @@ __isl_give isl_set* tc_lift_down_all_set_vars(__isl_take isl_set* set, __isl_kee
         set = isl_set_set_dim_id(set, isl_dim_set, i, isl_id_list_get_id(vars, i));
         
         set = isl_set_move_dims(set, isl_dim_param, 0, isl_dim_set, i, 1);
+    }
+    
+    return set;
+}
+
+__isl_give isl_set* tc_lift_down_set_vars(__isl_take isl_set* set, __isl_keep isl_id_list* vars)
+{    
+    for (int i = 0; i < isl_id_list_n_id(vars); ++i)
+    {
+        set = isl_set_set_dim_id(set, isl_dim_set, 0, isl_id_list_get_id(vars, i));
+        
+        set = isl_set_move_dims(set, isl_dim_param, i, isl_dim_set, 0, 1);
     }
     
     return set;
@@ -510,6 +538,24 @@ __isl_give isl_map* tc_parameterize_map_all_in(__isl_take isl_map* map, __isl_ke
         map = isl_map_set_dim_id(map, isl_dim_param, i, id);
         
         map = isl_map_equate(map, isl_dim_param, i, isl_dim_in, i);
+    }
+    
+    return map;
+}
+
+__isl_give isl_map* tc_parameterize_map_all_out(__isl_take isl_map* map, __isl_keep isl_id_list* names)
+{
+    int n_len = isl_id_list_n_id(names);
+    
+    map = isl_map_insert_dims(map, isl_dim_param, 0, n_len);
+    
+    for (int i = 0; i < n_len; ++i)
+    {
+        isl_id* id = isl_id_list_get_id(names, i);
+        
+        map = isl_map_set_dim_id(map, isl_dim_param, i, id);
+        
+        map = isl_map_equate(map, isl_dim_param, i, isl_dim_out, i);
     }
     
     return map;
@@ -1822,4 +1868,38 @@ long tc_set_card_value(__isl_take isl_set* set)
     isl_val_free(set_card_val);
     
     return card;
+}
+
+char* tc_qpolynomial_to_str(__isl_keep isl_qpolynomial* poly)
+{
+    isl_ctx* ctx = isl_qpolynomial_get_ctx(poly);
+
+    isl_printer* printer = isl_printer_to_str(ctx);
+
+    printer = isl_printer_set_output_format(printer, ISL_FORMAT_C);
+
+    printer = isl_printer_print_qpolynomial(printer, poly);
+
+    char* str = isl_printer_get_str(printer);
+
+    isl_printer_free(printer);
+    
+    return str;
+}
+
+char* tc_qpolynomial_fold_to_str(__isl_keep isl_qpolynomial_fold* fold)
+{
+    isl_ctx* ctx = isl_qpolynomial_fold_get_ctx(fold);
+
+    isl_printer* printer = isl_printer_to_str(ctx);
+
+    printer = isl_printer_set_output_format(printer, ISL_FORMAT_C);
+
+    printer = isl_printer_print_qpolynomial_fold(printer, fold);
+
+    char* str = isl_printer_get_str(printer);
+
+    isl_printer_free(printer);
+    
+    return str;
 }

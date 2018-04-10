@@ -20,10 +20,12 @@
 enum tc_tile_statistics_category_enum
 {
     tc_tile_statistics_category_fixed,
-    tc_tile_statistics_category_parametric,
     tc_tile_statistics_category_varied,
+    tc_tile_statistics_category_parametric,
     tc_tile_statistics_category_parametric_varied,
-    tc_tile_statistics_category_unknown
+    tc_tile_statistics_category_boundary,
+    tc_tile_statistics_category_unknown,
+    tc_tile_statistics_category_SIZE
 };
 
 struct tc_tile_statistics_block
@@ -55,6 +57,8 @@ struct tc_tile_statistics_group
     
     isl_qpolynomial* card_qpolynomial;
     
+    char* card_qpolynomial_str;
+    
     enum tc_tile_statistics_category_enum category;
 };
 
@@ -81,8 +85,6 @@ struct tc_tile_statistics
     int n_statements;
     
     long n_statement_instances;
-    
-    long n_dimensionality_tiles[10];
     
     const std::map<std::string, std::vector<int> >* blocks;
 };

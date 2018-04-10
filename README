@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.2.25
+TC Optimizing Compiler 0.2.26
 
  Usage:
 
@@ -33,6 +33,7 @@ TC Optimizing Compiler 0.2.25
     --isl-map-tc           ISL normalized map transitive closure (default)
     --isl-union-map-tc     ISL union map transitive closure
     --floyd-warshall-tc    Floyd-Warshall algorithm
+    --iterative-tc         Iterative algorithm
     --tarjan-tc            Tarjan algorithm for finite graphs
 
  Options:

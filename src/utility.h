@@ -53,7 +53,11 @@ __isl_give isl_map* tc_flatten_union_map(__isl_take isl_union_map* umap);
 
 __isl_give isl_set* tc_lift_up_set_params(__isl_take isl_set* set, __isl_keep isl_id_list* params);
 
+__isl_give isl_map* tc_lift_up_map_params(__isl_take isl_map* map, __isl_keep isl_id_list* params, isl_dim_type dim);
+
 __isl_give isl_set* tc_lift_down_all_set_vars(__isl_take isl_set* set, __isl_keep isl_id_list* vars);
+
+__isl_give isl_set* tc_lift_down_set_vars(__isl_take isl_set* set, __isl_keep isl_id_list* vars);
 
 __isl_give isl_map* tc_lift_down_all_map_vars(__isl_take isl_map* map
                                             , __isl_keep isl_id_list* in
@@ -93,7 +97,9 @@ __isl_give isl_set* tc_parameterize(__isl_take isl_set* set, int pos, __isl_take
 
 __isl_give isl_set* tc_parameterize_all(__isl_take isl_set* set, __isl_keep isl_id_list* names);
 
-__isl_give isl_map* tc_parameterize_map_all_in(__isl_take isl_map* set, __isl_keep isl_id_list* names);
+__isl_give isl_map* tc_parameterize_map_all_in(__isl_take isl_map* map, __isl_keep isl_id_list* names);
+
+__isl_give isl_map* tc_parameterize_map_all_out(__isl_take isl_map* map, __isl_keep isl_id_list* names);
 
 __isl_give isl_id_list* tc_get_set_params_names(__isl_keep isl_set* set);
 
@@ -247,5 +253,9 @@ isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos);
 __isl_give isl_id_list* tc_id_list_remove_duplicates(__isl_take isl_id_list* list);
 
 long tc_set_card_value(__isl_take isl_set* set);
+
+char* tc_qpolynomial_to_str(__isl_keep isl_qpolynomial* poly);
+
+char* tc_qpolynomial_fold_to_str(__isl_keep isl_qpolynomial_fold* fold);
 
 #endif // TC_UTILITY_H

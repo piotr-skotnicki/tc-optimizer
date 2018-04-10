@@ -2,6 +2,7 @@
 #include "utility.h"
 #include "debug.h"
 #include "options.h"
+#include "config.h"
 
 #include <isl/ctx.h>
 #include <isl/id.h>
@@ -19,6 +20,10 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <map>
+#include <list>
+#include <string>
 
 static int tc_tile_statistics_block_compare(const void* a, const void* b)
 {
@@ -55,6 +60,10 @@ struct tc_tile_statistics_user
     isl_qpolynomial* card_poly;
     
     struct tc_options* options;
+    
+    std::map<long, std::list<struct tc_tile_statistics_group*> >* groups_map;
+    
+    const std::map<std::string, std::vector<int> >* blocks;
 };
 
 int tc_tile_statistics_get_group_dimensionality(struct tc_tile_statistics_group* group)
@@ -128,7 +137,10 @@ static isl_stat tc_get_tile_statistics_callback(__isl_take isl_point* point, voi
     group->tile_sample = isl_set_copy(tile_ii);
     group->category = data->category;
     group->card_qpolynomial = isl_qpolynomial_copy(data->card_poly);
+    group->card_qpolynomial_str = tc_qpolynomial_to_str(data->card_poly);
                         
+    isl_bool is_dim_exceeded = isl_bool_false;
+
     isl_union_set* tile_ii_denormalized = tc_denormalize_set(tile_ii, S);
        
     isl_set_list* tile_ii_sets = tc_collect_sets(tile_ii_denormalized);
@@ -148,24 +160,36 @@ static isl_stat tc_get_tile_statistics_callback(__isl_take isl_point* point, voi
         
         block->dimensions = isl_vec_alloc(ctx, n_dim);
 
+        const char* statement_label = isl_id_get_name(block->label);
+        const char* statement_block = "__DEFAULT__";
+        if (data->blocks->count(statement_label) > 0)
+        {
+            statement_block = statement_label;
+        }
+
         for (int j = 0; j < n_dim; ++j)
         {
             int dim = tc_lexmax_set_pos_value(tile_set, j) - tc_lexmin_set_pos_value(tile_set, j) + 1;
 
             block->dimensions = isl_vec_set_element_si(block->dimensions, j, dim);
+
+            if (dim > data->blocks->at(statement_block)[i])
+            {
+                is_dim_exceeded = isl_bool_true;
+            }
         }
                 
         if (NULL == group->blocks)
         {
             group->n_blocks_capacity = 1;
-            group->blocks = (struct tc_tile_statistics_block**)malloc(sizeof(struct tc_tile_statistics_block*));
+            group->blocks = (struct tc_tile_statistics_block**)malloc(group->n_blocks_capacity * sizeof(struct tc_tile_statistics_block*));
         }
         else
         {
             if (group->n_blocks + 1 > group->n_blocks_capacity)
             {
                 group->n_blocks_capacity = group->n_blocks_capacity * 2;
-                group->blocks = (struct tc_tile_statistics_block**)realloc(group->blocks, (group->n_blocks_capacity) * sizeof(struct tc_tile_statistics_block*));
+                group->blocks = (struct tc_tile_statistics_block**)realloc(group->blocks, group->n_blocks_capacity * sizeof(struct tc_tile_statistics_block*));
             }
         }
         group->n_blocks = group->n_blocks + 1;
@@ -175,23 +199,31 @@ static isl_stat tc_get_tile_statistics_callback(__isl_take isl_point* point, voi
         
         isl_set_free(tile_set);
     }
-    
+
+    if (is_dim_exceeded == isl_bool_false && group->category == tc_tile_statistics_category_parametric_varied)
+    {
+        group->category = tc_tile_statistics_category_boundary;
+    }
+        
     isl_union_set* cache_lines_uset = isl_union_set_apply(isl_union_set_copy(tile_ii_denormalized), isl_union_map_copy(SC));
 
     isl_set* cache_lines = tc_flatten_union_set(cache_lines_uset);
     
     group->memory = tc_set_card_value(cache_lines) * tc_options_cache_line(options);
-    
+
     group->dimensionality = tc_tile_statistics_get_group_dimensionality(group);
-    stats->n_dimensionality_tiles[group->dimensionality] += 1;
-        
+    
     qsort(group->blocks, group->n_blocks, sizeof(group->blocks[0]), &tc_tile_statistics_block_compare);
         
     isl_bool group_found = isl_bool_false;
     
-    for (int i = 0; i < stats->n_groups; ++i)
+    std::list<struct tc_tile_statistics_group*>& groups = (*data->groups_map)[group->memory];
+    
+    //for (int i = 0; i < stats->n_groups; ++i)
+    for (std::list<struct tc_tile_statistics_group*>::iterator it = groups.begin(), end = groups.end(); it != end; ++it)
     {
-        struct tc_tile_statistics_group* existing_group = stats->groups[i];
+        //struct tc_tile_statistics_group* existing_group = stats->groups[i];
+        struct tc_tile_statistics_group* existing_group = *it;
         
         isl_bool groups_equal = isl_bool_true;
         
@@ -224,6 +256,7 @@ static isl_stat tc_get_tile_statistics_callback(__isl_take isl_point* point, voi
         {
             existing_group->n_occurrences = existing_group->n_occurrences + 1;
             group_found = isl_bool_true;
+            break;
         }
     }
 
@@ -231,19 +264,21 @@ static isl_stat tc_get_tile_statistics_callback(__isl_take isl_point* point, voi
     {
         if (NULL == stats->groups)
         {
-            stats->n_groups_capacity = 1;
-            stats->groups = (struct tc_tile_statistics_group**)malloc(sizeof(struct tc_tile_statistics_group*));
+            stats->n_groups_capacity = 100;
+            stats->groups = (struct tc_tile_statistics_group**)malloc(stats->n_groups_capacity * sizeof(struct tc_tile_statistics_group*));
         }
         else
         {
             if (stats->n_groups + 1 > stats->n_groups_capacity)
             {
                 stats->n_groups_capacity = stats->n_groups_capacity * 2;
-                stats->groups = (struct tc_tile_statistics_group**)realloc(stats->groups, (stats->n_groups_capacity) * sizeof(struct tc_tile_statistics_group*));
+                stats->groups = (struct tc_tile_statistics_group**)realloc(stats->groups, stats->n_groups_capacity * sizeof(struct tc_tile_statistics_group*));
             }
         }
         stats->n_groups = stats->n_groups + 1;
         stats->groups[stats->n_groups - 1] = group;
+        
+        groups.push_back(group);
     }
     else
     {
@@ -282,8 +317,7 @@ struct tc_tile_statistics* tc_compute_tile_statistics(__isl_keep isl_set* tile
     stats->statements = NULL;
     stats->n_statements = 0;
     stats->blocks = &blocks;
-    memset(stats->n_dimensionality_tiles, 0, sizeof(stats->n_dimensionality_tiles));
-    
+        
     isl_ctx* ctx = isl_set_get_ctx(tile);
     
     isl_set* tile_bounded = tc_set_fix_params_bounds(isl_set_copy(tile), isl_set_copy(bounds));
@@ -297,7 +331,7 @@ struct tc_tile_statistics* tc_compute_tile_statistics(__isl_keep isl_set* tile
     isl_union_map* RA_bounded = tc_union_map_fix_params_bounds(isl_union_map_copy(RA), isl_set_copy(bounds));
     
     isl_union_map* WA_bounded = tc_union_map_fix_params_bounds(isl_union_map_copy(WA), isl_set_copy(bounds));
-            
+    
     stats->n_statement_instances = tc_set_card_value(LD_normalized_bounded);
     
     isl_set_list* LD_sets = tc_collect_sets(LD);
@@ -334,7 +368,7 @@ struct tc_tile_statistics* tc_compute_tile_statistics(__isl_keep isl_set* tile
     isl_set_list_free(LD_sets);
     
     qsort(stats->statements, stats->n_statements, sizeof(stats->statements[0]), &tc_tile_statistics_block_compare);
-
+    
     isl_union_map* C = tc_scop_data_to_cache_lines(scop, options, bounds);
     
     isl_union_map* SC = isl_union_map_apply_range(isl_union_map_union(RA_bounded, WA_bounded), C);
@@ -347,9 +381,17 @@ struct tc_tile_statistics* tc_compute_tile_statistics(__isl_keep isl_set* tile
     data.SC = SC;
     data.stats = stats;
     data.options = options;
+    data.blocks = &blocks;
+    
+    std::map<long, std::list<struct tc_tile_statistics_group*> > groups_map;
+    data.groups_map = &groups_map;
         
     isl_pw_qpolynomial* tile_card = isl_set_card(isl_set_copy(tile));
     
+    tc_debug_set_card(tile, "TILE");
+
+    tc_debug_set_card(tile_bounded, "TILE_BOUNDED");
+
     isl_id_list* params = tc_get_union_set_params_names(LD);
     
     struct tc_qpolynomials* qpolys = tc_collect_qpolynomials(tile_card);
@@ -491,39 +533,98 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
     long n_varied_tiles_statements = 0;
     long n_parametric_varied_tiles = 0;
     long n_parametric_varied_tiles_statements = 0;
-    
+    long n_boundary_tiles = 0;
+    long n_boundary_tiles_statements = 0;
+    long n_dimensionality_tiles[10] = { 0 };
+    long n_dimensionality_statement_instances[10] = { 0 };
+    long n_tile_categories[tc_tile_statistics_category_SIZE][10] = { 0 };
+    long n_statement_categories[tc_tile_statistics_category_SIZE][10] = { 0 };
+    long sum_tile_size = 0;
+    long max_tile_size = 0;
+
+    /*
+    std::map<std::string, long> qpoly_upper_bound;
+
+    for (int i = 0; i < stats->n_groups; ++i)
+    {
+        struct tc_tile_statistics_group* group = stats->groups[i];
+
+        if (tc_tile_statistics_category_parametric_varied == group->category)
+        {
+            long& qpoly_up = qpoly_upper_bound[group->card_qpolynomial_str];
+
+            qpoly_up = group->card > qpoly_up ? group->card : qpoly_up;
+        }
+    }
+
+    for (int i = 0; i < stats->n_groups; ++i)
+    {
+        struct tc_tile_statistics_group* group = stats->groups[i];
+
+        if (tc_tile_statistics_category_parametric_varied == group->category)
+        {
+            long qpoly_up = qpoly_upper_bound[group->card_qpolynomial_str];
+
+            if (qpoly_up < )
+            {
+                group->category = tc_tile_statistics_category_fixed;
+            }
+        }
+    }
+    */
+
     for (int i = 0; i < stats->n_groups; ++i)
     {
         struct tc_tile_statistics_group* group = stats->groups[i];
         
         if (tc_tile_statistics_category_parametric_varied == group->category)
         {
-            n_parametric_varied_tiles = n_parametric_varied_tiles + group->n_occurrences;
-            n_parametric_varied_tiles_statements = n_parametric_varied_tiles_statements + (group->n_occurrences * group->card);
+            n_parametric_varied_tiles += group->n_occurrences;
+            n_parametric_varied_tiles_statements += (group->n_occurrences * group->card);
         }
         else if (tc_tile_statistics_category_parametric == group->category)
         {
-            n_parametric_tiles = n_parametric_tiles + group->n_occurrences;
-            n_parametric_tiles_statements = n_parametric_tiles_statements + (group->n_occurrences * group->card);
+            n_parametric_tiles += group->n_occurrences;
+            n_parametric_tiles_statements += (group->n_occurrences * group->card);
         }
         else if (tc_tile_statistics_category_varied == group->category)
         {
-            n_varied_tiles = n_varied_tiles + group->n_occurrences;
-            n_varied_tiles_statements = n_varied_tiles_statements + (group->n_occurrences * group->card);
+            n_varied_tiles += group->n_occurrences;
+            n_varied_tiles_statements += (group->n_occurrences * group->card);
         }
         else if (tc_tile_statistics_category_fixed == group->category)
         {
-            n_fixed_tiles = n_fixed_tiles + group->n_occurrences;
-            n_fixed_tiles_statements = n_fixed_tiles_statements + (group->n_occurrences * group->card);
+            n_fixed_tiles += group->n_occurrences;
+            n_fixed_tiles_statements += (group->n_occurrences * group->card);
+        }
+        else if (tc_tile_statistics_category_boundary == group->category)
+        {
+            n_boundary_tiles += group->n_occurrences;
+            n_boundary_tiles_statements += (group->n_occurrences * group->card);
         }
         
-        n_tiles = n_tiles + group->n_occurrences;
+        n_tiles += group->n_occurrences;
+        
+        //if (group->category != tc_tile_statistics_category_parametric
+        //    && group->category != tc_tile_statistics_category_parametric_varied
+        //    && group->memory <= 32 * 1024)
+        {
+            n_dimensionality_tiles[group->dimensionality] += group->n_occurrences;
+            n_dimensionality_statement_instances[group->dimensionality] += (group->n_occurrences * group->card);
+        }
+        
+        sum_tile_size += group->memory * group->n_occurrences;
+        max_tile_size = group->memory > max_tile_size ? group->memory : max_tile_size;
+        
+        n_tile_categories[group->category][group->dimensionality] += group->n_occurrences;
+        n_statement_categories[group->category][group->dimensionality] += (group->n_occurrences * group->card);
     }
     
+    fprintf(out, "TC Optimizing Compiler " TC_CONF_VERSION " \n");
     fprintf(out, "Total statement instances: %ld\n", stats->n_statement_instances);
     fprintf(out, "Total tiles: %ld\n", n_tiles);
     fprintf(out, "Cache line length: %d B\n\n", tc_options_cache_line(stats->options));
-    
+        
     if (isl_union_set_dim(stats->LD, isl_dim_param) > 0)
     {
         fprintf(out, "Parameters values:\n");
@@ -551,7 +652,7 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
         
         fprintf(out, "\n");
     }
-    
+        
     for (int i = 0; i < stats->n_statements; ++i)
     {
         struct tc_tile_statistics_block* statement = stats->statements[i];
@@ -593,20 +694,39 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
     }
     fprintf(out, "\n");
     
-    fprintf(out, "Fixed tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_fixed_tiles, (100.0 * n_fixed_tiles) / n_tiles, n_fixed_tiles_statements, (100.0 * n_fixed_tiles_statements) / stats->n_statement_instances);
-    fprintf(out, "Varied tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_varied_tiles, (100.0 * n_varied_tiles) / n_tiles, n_varied_tiles_statements, (100.0 * n_varied_tiles_statements) / stats->n_statement_instances);
-    fprintf(out, "Parametric tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_parametric_tiles, (100.0 * n_parametric_tiles) / n_tiles, n_parametric_tiles_statements, (100.0 * n_parametric_tiles_statements) / stats->n_statement_instances);    
-    fprintf(out, "Parametric/varied tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n\n", n_parametric_varied_tiles, (100.0 * n_parametric_varied_tiles) / n_tiles, n_parametric_varied_tiles_statements, (100.0 * n_parametric_varied_tiles_statements) / stats->n_statement_instances);
-        
-    for (int i = 1; i < sizeof(stats->n_dimensionality_tiles) / sizeof(stats->n_dimensionality_tiles[0]); ++i)
+    fprintf(out, "Max tile size: %.2f kB\n", (1.0 * max_tile_size) / 1024);
+    fprintf(out, "Avg tile size: %.2f kB\n\n", ((1.0 * sum_tile_size) / n_tiles) / 1024);
+    
+    if (n_fixed_tiles) fprintf(out, "Fixed tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_fixed_tiles, (100.0 * n_fixed_tiles) / n_tiles, n_fixed_tiles_statements, (100.0 * n_fixed_tiles_statements) / stats->n_statement_instances);
+    if (n_varied_tiles) fprintf(out, "Varied tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_varied_tiles, (100.0 * n_varied_tiles) / n_tiles, n_varied_tiles_statements, (100.0 * n_varied_tiles_statements) / stats->n_statement_instances);
+    if (n_parametric_tiles) fprintf(out, "Parametric tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_parametric_tiles, (100.0 * n_parametric_tiles) / n_tiles, n_parametric_tiles_statements, (100.0 * n_parametric_tiles_statements) / stats->n_statement_instances);    
+    if (n_parametric_varied_tiles) fprintf(out, "Parametric/varied tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_parametric_varied_tiles, (100.0 * n_parametric_varied_tiles) / n_tiles, n_parametric_varied_tiles_statements, (100.0 * n_parametric_varied_tiles_statements) / stats->n_statement_instances);
+    if (n_boundary_tiles) fprintf(out, "Fixed boundary tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", n_boundary_tiles, (100.0 * n_boundary_tiles) / n_tiles, n_boundary_tiles_statements, (100.0 * n_boundary_tiles_statements) / stats->n_statement_instances);
+    fprintf(out, "\n");
+
+    for (int i = 1; i < sizeof(n_dimensionality_tiles) / sizeof(n_dimensionality_tiles[0]); ++i)
     {
-        if (stats->n_dimensionality_tiles[i] > 0)
+        if (n_dimensionality_tiles[i] > 0)
         {
-            fprintf(out, "%d-D tiles: %ld (%.8f %%)\n", i, stats->n_dimensionality_tiles[i], (100.0 * stats->n_dimensionality_tiles[i]) / n_tiles);
+            fprintf(out, "%d-D tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", i, n_dimensionality_tiles[i], (100.0 * n_dimensionality_tiles[i]) / n_tiles, n_dimensionality_statement_instances[i], (100.0 * n_dimensionality_statement_instances[i]) / stats->n_statement_instances);
         }
     }
     fprintf(out, "\n");
     
+    const char* categories[] = { "Fixed", "Varied", "Parametric", "Parametric/varied", "Fixed boundary" };
+        
+    for (int category = 0; category < sizeof(categories) / sizeof(categories[0]); ++category)
+    {
+        for (int i = 1; i < sizeof(n_tile_categories[category]) / sizeof(n_tile_categories[category][0]); ++i)
+        {
+            if (n_tile_categories[category][i] > 0)
+            {
+                fprintf(out, "%s %d-D tiles: %ld (%.8f %%) with total of %ld statement instances (%.8f %%)\n", categories[category], i, n_tile_categories[category][i], (100.0 * n_tile_categories[category][i]) / n_tiles, n_statement_categories[category][i], (100.0 * n_statement_categories[category][i]) / stats->n_statement_instances);
+            }
+        }
+    }
+    fprintf(out, "\n");
+        
     fprintf(out, "--------------------------------------------------------\n\n");
     
     for (int i = 0; i < stats->n_groups; ++i)
@@ -619,6 +739,7 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
             case tc_tile_statistics_category_parametric: category = "parametric"; break;
             case tc_tile_statistics_category_varied: category = "varied"; break;
             case tc_tile_statistics_category_parametric_varied: category = "parametric/varied"; break;
+            case tc_tile_statistics_category_boundary: category = "fixed boundary"; break;
             default:
             case tc_tile_statistics_category_fixed: category = "fixed"; break;
         }
@@ -677,6 +798,7 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
         
         fprintf(out, "\n");
         
+        ///*
         isl_ctx* ctx = isl_set_get_ctx(group->tile_sample);
                 
         isl_ast_build* ast_build = isl_ast_build_from_context(isl_set_copy(stats->scop->pet->context));
@@ -697,20 +819,17 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
         fprintf(out, "%s\n", code);
         free(code);
         
-        printer = isl_printer_flush(printer);
-        
-        printer = isl_printer_print_qpolynomial(printer, group->card_qpolynomial);
-        
-        char* expression = isl_printer_get_str(printer);        
-        fprintf(out, "The number of statement instances = %s\n\n", expression);        
-        free(expression);
-        
         isl_printer_free(printer);
         isl_ast_build_free(ast_build);
         isl_ast_node_free(ast_tile);
+        //*/
+        
+        fprintf(out, "The number of statement instances = %s\n\n", group->card_qpolynomial_str);
         
         fprintf(out, "--------------------------------------------------------\n\n");
     }
+
+    fflush(out);
 }
 
 void tc_compute_tile_statistics_trend(FILE* out
@@ -741,6 +860,8 @@ void tc_compute_tile_statistics_trend(FILE* out
         long n_varied_tiles_statements = 0;
         long n_parametric_varied_tiles = 0;
         long n_parametric_varied_tiles_statements = 0;
+        long n_boundary_tiles = 0;
+        long n_boundary_tiles_statements = 0;
 
         for (int i = 0; i < stats->n_groups; ++i)
         {
@@ -765,6 +886,11 @@ void tc_compute_tile_statistics_trend(FILE* out
             {
                 n_fixed_tiles = n_fixed_tiles + group->n_occurrences;
                 n_fixed_tiles_statements = n_fixed_tiles_statements + (group->n_occurrences * group->card);
+            }
+            else if (tc_tile_statistics_category_boundary == group->category)
+            {
+                n_boundary_tiles = n_boundary_tiles + group->n_occurrences;
+                n_boundary_tiles_statements = n_boundary_tiles_statements + (group->n_occurrences * group->card);
             }
 
             n_tiles = n_tiles + group->n_occurrences;
@@ -800,6 +926,7 @@ void tc_compute_tile_statistics_trend(FILE* out
         fprintf(out, "2. varied                %12.8f                                  %12.8f\n", (100.0 * n_varied_tiles) / n_tiles, (100.0 * n_varied_tiles_statements) / stats->n_statement_instances);
         fprintf(out, "3. parametric            %12.8f                                  %12.8f\n", (100.0 * n_parametric_tiles) / n_tiles, (100.0 * n_parametric_tiles_statements) / stats->n_statement_instances);
         fprintf(out, "4. parametric/varied     %12.8f                                  %12.8f\n", (100.0 * n_parametric_varied_tiles) / n_tiles, (100.0 * n_parametric_varied_tiles_statements) / stats->n_statement_instances);
+        fprintf(out, "5. fixed boundary        %12.8f                                  %12.8f\n", (100.0 * n_boundary_tiles) / n_tiles, (100.0 * n_boundary_tiles_statements) / stats->n_statement_instances);
         fprintf(out, "\n");        
         
         tc_tile_statistics_free(stats);
@@ -832,6 +959,7 @@ void tc_tile_statistics_group_free(struct tc_tile_statistics_group* group)
     
     isl_set_free(group->tile_sample);
     isl_qpolynomial_free(group->card_qpolynomial);
+    free(group->card_qpolynomial_str);
     
     free(group);
 }

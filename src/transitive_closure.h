@@ -14,6 +14,8 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_m
 
 __isl_give isl_map* tc_transitive_closure_adapter_floyd_warshall(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
 
+__isl_give isl_map* tc_transitive_closure_adapter_iterative(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+
 __isl_give isl_map* tc_transitive_closure_adapter_tarjan(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
 
 __isl_give isl_map* tc_map_power_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);

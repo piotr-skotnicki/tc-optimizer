@@ -1,5 +1,7 @@
 #include "floyd_warshall_transitive_closure.h"
+#include "iterative_transitive_closure.h"
 #include "utility.h"
+#include "debug.h"
 
 #include <isl/set.h>
 #include <isl/map.h>
@@ -11,7 +13,7 @@
 #include <vector>
 #include <map>
 
-__isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_union_map* R)
+__isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_union_map* R, int* exact)
 {
     isl_map* tcRR = NULL;
     isl_map* tcPR = NULL;
@@ -20,7 +22,7 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
     int size = 0;    
     
     std::map<std::string, int> id2index;
-    //std::map<int, std::string> index2id;
+    std::map<int, std::string> index2id;
     
     isl_map_list* maps = tc_collect_maps(R);
     
@@ -34,14 +36,14 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
         if (id2index.count(in_name) == 0)
         {
             id2index[in_name] = size;
-            //index2id[size] = in_name;            
+            index2id[size] = in_name;            
             ++size;
         }
         
         if (id2index.count(out_name) == 0)
         {
             id2index[out_name] = size;
-            //index2id[size] = out_name;
+            index2id[size] = out_name;
             ++size;
         }
         
@@ -64,6 +66,9 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
         
         const char* in_name = isl_map_get_tuple_name(map, isl_dim_in);
         const char* out_name = isl_map_get_tuple_name(map, isl_dim_out);
+
+        map = isl_map_reset_tuple_id(map, isl_dim_in);
+        map = isl_map_reset_tuple_id(map, isl_dim_out);
         
         relations[id2index[in_name]][id2index[out_name]] = map;
     }
@@ -74,8 +79,13 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
     {
         if (relations[r][r] != NULL)
         {        
-            int exact;
-            tcRR = isl_map_transitive_closure(isl_map_copy(relations[r][r]), &exact);
+            //int exact;            
+            
+            tc_debug_map(relations[r][r], "RR");
+            //tcRR = isl_map_transitive_closure(isl_map_copy(relations[r][r]), exact);
+            tcRR = tc_iterative_transitive_closure(isl_map_copy(relations[r][r]), 10, 100, exact);
+            tc_debug_map(tcRR, "RR+");
+
             isl_space* space = isl_map_get_space(tcRR);
             tcRR = isl_map_union(tcRR, isl_map_identity(space));
             //tcRR = isl_map_compute_divs(tcRR);
@@ -183,8 +193,8 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
             
             if (map != NULL)
             {
-                //map = isl_map_set_tuple_name(map, isl_dim_in, index2id[i].c_str());
-                //map = isl_map_set_tuple_name(map, isl_dim_out, index2id[j].c_str());
+                map = isl_map_set_tuple_name(map, isl_dim_in, index2id[i].c_str());
+                map = isl_map_set_tuple_name(map, isl_dim_out, index2id[j].c_str());
 
                 if (R_plus == NULL)
                 {

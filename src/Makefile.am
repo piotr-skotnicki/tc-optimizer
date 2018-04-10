@@ -25,6 +25,7 @@ tc_SOURCES = \
 	transitive_closure.cpp \
 	tarjan_transitive_closure.cpp \
 	floyd_warshall_transitive_closure.cpp \
+	iterative_transitive_closure.cpp \
 	tile_statistics.cpp \
 	for_decorator.cpp
 

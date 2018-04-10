@@ -9,6 +9,9 @@
 #include <stdarg.h>
 #include <limits.h>
 
+#define TC_STR_(A) #A
+#define TC_STR(A) TC_STR_(A)
+
 void tc_options_help()
 {
     fprintf(stderr,
@@ -47,18 +50,19 @@ void tc_options_help()
         "    --isl-map-tc           ISL normalized map transitive closure (default)\n"
         "    --isl-union-map-tc     ISL union map transitive closure\n"
         "    --floyd-warshall-tc    Floyd-Warshall algorithm\n"
+        "    --iterative-tc         Iterative algorithm\n"
         "    --tarjan-tc            Tarjan algorithm for finite graphs\n"
         "\n"
         " Options:\n"
         "\n"
-        "    -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: 32)\n"
+        "    -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: " TC_STR(TC_CONF_DEFAULT_TILE_SIZE) ")\n"
         "    --debug   | -d       Verbose mode\n"
         "    --report             Generate tile statistics report (use -R for each parameter)\n"
         "    --time               Measure calculations time\n"
         "    --inline             Always inline loop bounds expressions\n"
         "    -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600\n"
         "    -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600\n"
-        "    --cache <value>      Cache line length in bytes (default: 64)\n"
+        "    --cache <value>      Cache line length in bytes (default: " TC_STR(TC_CONF_DEFAULT_CACHE_LINE) ")\n"
         "    --use-macros         Use macro definitions in place of statements\n"
         "    --version | -v       Print compiler info\n"
         "    --help    | -h       Print help\n"
@@ -367,8 +371,8 @@ enum tc_transitive_closure_enum tc_options_transitive_closure(struct tc_options*
 {    
     enum tc_transitive_closure_enum value = tc_transitive_closure_enum_unknown;
     
-    static const char* strings[] = { "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--tarjan-tc" };
-    static enum tc_transitive_closure_enum values[] = { tc_transitive_closure_enum_isl_map, tc_transitive_closure_enum_isl_union_map, tc_transitive_closure_enum_floyd_warshall, tc_transitive_closure_enum_tarjan };
+    static const char* strings[] = { "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--tarjan-tc" };
+    static enum tc_transitive_closure_enum values[] = { tc_transitive_closure_enum_isl_map, tc_transitive_closure_enum_isl_union_map, tc_transitive_closure_enum_floyd_warshall, tc_transitive_closure_enum_iterative, tc_transitive_closure_enum_tarjan };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -609,7 +613,7 @@ void tc_options_check_spelling(struct tc_options* options)
         "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--merge-tiling",
         "--lex-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen",
-        "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--tarjan-tc",
+        "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--tarjan-tc",
         "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", "--time", "--use-macros",
         "-g", "--out", "-o",
     };
