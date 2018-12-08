@@ -1,17 +1,21 @@
 TC Optimizing Compiler 0.2.26
+=============================
 
- Usage:
+Manual
+------
+
+### Usage:
 
     tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 
- Algorithms:
+### Algorithms:
 
     --stencil-tiling       Concurrent start tiling for stencils
     --regular-tiling       Tiling with regular tile shapes
     --correction-tiling    Tiling with tiles correction
     --merge-tiling         Tiling with tiles merging
 
- Scheduling:
+### Scheduling:
 
     --lex-scheduling               Lexicographic order execution
     --sfs-single-scheduling        Tiling of synchronization-free slices with single sources
@@ -22,13 +26,13 @@ TC Optimizing Compiler 0.2.26
     --free-finite-scheduling       Exact free scheduling for finite graphs
     --dynamic-free-scheduling      Dynamic free scheduling
 
- Code generators:
+### Code generators:
 
     --serial-codegen       Serial code generator
     --omp-for-codegen      OpenMP parallel for generator
     --omp-task-codegen     OpenMP parallel task generator
 
- Transitive closure:
+### Transitive closure:
 
     --isl-map-tc           ISL normalized map transitive closure (default)
     --isl-union-map-tc     ISL union map transitive closure
@@ -36,7 +40,7 @@ TC Optimizing Compiler 0.2.26
     --iterative-tc         Iterative algorithm
     --tarjan-tc            Tarjan algorithm for finite graphs
 
- Options:
+### Options:
 
     -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: 32)
     --debug   | -d       Verbose mode
@@ -50,8 +54,9 @@ TC Optimizing Compiler 0.2.26
     --version | -v       Print compiler info
     --help    | -h       Print help
 
- e.g.:
+Examples
+--------
+
     ./src/tc ./examples/stencils/heat-1d.scop.c --stencil-tiling --omp-for-codegen -b 150,25000 --debug
     ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-single-scheduling --omp-for-codegen -b 8 --time
     ./src/tc ./examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -b S1:16 -b S2:16,8 -b S3:16
-
