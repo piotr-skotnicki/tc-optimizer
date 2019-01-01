@@ -27,7 +27,8 @@ tc_SOURCES = \
 	floyd_warshall_transitive_closure.cpp \
 	iterative_transitive_closure.cpp \
 	tile_statistics.cpp \
-	for_decorator.cpp
+	for_decorator.cpp \
+	timer.cpp
 
 tc_CPPFLAGS = \
 	-I$(top_srcdir)/isl/include \

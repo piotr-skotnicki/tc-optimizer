@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
             
             gettimeofday(&end_time, NULL);
             
-            if (tc_options_is_set(options, NULL, "--time"))
+            // if (tc_options_is_set(options, NULL, "--time"))
             {
                 unsigned long elapsed = 1000 * (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_usec - start_time.tv_usec) / 1000;
                 
@@ -172,4 +172,3 @@ int main(int argc, char* argv[])
     
     tc_options_free(options);
 }
-
