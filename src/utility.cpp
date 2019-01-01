@@ -932,11 +932,22 @@ __isl_give isl_id_list* tc_ids_ter(__isl_keep isl_id_list* list)
 __isl_give isl_id_list* tc_ids_sub(__isl_keep isl_id_list* list, int begin, int end)
 {
     isl_id_list* sublist = isl_id_list_alloc(isl_id_list_get_ctx(list), end - begin);
+
     for (int i = begin; i < end; ++i)
     {
         sublist = isl_id_list_add(sublist, isl_id_list_get_id(list, i));
     }
+
     return sublist;
+}
+
+__isl_give isl_id_list* tc_ids_single(__isl_keep isl_ctx* ctx, const char* id)
+{
+    isl_id_list* result = isl_id_list_alloc(ctx, 1);
+
+    result = isl_id_list_add(result, isl_id_alloc(ctx, id, NULL));
+
+    return result;
 }
 
 std::string tc_conjunction(const std::string& lhs, const std::string& rhs)
@@ -1303,7 +1314,7 @@ int tc_get_statement_depth(const char* label, __isl_keep isl_union_map* umap)
 {
     isl_map* map = tc_get_map_for_input_tuple(umap, label);
     
-    int depth = isl_map_n_in(map);
+    int depth = isl_map_dim(map, isl_dim_in);
     
     isl_map_free(map);
     
@@ -1607,7 +1618,7 @@ __isl_give isl_map* tc_get_lex_forward(__isl_take isl_map* R)
 {
     isl_ctx* ctx = isl_map_get_ctx(R);
     
-    int n_in = isl_map_n_in(R);
+    int n_in = isl_map_dim(R, isl_dim_in);
     
     isl_id_list* e_in = tc_ids_sequence(ctx, "in", n_in);
     isl_id_list* e_out = tc_ids_sequence(ctx, "out", n_in);
@@ -1626,7 +1637,7 @@ __isl_give isl_map* tc_get_lex_backward(__isl_take isl_map* R)
 {
     isl_ctx* ctx = isl_map_get_ctx(R);
     
-    int n_in = isl_map_n_in(R);
+    int n_in = isl_map_dim(R, isl_dim_in);
     
     isl_id_list* e_in = tc_ids_sequence(ctx, "in", n_in);
     isl_id_list* e_out = tc_ids_sequence(ctx, "out", n_in);
@@ -1660,7 +1671,7 @@ __isl_give isl_union_map* tc_simplify_schedule(__isl_take isl_union_map* S)
                 
     isl_map* map_sample = isl_map_list_get_map(maps, 0);
     
-    int n_out = isl_map_n_out(map_sample);
+    int n_out = isl_map_dim(map_sample, isl_dim_out);
     
     for (int i = n_out - 1; i >= 0; --i)
     {        
@@ -1801,7 +1812,7 @@ isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos)
 {
     isl_bool carries_dependences = isl_bool_false;
     
-    int n_dim = isl_map_n_in(map);
+    int n_dim = isl_map_dim(map, isl_dim_in);
     
     isl_map* map_eq = isl_map_universe(isl_map_get_space(map));
     
@@ -1902,4 +1913,55 @@ char* tc_qpolynomial_fold_to_str(__isl_keep isl_qpolynomial_fold* fold)
     isl_printer_free(printer);
     
     return str;
+}
+
+__isl_give isl_union_map* tc_loop_interchange(__isl_take isl_union_map* S, const char* name, const char* a, const char* b)
+{
+    isl_map* statement_schedule = tc_get_map_for_input_tuple(S, name);
+
+    int n_in = isl_map_dim(statement_schedule, isl_dim_in);
+
+    isl_set* statement_schedule_domain = isl_map_domain(isl_map_copy(statement_schedule));
+
+    int pos_a = -1;
+    int pos_b = -1;
+
+    for (int i = 0; i < n_in; ++i)
+    {
+        if (strcmp(isl_set_get_dim_name(statement_schedule_domain, isl_dim_set, i), a) == 0)
+        {
+            pos_a = i;
+        }
+        if (strcmp(isl_set_get_dim_name(statement_schedule_domain, isl_dim_set, i), b) == 0)
+        {
+            pos_b = i;
+        }
+    }
+
+    if (pos_a != -1 && pos_b != -1)
+    {
+        isl_map* interchange = isl_map_from_domain_and_range(isl_set_copy(statement_schedule_domain), isl_set_copy(statement_schedule_domain));
+        
+        for (int i = 0; i < n_in; ++i)
+        {
+            if (i != pos_a && i != pos_b)
+            {
+                interchange = isl_map_equate(interchange, isl_dim_in, i, isl_dim_out, i);
+            }
+        }
+
+        interchange = isl_map_equate(interchange, isl_dim_in, pos_a, isl_dim_out, pos_b);
+        interchange = isl_map_equate(interchange, isl_dim_in, pos_b, isl_dim_out, pos_a);
+        
+        statement_schedule = isl_map_apply_domain(statement_schedule, interchange);
+
+        S = tc_remove_map_with_tuple(S, name);
+
+        S = isl_union_map_add_map(S, isl_map_copy(statement_schedule));
+    }
+
+    isl_set_free(statement_schedule_domain);
+    isl_map_free(statement_schedule);
+
+    return S;
 }

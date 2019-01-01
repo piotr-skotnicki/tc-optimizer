@@ -155,6 +155,8 @@ __isl_give isl_id_list* tc_ids_ter(__isl_keep isl_id_list* list);
 
 __isl_give isl_id_list* tc_ids_sub(__isl_keep isl_id_list* list, int begin, int end);
 
+__isl_give isl_id_list* tc_ids_single(__isl_keep isl_ctx* ctx, const char* id);
+
 std::string tc_conjunction(const std::string& lhs, const std::string& rhs);
 
 std::string tc_disjunction(const std::string& lhs, const std::string& rhs);
@@ -257,5 +259,7 @@ long tc_set_card_value(__isl_take isl_set* set);
 char* tc_qpolynomial_to_str(__isl_keep isl_qpolynomial* poly);
 
 char* tc_qpolynomial_fold_to_str(__isl_keep isl_qpolynomial_fold* fold);
+
+__isl_give isl_union_map* tc_loop_interchange(__isl_take isl_union_map* S, const char* name, const char* a, const char* b);
 
 #endif // TC_UTILITY_H

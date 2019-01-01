@@ -1,5 +1,5 @@
 #ifndef TC_SLICING_H
-#define	TC_SLICING_H
+#define TC_SLICING_H
 
 #include <isl/set.h>
 #include <isl/map.h>
@@ -30,5 +30,7 @@ __isl_give isl_set* tc_Sk_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
 __isl_give isl_map* tc_Rprim_map(__isl_keep isl_map* R);
 
 __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __isl_keep isl_union_map* S);
+
+__isl_give isl_map* tc_remove_redundant_dependencies(__isl_take isl_map* R);
 
 #endif // TC_SLICING_H

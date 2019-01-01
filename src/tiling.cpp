@@ -239,7 +239,7 @@ __isl_give isl_union_map* tc_remove_loop_independent_dependences(__isl_take isl_
                 isl_map* loop_independent_dependence1 = isl_map_from_domain_and_range(isl_map_domain(isl_map_copy(tuple_map1)), isl_map_domain(isl_map_copy(tuple_map2)));
                 isl_map* loop_independent_dependence2 = isl_map_from_domain_and_range(isl_map_domain(isl_map_copy(tuple_map2)), isl_map_domain(isl_map_copy(tuple_map1)));
 
-                for (int l = 0; l < isl_map_n_in(tuple_map1); ++l)
+                for (int l = 0; l < isl_map_dim(tuple_map1, isl_dim_in); ++l)
                 {
                     loop_independent_dependence1 = isl_map_equate(loop_independent_dependence1, isl_dim_in, l, isl_dim_out, l);
                     loop_independent_dependence2 = isl_map_equate(loop_independent_dependence2, isl_dim_in, l, isl_dim_out, l);
@@ -285,9 +285,11 @@ __isl_give isl_set* tc_normalize_params(__isl_take isl_set* tile, __isl_keep isl
     
     return tile;
 }
-    
+
 __isl_give isl_map* tc_Rtile_map(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_map* R)
 {
+    // R_TILE := { [II] -> [JJ] | II,JJ in II_SET and II != JJ and exists I, J: I in TILE(II) and J in TILE(JJ) and J in R(I) }
+
     isl_ctx* ctx = isl_set_get_ctx(tile);
     
     isl_id_list* I = tc_ids_sequence(ctx, "i", isl_set_dim(tile, isl_dim_set));

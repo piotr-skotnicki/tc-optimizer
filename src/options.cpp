@@ -1,6 +1,8 @@
 #include "options.h"
 #include "config.h"
 
+#include <isl/space.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -81,8 +83,7 @@ void tc_options_credits()
         "TC Optimizing Compiler\n"
         "version " TC_CONF_VERSION "\n"
         "\n"
-        "Piotr Skotnicki\n"
-        "<pskotnicki@wi.zut.edu.pl>\n"
+        "Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>\n"
         "\n"
         "West Pomeranian University of Technology\n"
         "Faculty of Computer Science and Information Technology\n"

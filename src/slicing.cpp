@@ -35,7 +35,7 @@ __isl_give isl_map* tc_Rusc_map(__isl_keep isl_map* R, __isl_keep isl_union_map*
     
     isl_ctx* ctx = isl_map_get_ctx(R);
     
-    int n_in_dim = isl_map_n_in(R);
+    int n_in_dim = isl_map_dim(R, isl_dim_in);
     
     isl_set* uds = tc_uds_set(R); 
     
@@ -78,7 +78,7 @@ __isl_give isl_map* tc_Rusc3_map(__isl_keep isl_set* uds, __isl_keep isl_map* R,
     
     isl_ctx* ctx = isl_map_get_ctx(R);
     
-    int n_in_dim = isl_map_n_in(R);
+    int n_in_dim = isl_map_dim(R, isl_dim_in);
     
     isl_id_list* e = tc_ids_sequence(ctx, "e", n_in_dim);
     isl_id_list* e_prim = tc_ids_prim(e);
@@ -124,7 +124,7 @@ __isl_give isl_map* tc_Rusc2_map(__isl_keep isl_set* uds, __isl_keep isl_map* R,
     
     isl_ctx* ctx = isl_map_get_ctx(R);
     
-    int n_in_dim = isl_map_n_in(R);
+    int n_in_dim = isl_map_dim(R, isl_dim_in);
     
     isl_id_list* e = tc_ids_sequence(ctx, "e", n_in_dim);
     isl_id_list* e_prim = tc_ids_prim(e);
@@ -170,8 +170,8 @@ __isl_give isl_set* tc_cds_set(__isl_keep isl_map* R)
     
     isl_map* R_inv = isl_map_reverse(isl_map_copy(R));
     
-    int n_in_dim = isl_map_n_in(R);
-    int n_out_dim = isl_map_n_out(R);
+    int n_in_dim = isl_map_dim(R, isl_dim_in);
+    int n_out_dim = isl_map_dim(R, isl_dim_out);
     
     isl_id_list* e = tc_ids_sequence(ctx, "e", n_in_dim);
     isl_id_list* e_out = tc_ids_sequence(ctx, "e", n_out_dim);
@@ -212,8 +212,8 @@ __isl_give isl_set* tc_cdd_set(__isl_keep isl_map* R)
     
     isl_ctx* ctx = isl_map_get_ctx(R);
         
-    int n_in_dim = isl_map_n_in(R);
-    int n_out_dim = isl_map_n_out(R);
+    int n_in_dim = isl_map_dim(R, isl_dim_in);
+    int n_out_dim = isl_map_dim(R, isl_dim_out);
     
     isl_id_list* e = tc_ids_sequence(ctx, "e", n_out_dim);
     isl_id_list* e_in = tc_ids_sequence(ctx, "e", n_in_dim);
@@ -340,7 +340,8 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     tc_debug_umap(Sprim, "S'");
     
     int exact;
-    isl_map* Rprim_plus = tc_transitive_closure(isl_map_copy(Rprim), Sprim, &exact);
+    //isl_map* Rprim_plus = tc_transitive_closure(isl_map_copy(Rprim), Sprim, &exact);
+    isl_map* Rprim_plus = tc_transitive_closure_adapter_isl_map(isl_map_copy(Rprim), Sprim, &exact);
     isl_map* Rprim_star = isl_map_union(isl_map_copy(Rprim_plus), tc_make_identity(Rprim));
     
     tc_debug_map(Rprim_plus, "R'+ (exact=%d)", exact);
@@ -402,3 +403,75 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     
     return FS;
 }
+
+__isl_give isl_map* tc_remove_redundant_dependencies(__isl_take isl_map* R)
+{
+    // R' := { [e] -> [e'] | e' in R(e) and not exists e'' : e'' >> e and e'' in R(e) }
+    
+    isl_ctx* ctx = isl_map_get_ctx(R);
+    
+    isl_id_list* e = tc_ids_sequence(ctx, "e", isl_map_dim(R, isl_dim_in));    
+    isl_id_list* e_prim = tc_ids_prim(e);
+    
+    isl_map* R_parameterized = tc_parameterize_map_all_out(R, e_prim);
+    
+    isl_set* R_parameterized_domain = isl_map_domain(R_parameterized);
+    
+    isl_set* R_parameterized_domain_lexmax = isl_set_lexmax(R_parameterized_domain);
+    
+    isl_map* R_prim = isl_map_from_domain(R_parameterized_domain_lexmax);
+    
+    R_prim = tc_lift_up_map_params(R_prim, e_prim, isl_dim_out);
+    
+    isl_id_list_free(e);
+    isl_id_list_free(e_prim);
+            
+    return R_prim;   
+}
+
+/*
+__isl_give isl_map* tc_remove_redundant_dependencies(__isl_take isl_map* R)
+{
+    // R' := { [e] -> [e'] | e' in R(e) and not exists e'' : e'' >> e and e'' in R(e) }
+    
+    isl_ctx* ctx = isl_map_get_ctx(R);
+        
+    // R := [e,e'] -> { [e] -> [e'] | [e,e'] in R }
+    
+    // R' := [e,e'] -> { [e''] -> [e'] | [e'',e'] in R and e'' << e }
+    
+    // R' := R - R'
+    
+    isl_id_list* e = tc_ids_sequence(ctx, "e", isl_map_dim(R, isl_dim_in));
+    isl_id_list* e_prim = tc_ids_prim(e);
+    isl_id_list* e_bis = tc_ids_bis(e);
+    
+    isl_id_list* e_e_prim = isl_id_list_concat(isl_id_list_copy(e), isl_id_list_copy(e_prim));
+            
+    isl_map* R_prim = tc_make_map(ctx, e_e_prim, e_bis, e_prim, tc_tuples_lt(e_bis, e).c_str());
+    
+    tc_debug_map(R_prim, "A");
+    
+    R_prim = isl_map_intersect(R_prim, isl_map_copy(R));
+    
+    tc_debug_map(R_prim, "R'");
+    
+    R = tc_parameterize_map_all_in(R, e);
+    R = tc_parameterize_map_all_out(R, e_prim);
+    
+    tc_debug_map(R, "R");
+    
+    R_prim = isl_map_subtract(R, R_prim);
+    
+    tc_debug_map(R_prim, "aaaa");
+    
+    R_prim = tc_map_project_out_params(R_prim, e_e_prim);
+    
+    isl_id_list_free(e);
+    isl_id_list_free(e_prim);
+    isl_id_list_free(e_e_prim);
+    isl_id_list_free(e_bis);
+    
+    return R_prim;
+}
+*/
