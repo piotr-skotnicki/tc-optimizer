@@ -9,15 +9,13 @@ int main()
   int T;
   int N;
 #endif
-
-  int t,i,j;
   
   int life[2][N][N];
 
 #pragma scop
-  for (t = 0; t < T; t++) {
-    for (i = 1; i < N-1; i++) {
-      for (j = 1; j < N-1; j++) {
+  for (int t = 0; t < T; t++) {
+    for (int i = 1; i < N-1; i++) {
+      for (int j = 1; j < N-1; j++) {
 S1:     life[(t+1)%2][i][j] = b2s23(life[t%2][i][j], life[t%2][i-1][j+1] + life[t%2][i-1][j] + life[t%2][i-1][j-1] 
                     + life[t%2][i][j+1] + life[t%2][i][j-1]                     
                     + life[t%2][i+1][j+1] + life[t%2][i+1][j] + life[t%2][i+1][j-1]);

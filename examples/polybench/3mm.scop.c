@@ -15,8 +15,6 @@ int main()
   int _PB_NL;
   int _PB_NM;
 #endif
-
-  int i,j,k;
   
   double E[_PB_NI][_PB_NJ];
   double A[_PB_NI][_PB_NK];
@@ -27,32 +25,31 @@ int main()
   double G[_PB_NI][_PB_NL];
 
 #pragma scop
-  for (i = 0; i < _PB_NI; i++) {
-    for (j = 0; j < _PB_NJ; j++) {
+  for (int i = 0; i < _PB_NI; i++) {
+    for (int j = 0; j < _PB_NJ; j++) {
 S1:   E[i][j] = SCALAR_VAL(0.0);
-      for (k = 0; k < _PB_NK; ++k) {
+      for (int k = 0; k < _PB_NK; ++k) {
 S2:     E[i][j] += A[i][k] * B[k][j];
       }
     }
   }
     
-  for (i = 0; i < _PB_NJ; i++) {
-    for (j = 0; j < _PB_NL; j++) {
+  for (int i = 0; i < _PB_NJ; i++) {
+    for (int j = 0; j < _PB_NL; j++) {
 S3:   F[i][j] = SCALAR_VAL(0.0);
-      for (k = 0; k < _PB_NM; ++k) {
+      for (int k = 0; k < _PB_NM; ++k) {
 S4:     F[i][j] += C[i][k] * D[k][j];
       }
     }
   }
 
-  for (i = 0; i < _PB_NI; i++) {
-    for (j = 0; j < _PB_NL; j++) {
+  for (int i = 0; i < _PB_NI; i++) {
+    for (int j = 0; j < _PB_NL; j++) {
 S5:   G[i][j] = SCALAR_VAL(0.0);
-      for (k = 0; k < _PB_NJ; ++k) {
+      for (int k = 0; k < _PB_NJ; ++k) {
 S6:     G[i][j] += E[i][k] * F[k][j];
       }
     }
   }
 #pragma endscop
 }
-

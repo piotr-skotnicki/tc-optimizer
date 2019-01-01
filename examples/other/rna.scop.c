@@ -14,14 +14,13 @@ int main()
   int N;
 #endif
 
-  int i,j,k;
   int S[N][N];
   int RNA[N];
 
 #pragma scop
-  for (i = N-1; i >= 0; i--) {
-    for (j = i+1; j < N; j++) {
-      for (k = 0; k < j-i; k++) {
+  for (int i = N-1; i >= 0; i--) {
+    for (int j = i+1; j < N; j++) {
+      for (int k = 0; k < j-i; k++) {
 S1:     S[i][j] = MAX(S[i][k+i] + S[k+i+1][j], S[i][j]);
       }
 S2:   S[i][j] = MAX(S[i][j], S[i+1][j-1] + can_pair(RNA, i, j));
@@ -29,4 +28,3 @@ S2:   S[i][j] = MAX(S[i][j], S[i+1][j-1] + can_pair(RNA, i, j));
   }
 #pragma endscop
 }
-

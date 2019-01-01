@@ -9,8 +9,6 @@ int main()
   int _PB_M;
   int _PB_N;
 #endif
-
-  int i,j,k;
   
   double A[_PB_M][_PB_N];
   double x[_PB_N];
@@ -18,19 +16,18 @@ int main()
   double tmp[_PB_M];
 
 #pragma scop
-  for (i = 0; i < _PB_N; i++) {
+  for (int i = 0; i < _PB_N; i++) {
 S1: y[i] = 0;
   }
   
-  for (i = 0; i < _PB_M; i++) {
+  for (int i = 0; i < _PB_M; i++) {
 S2: tmp[i] = SCALAR_VAL(0.0);
-    for (j = 0; j < _PB_N; j++) {
+    for (int j = 0; j < _PB_N; j++) {
 S3:   tmp[i] = tmp[i] + A[i][j] * x[j];
     }    
-    for (j = 0; j < _PB_N; j++) {
+    for (int j = 0; j < _PB_N; j++) {
 S4:   y[j] = y[j] + A[i][j] * tmp[i];
     }
   }
 #pragma endscop
 }
-

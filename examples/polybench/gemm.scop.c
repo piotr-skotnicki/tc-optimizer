@@ -9,8 +9,6 @@ int main()
   int _PB_NJ;
   int _PB_NK;
 #endif
-
-  int i,j,k;
   
   double alpha;
   double beta;
@@ -19,16 +17,15 @@ int main()
   double B[_PB_NK][_PB_NJ];
 
 #pragma scop
-  for (i = 0; i < _PB_NI; i++) {
-    for (j = 0; j < _PB_NJ; j++) {
+  for (int i = 0; i < _PB_NI; i++) {
+    for (int j = 0; j < _PB_NJ; j++) {
 S1:   C[i][j] *= beta;
     }
-    for (k = 0; k < _PB_NK; k++) {
-      for (j = 0; j < _PB_NJ; j++) {
+    for (int k = 0; k < _PB_NK; k++) {
+      for (int j = 0; j < _PB_NJ; j++) {
 S2:     C[i][j] += alpha * A[i][k] * B[k][j];
       }
     }
   }
 #pragma endscop
 }
-

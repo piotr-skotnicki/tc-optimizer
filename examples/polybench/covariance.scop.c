@@ -9,8 +9,6 @@ int main()
   int _PB_N;
   int _PB_M;
 #endif
-
-  int i,j,k;
   
   double float_n;
   double data[_PB_N][_PB_M];
@@ -18,24 +16,24 @@ int main()
   double mean[_PB_M];
 
 #pragma scop
-  for (j = 0; j < _PB_M; j++) {
+  for (int j = 0; j < _PB_M; j++) {
 S1: mean[j] = SCALAR_VAL(0.0);
-    for (i = 0; i < _PB_N; i++) {
+    for (int i = 0; i < _PB_N; i++) {
 S2:   mean[j] += data[i][j];
     }
 S3: mean[j] /= float_n;
   }
 
-  for (i = 0; i < _PB_N; i++) {
-    for (j = 0; j < _PB_M; j++) {
+  for (int i = 0; i < _PB_N; i++) {
+    for (int j = 0; j < _PB_M; j++) {
 S4:   data[i][j] -= mean[j];
     }
   }
 
-  for (i = 0; i < _PB_M; i++) {
-    for (j = i; j < _PB_M; j++) {
+  for (int i = 0; i < _PB_M; i++) {
+    for (int j = i; j < _PB_M; j++) {
 S5:   cov[i][j] = SCALAR_VAL(0.0);
-      for (k = 0; k < _PB_N; k++) {
+      for (int k = 0; k < _PB_N; k++) {
 S6:     cov[i][j] += data[k][i] * data[k][j];
 	    }
 S7:   cov[i][j] /= (float_n - SCALAR_VAL(1.0));
@@ -44,4 +42,3 @@ S8:   cov[j][i] = cov[i][j];
   }
 #pragma endscop
 }
-

@@ -7,8 +7,6 @@ int main()
 #else
   int _PB_N;
 #endif
-
-  int i,j;
   
   double alpha;
   double beta;
@@ -19,10 +17,10 @@ int main()
   double y[_PB_N];
 
 #pragma scop
-  for (i = 0; i < _PB_N; i++) {
+  for (int i = 0; i < _PB_N; i++) {
 S1: tmp[i] = SCALAR_VAL(0.0);
 S2: y[i] = SCALAR_VAL(0.0);
-    for (j = 0; j < _PB_N; j++) {
+    for (int j = 0; j < _PB_N; j++) {
 S3:   tmp[i] = A[i][j] * x[j] + tmp[i];
 S4:   y[i] = B[i][j] * x[j] + y[i];
     }

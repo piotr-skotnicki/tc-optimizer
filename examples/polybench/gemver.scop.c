@@ -6,7 +6,6 @@ int main()
   int _PB_N;
 #endif
   
-  int i,j;
   int alpha;
   int beta;
   int A[_PB_N][_PB_N];
@@ -21,21 +20,20 @@ int main()
 
 #pragma scop
 
-  for (i = 0; i < _PB_N; i++)
-    for (j = 0; j < _PB_N; j++)
+  for (int i = 0; i < _PB_N; i++)
+    for (int j = 0; j < _PB_N; j++)
 S1:   A[i][j] = A[i][j] + u1[i] * v1[j] + u2[i] * v2[j];
 
-  for (i = 0; i < _PB_N; i++)
-    for (j = 0; j < _PB_N; j++)
+  for (int i = 0; i < _PB_N; i++)
+    for (int j = 0; j < _PB_N; j++)
 S2:   x[i] = x[i] + beta * A[j][i] * y[j];
 
-  for (i = 0; i < _PB_N; i++)
+  for (int i = 0; i < _PB_N; i++)
 S3: x[i] = x[i] + z[i];
 
-  for (i = 0; i < _PB_N; i++)
-    for (j = 0; j < _PB_N; j++)
+  for (int i = 0; i < _PB_N; i++)
+    for (int j = 0; j < _PB_N; j++)
 S4:   w[i] = w[i] + alpha * A[i][j] * x[j];
 
 #pragma endscop
 }
-
