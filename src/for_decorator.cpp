@@ -239,8 +239,8 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
     
     if (!inline_variables)
     {
-        char* init_str = isl_ast_expr_to_str(init);
-        char* cond_rhs_str = isl_ast_expr_to_str(cond_rhs);
+        char* init_str = isl_ast_expr_to_C_str(init);
+        char* cond_rhs_str = isl_ast_expr_to_C_str(cond_rhs);
 
         char bounds_declaration[512];
         sprintf(bounds_declaration, "const %s %s = %s, %s = %s;", type, lb_variable, init_str, ub_variable, cond_rhs_str);
@@ -276,9 +276,9 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
         cond = isl_ast_expr_set_op_arg(cond, 1, isl_ast_expr_from_id(isl_id_alloc(ctx, ub_variable, NULL)));
     }
     
-    char* init_str = isl_ast_expr_to_str(init);
-    char* cond_str = isl_ast_expr_to_str(cond);
-    char* inc_str = isl_ast_expr_to_str(inc);
+    char* init_str = isl_ast_expr_to_C_str(init);
+    char* cond_str = isl_ast_expr_to_C_str(cond);
+    char* inc_str = isl_ast_expr_to_C_str(inc);
 
     char for_declaration[512];
     sprintf(for_declaration, "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
@@ -374,8 +374,8 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
     
     if (!inline_variables)
     {
-        char* init_str = isl_ast_expr_to_str(init);
-        char* cond_rhs_str = isl_ast_expr_to_str(cond_rhs);
+        char* init_str = isl_ast_expr_to_C_str(init);
+        char* cond_rhs_str = isl_ast_expr_to_C_str(cond_rhs);
 
         char bounds_declaration[512];
         sprintf(bounds_declaration, "const %s %s = %s, %s = %s;", type, lb_variable, init_str, ub_variable, cond_rhs_str);
@@ -413,9 +413,9 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
         cond = isl_ast_expr_set_op_arg(cond, 1, isl_ast_expr_from_id(isl_id_alloc(ctx, ub_variable, NULL)));
     }
     
-    char* init_str = isl_ast_expr_to_str(init);
-    char* cond_str = isl_ast_expr_to_str(cond);
-    char* inc_str = isl_ast_expr_to_str(inc);
+    char* init_str = isl_ast_expr_to_C_str(init);
+    char* cond_str = isl_ast_expr_to_C_str(cond);
+    char* inc_str = isl_ast_expr_to_C_str(inc);
 
     char for_declaration[512];
     sprintf(for_declaration, "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
