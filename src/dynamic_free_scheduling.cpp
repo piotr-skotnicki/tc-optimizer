@@ -65,13 +65,13 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
     {
         isl_id* II_i = isl_id_list_get_id(II, i);
         
-        sprintf(buff, "  isl_val* p%d = isl_point_get_coordinate_val(point, isl_dim_set, %d);\n", i, i);
+        snprintf(buff, sizeof(buff), "  isl_val* p%d = isl_point_get_coordinate_val(point, isl_dim_set, %d);\n", i, i);
         printer = isl_printer_print_str(printer, buff);
         
-        sprintf(buff, "  int %s = isl_val_get_num_si(p%d);\n", isl_id_get_name(II_i), i);
+        snprintf(buff, sizeof(buff), "  int %s = isl_val_get_num_si(p%d);\n", isl_id_get_name(II_i), i);
         printer = isl_printer_print_str(printer, buff);
         
-        sprintf(buff, "  isl_val_free(p%d);\n", i);
+        snprintf(buff, sizeof(buff), "  isl_val_free(p%d);\n", i);
         printer = isl_printer_print_str(printer, buff);
         
         isl_id_free(II_i);
@@ -120,10 +120,10 @@ void tc_scheduling_dynamic_free_schedule(struct tc_scop* scop, struct tc_options
         isl_id* Rtile_param = isl_id_list_get_id(Rtile_params, i);
         isl_id* ii_set_param = isl_id_list_get_id(ii_set_params, i);
         
-        sprintf(buff, "  rtile = isl_map_fix_si(rtile, isl_dim_param, %d, %s);\n", i, isl_id_get_name(Rtile_param));
+        snprintf(buff, sizeof(buff), "  rtile = isl_map_fix_si(rtile, isl_dim_param, %d, %s);\n", i, isl_id_get_name(Rtile_param));
         printer = isl_printer_print_str(printer, buff);
         
-        sprintf(buff, "  ii_set = isl_set_fix_si(ii_set, isl_dim_param, %d, %s);\n", i, isl_id_get_name(ii_set_param));
+        snprintf(buff, sizeof(buff), "  ii_set = isl_set_fix_si(ii_set, isl_dim_param, %d, %s);\n", i, isl_id_get_name(ii_set_param));
         printer = isl_printer_print_str(printer, buff);
         
         isl_id_free(Rtile_param);

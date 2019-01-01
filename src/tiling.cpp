@@ -42,9 +42,9 @@ __isl_give isl_set* tc_tile_set(__isl_keep isl_id_list* II, __isl_keep isl_id_li
             isl_id* II_i = isl_id_list_get_id(II, i);
             isl_id* I_i = isl_id_list_get_id(I, i);
 
-            sprintf(buff, "%d * %s + %s <= %s <= min( %d * (%s + 1) + %s - 1, %s ) and %s >= 0 and ",
+            snprintf(buff, sizeof(buff), "%d * %s + %s <= %s <= min( %d * (%s + 1) + %s - 1, %s ) and %s >= 0 and ",
                        BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(I_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(UB_i), isl_id_get_name(II_i));
-            //sprintf(buff, "%d * %s <= %s <= min( %d * (%s + 1) - 1, %s ) and %s >= 0 and ",
+            //snprintf(buff, sizeof(buff), "%d * %s <= %s <= min( %d * (%s + 1) - 1, %s ) and %s >= 0 and ",
             //           BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(I_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(UB_i), isl_id_get_name(II_i));
 
             tile_set_str += buff;
@@ -114,9 +114,9 @@ __isl_give isl_set* tc_ii_set_set(__isl_keep isl_id_list* II, const std::vector<
             isl_id* UB_i = isl_id_list_get_id(UB, i);
             isl_id* II_i = isl_id_list_get_id(II, i);
         
-            sprintf(buff, "%s >= 0 and %d * %s + %s <= %s and ",
+            snprintf(buff, sizeof(buff), "%s >= 0 and %d * %s + %s <= %s and ",
                        isl_id_get_name(II_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(UB_i));
-            //sprintf(buff, "%s >= 0 and %d * %s <= %s and ",
+            //snprintf(buff, sizeof(buff), "%s >= 0 and %d * %s <= %s and ",
             //           isl_id_get_name(II_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(UB_i));
 
             ii_set_str += buff;

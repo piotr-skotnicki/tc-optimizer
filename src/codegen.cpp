@@ -79,8 +79,8 @@ __isl_give isl_printer* tc_codegen_print_statements_macros(struct tc_scop* scop,
                 iterators = isl_id_list_add(iterators, isl_id_alloc(ctx, isl_set_get_dim_name(statement_domain, isl_dim_set, j), NULL));
             }
             
-            sprintf(buff, "#define %s_I(%s) ", label, tc_comma(iterators).c_str());            
-            
+            snprintf(buff, sizeof(buff), "#define %s_I(%s) ", label, tc_comma(iterators).c_str());
+                        
             printer = isl_printer_print_str(printer, buff);
             
             isl_ast_build* ast_stmt_build = isl_ast_build_from_context(isl_set_copy(statement_domain));
@@ -93,8 +93,8 @@ __isl_give isl_printer* tc_codegen_print_statements_macros(struct tc_scop* scop,
             
             isl_id_to_ast_expr_free(id2ast);
             
-            sprintf(buff, "#define %s(%s) %s_I(%s)\n", label, tc_comma(iterators).c_str(), label, tc_parens_comma(iterators).c_str());
-            
+            snprintf(buff, sizeof(buff), "#define %s(%s) %s_I(%s)\n", label, tc_comma(iterators).c_str(), label, tc_parens_comma(iterators).c_str());
+
             printer = isl_printer_print_str(printer, buff);
             
             isl_id_list_free(iterators);            

@@ -396,11 +396,11 @@ __isl_give isl_set* tc_make_set(__isl_keep isl_ctx* ctx
     
     if (NULL == constraints || 0 == strlen(constraints))
     {
-        sprintf(set_str, "[%s] -> { [%s] }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(vars).c_str());
+        snprintf(set_str, sizeof(set_str), "[%s] -> { [%s] }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(vars).c_str());
     }
     else
     {
-        sprintf(set_str, "[%s] -> { [%s] : %s }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(vars).c_str(), constraints);    
+        snprintf(set_str, sizeof(set_str), "[%s] -> { [%s] : %s }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(vars).c_str(), constraints);
     }
     
     isl_set* set = isl_set_read_from_str(ctx, set_str);
@@ -439,11 +439,11 @@ __isl_give isl_map* tc_make_map(__isl_keep isl_ctx* ctx
     
     if (NULL == constraints || 0 == strlen(constraints))
     {
-        sprintf(map_str, "[%s] -> { [%s] -> [%s] }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(in).c_str(), tc_comma(out).c_str());
+        snprintf(map_str, sizeof(map_str), "[%s] -> { [%s] -> [%s] }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(in).c_str(), tc_comma(out).c_str());
     }
     else
     {
-        sprintf(map_str, "[%s] -> { [%s] -> [%s] : %s }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(in).c_str(), tc_comma(out).c_str(), constraints);
+        snprintf(map_str, sizeof(map_str), "[%s] -> { [%s] -> [%s] : %s }", NULL != params ? tc_comma(params).c_str() : "", tc_comma(in).c_str(), tc_comma(out).c_str(), constraints);
     }
     
     isl_map* map = isl_map_read_from_str(ctx, map_str);
@@ -484,7 +484,7 @@ __isl_give isl_set* tc_make_params(__isl_keep isl_ctx* ctx
 {
     char set_str[1024];
     
-    sprintf(set_str, "[%s] -> { : %s }", tc_comma(params).c_str(), constraints);    
+    snprintf(set_str, sizeof(set_str), "[%s] -> { : %s }", tc_comma(params).c_str(), constraints);
     
     isl_set* set = isl_set_read_from_str(ctx, set_str);    
     
@@ -858,7 +858,7 @@ __isl_give isl_id_list* tc_ids_sequence(__isl_keep isl_ctx* ctx, const char* id,
     
     for (int i = 0; i < size; ++i)
     {
-        sprintf(buff, "%s%d", id, i);
+        snprintf(buff, sizeof(buff), "%s%d", id, i);
         
         result = isl_id_list_add(result, isl_id_alloc(ctx, buff, NULL));
     }
@@ -880,7 +880,7 @@ __isl_give isl_id_list* tc_ids_add_suffix(__isl_keep isl_id_list* list, const ch
     {
         isl_id* id = isl_id_list_get_id(list, i);
         
-        sprintf(buff, "%s%s", isl_id_get_name(id), suffix);
+        snprintf(buff, sizeof(buff), "%s%s", isl_id_get_name(id), suffix);
         
         result = isl_id_list_add(result, isl_id_alloc(ctx, buff, NULL));
         
@@ -904,7 +904,7 @@ __isl_give isl_id_list* tc_ids_double(__isl_keep isl_id_list* list)
     {
         isl_id* id = isl_id_list_get_id(list, i);
         
-        sprintf(buff, "%s%s", isl_id_get_name(id), isl_id_get_name(id));
+        snprintf(buff, sizeof(buff), "%s%s", isl_id_get_name(id), isl_id_get_name(id));
         
         result = isl_id_list_add(result, isl_id_alloc(ctx, buff, NULL));
         

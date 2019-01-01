@@ -216,9 +216,9 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
     const char* name = isl_id_get_name(iterator);
     const char* type = isl_options_get_ast_iterator_type(ctx);
     
-    char lb_variable[256], ub_variable[256];
-    sprintf(lb_variable, "%s_lb", name);
-    sprintf(ub_variable, "%s_ub", name);
+    char lb_variable[128], ub_variable[128];
+    snprintf(lb_variable, sizeof(lb_variable), "%s_lb", name);
+    snprintf(ub_variable, sizeof(ub_variable), "%s_ub", name);
         
     isl_ast_node* body = isl_ast_node_for_get_body(node);
     isl_ast_expr* init = isl_ast_node_for_get_init(node);
@@ -243,7 +243,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
         char* cond_rhs_str = isl_ast_expr_to_C_str(cond_rhs);
 
         char bounds_declaration[512];
-        sprintf(bounds_declaration, "const %s %s = %s, %s = %s;", type, lb_variable, init_str, ub_variable, cond_rhs_str);
+        snprintf(bounds_declaration, sizeof(bounds_declaration), "const %s %s = %s, %s = %s;", type, lb_variable, init_str, ub_variable, cond_rhs_str);
 
         printer = isl_printer_start_line(printer);
         printer = isl_printer_print_str(printer, bounds_declaration);
@@ -281,7 +281,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
     char* inc_str = isl_ast_expr_to_C_str(inc);
 
     char for_declaration[512];
-    sprintf(for_declaration, "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
+    snprintf(for_declaration, sizeof(for_declaration), "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
 
     free(init_str);
     free(cond_str);
@@ -351,9 +351,9 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
     const char* name = isl_id_get_name(iterator);
     const char* type = isl_options_get_ast_iterator_type(ctx);
     
-    char lb_variable[256], ub_variable[256];
-    sprintf(lb_variable, "%s_lb", name);
-    sprintf(ub_variable, "%s_ub", name);
+    char lb_variable[128], ub_variable[128];
+    snprintf(lb_variable, sizeof(lb_variable), "%s_lb", name);
+    snprintf(ub_variable, sizeof(ub_variable), "%s_ub", name);
         
     isl_ast_node* body = isl_ast_node_for_get_body(node);
     isl_ast_expr* init = isl_ast_node_for_get_init(node);
@@ -378,7 +378,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
         char* cond_rhs_str = isl_ast_expr_to_C_str(cond_rhs);
 
         char bounds_declaration[512];
-        sprintf(bounds_declaration, "const %s %s = %s, %s = %s;", type, lb_variable, init_str, ub_variable, cond_rhs_str);
+        snprintf(bounds_declaration, sizeof(bounds_declaration), "const %s %s = %s, %s = %s;", type, lb_variable, init_str, ub_variable, cond_rhs_str);
 
         printer = isl_printer_start_line(printer);
         printer = isl_printer_print_str(printer, bounds_declaration);
@@ -418,7 +418,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
     char* inc_str = isl_ast_expr_to_C_str(inc);
 
     char for_declaration[512];
-    sprintf(for_declaration, "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
+    snprintf(for_declaration, sizeof(for_declaration), "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
 
     free(init_str);
     free(cond_str);

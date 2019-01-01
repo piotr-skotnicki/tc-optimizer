@@ -200,7 +200,7 @@ __isl_give isl_union_map* tc_scop_data_to_cache_lines(struct tc_scop* scop, stru
 
     char cache_line_str[256];
     
-    sprintf(cache_line_str, "{ [x, i] -> [x, j] : j = floor(i/%d) }", tc_options_cache_line(options));    
+    snprintf(cache_line_str, sizeof(cache_line_str), "{ [x, i] -> [x, j] : j = floor(i/%d) }", tc_options_cache_line(options));
     
     isl_union_map* address_to_cache_line = isl_union_map_read_from_str(ctx, cache_line_str);
     
