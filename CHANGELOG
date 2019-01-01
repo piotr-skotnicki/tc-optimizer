@@ -1,0 +1,6 @@
+2018-12-09 Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>
+version: 0.3.0:
+    * submodules: isl-0.20, barvinok-0.41.1, pet-0.11.1
+    * all examples now declare iterators in for
+      init-statements
+---

@@ -7,4 +7,3 @@
 (cd barvinok && ./autogen.sh)
 
 autoreconf -i
-
