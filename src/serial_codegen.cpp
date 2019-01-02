@@ -55,7 +55,9 @@ void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_t
     char* code = isl_printer_get_str(printer);
     
     fprintf(options->output, "%s", code);
-    
+
+    fflush(options->output);
+
     free(code);
     
     isl_printer_free(printer);

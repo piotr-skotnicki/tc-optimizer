@@ -85,7 +85,9 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
     char* code = isl_printer_get_str(printer);
     
     fprintf(options->output, "%s", code);
-    
+
+    fflush(options->output);
+
     free(code);
     
     isl_printer_free(printer);
@@ -150,6 +152,8 @@ void tc_codegen_omp_task_for(struct tc_scop* scop, struct tc_options* options, _
     char* code = isl_printer_get_str(printer);
     
     fprintf(options->output, "%s", code);
+
+    fflush(options->output);
     
     free(code);
     

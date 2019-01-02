@@ -620,7 +620,7 @@ void tc_tile_statistics_print(FILE* out, struct tc_tile_statistics* stats)
         n_statement_categories[group->category][group->dimensionality] += (group->n_occurrences * group->card);
     }
     
-    fprintf(out, "TC Optimizing Compiler " TC_CONF_VERSION " \n");
+    fprintf(out, "TC Optimizing Compiler " TC_CONF_VERSION "\n");
     fprintf(out, "Total statement instances: %ld\n", stats->n_statement_instances);
     fprintf(out, "Total tiles: %ld\n", n_tiles);
     fprintf(out, "Cache line length: %d B\n\n", tc_options_cache_line(stats->options));
