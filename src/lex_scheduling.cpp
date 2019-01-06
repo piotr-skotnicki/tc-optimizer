@@ -15,7 +15,7 @@ void tc_scheduling_lex(struct tc_scop* scop, struct tc_options* options, __isl_t
 {
     if (!tc_is_lex_forward(Rtile))
     {
-        tc_options_error("Backward relation detected");
+        tc_error("Backward relation detected");
         return;
     }
     

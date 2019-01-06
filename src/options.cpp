@@ -1,5 +1,6 @@
 #include "options.h"
 #include "config.h"
+#include "debug.h"
 
 #include <isl/space.h>
 
@@ -107,20 +108,6 @@ void tc_options_free(struct tc_options* options)
     free(options);
 }
 
-void tc_options_error(const char* msg, ...)
-{
-    fprintf(stderr, "Error: ");
-    
-    va_list varargs;
-    va_start(varargs, msg);
-    vfprintf(stderr, msg, varargs);
-    va_end(varargs);
-    
-    fprintf(stderr, "\n");
-    
-    exit(1);
-}
-
 char* tc_options_get_command_line(struct tc_options* options)
 {
     int argc = options->argc;    
@@ -159,7 +146,7 @@ int tc_options_get_int(struct tc_options* options, const char* short_name, const
     
     if (!isdigit(str[0]))
     {
-        tc_options_error("Missing integer value for %s.", short_name);
+        tc_error("Missing integer value for %s.", short_name);
     }
     else
     {
@@ -177,7 +164,7 @@ long tc_options_get_long(struct tc_options* options, const char* short_name, con
     
     if (!isdigit(str[0]))
     {
-        tc_options_error("Missing integer value for %s.", short_name);
+        tc_error("Missing integer value for %s.", short_name);
     }
     else
     {
@@ -205,7 +192,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
             found = 1;
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing value for %s.", name);
+                tc_error("Missing value for %s.", name);
             }
             else
             {
@@ -219,7 +206,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
     
     if (!found)
     {
-        tc_options_error("Missing required option %s.", name);
+        tc_error("Missing required option %s.", name);
     }
     
     return value;
@@ -295,14 +282,14 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
             }
             else
             {
-                tc_options_error("More than one algorithms specified.");
+                tc_error("More than one algorithms specified.");
             }
         }
     }
     
     if (tc_algorithm_enum_unknown == value)
     {
-        tc_options_error("No algorithm specified.");
+        tc_error("No algorithm specified.");
     }
     
     return value;
@@ -325,14 +312,14 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
             }
             else
             {
-                tc_options_error("More than one scheduling specified.");
+                tc_error("More than one scheduling specified.");
             }
         }
     }
     
     if (tc_scheduling_enum_unknown == value)
     {
-        tc_options_error("No scheduling specified.");
+        tc_error("No scheduling specified.");
     }
     
     return value;
@@ -355,14 +342,14 @@ enum tc_codegen_enum tc_options_codegen(struct tc_options* options)
             }
             else
             {
-                tc_options_error("More than one code generators specified.");
+                tc_error("More than one code generators specified.");
             }
         }
     }
     
     if (tc_codegen_enum_unknown == value)
     {
-        tc_options_error("No code generator specified.");
+        tc_error("No code generator specified.");
     }
     
     return value;
@@ -385,7 +372,7 @@ enum tc_transitive_closure_enum tc_options_transitive_closure(struct tc_options*
             }
             else
             {
-                tc_options_error("More than one transitive closure algorithms specified.");
+                tc_error("More than one transitive closure algorithms specified.");
             }
         }
     }
@@ -408,7 +395,7 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
         {
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing block size.");
+                tc_error("Missing block size.");
             }
             else
             {
@@ -434,7 +421,7 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
                 
                 if (NULL == label || NULL == sizes)
                 {
-                    tc_options_error("Invalid block size.");
+                    tc_error("Invalid block size.");
                 }
                 else
                 {
@@ -473,7 +460,7 @@ std::vector<std::vector<std::string> > tc_options_groups(struct tc_options* opti
         {
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing group specification.");
+                tc_error("Missing group specification.");
             }
             else
             {
@@ -485,7 +472,7 @@ std::vector<std::vector<std::string> > tc_options_groups(struct tc_options* opti
 
                 if (NULL == statement)
                 {
-                    tc_options_error("Invalid group specification.");
+                    tc_error("Invalid group specification.");
                 }
                 else
                 {
@@ -536,7 +523,7 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
         {
             if (i + 1 >= argc)
             {
-                tc_options_error("Missing value for %s.", name);
+                tc_error("Missing value for %s.", name);
             }
             else
             {
@@ -549,7 +536,7 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
 
                 if (NULL == param || NULL == value_str)
                 {
-                    tc_options_error("Invalid value for %s.", name);
+                    tc_error("Invalid value for %s.", name);
                 }
                 else
                 {
@@ -654,7 +641,7 @@ void tc_options_check_spelling(struct tc_options* options)
                     }
                 }
                 
-                tc_options_error("Unknown option: `%s'. Did you mean `%s' ?\nIf not, type `--help' for the list of available options.", argv[i], best_string);                
+                tc_error("Unknown option: `%s'. Did you mean `%s' ?\nIf not, type `--help' for the list of available options.", argv[i], best_string);                
             }    
         }
     }

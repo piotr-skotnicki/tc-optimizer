@@ -67,8 +67,6 @@ void tc_options_help();
 
 void tc_options_credits();
 
-void tc_options_error(const char* msg, ...);
-
 char* tc_options_get_command_line(struct tc_options* options);
 
 int tc_options_get_int(struct tc_options* options, const char* short_name, const char* long_name);

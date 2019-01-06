@@ -22,7 +22,7 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
 
     if (!tc_is_lex_forward(Rtile))
     {
-        tc_options_error("Backward relation detected.");
+        tc_error("Backward relation detected.");
         return;
     }
     
@@ -123,7 +123,7 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     
     if (!tc_is_lex_forward(Rtile))
     {
-        tc_options_error("Backward relation detected.");
+        tc_error("Backward relation detected.");
         return;
     }
         
@@ -281,7 +281,7 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     
     if (!tc_is_lex_forward(Rtile))
     {
-        tc_options_error("Backward relation detected.");
+        tc_error("Backward relation detected.");
         return;
     }
         
