@@ -23,6 +23,7 @@ add_executable(tc
     src/stencil_tiling.cpp
     src/merge_tiling.cpp
     src/correction_tiling.cpp
+    src/scheduling.cpp
     src/lex_scheduling.cpp
     src/sfs_scheduling.cpp
     src/free_scheduling.cpp

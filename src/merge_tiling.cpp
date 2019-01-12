@@ -1,8 +1,5 @@
 #include "merge_tiling.h"
-#include "lex_scheduling.h"
-#include "sfs_scheduling.h"
-#include "free_scheduling.h"
-#include "dynamic_free_scheduling.h"
+#include "scheduling.h"
 #include "config.h"
 #include "tiling.h"
 #include "for_decorator.h"
@@ -131,38 +128,7 @@ void tc_algorithm_merge_tiling(struct tc_scop* scop, struct tc_options* options)
     
     enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
     
-    if (tc_scheduling_enum_lex == scheduling)
-    {
-        tc_scheduling_lex(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_sfs_tile == scheduling)
-    {
-        tc_scheduling_sfs_tiles(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_sfs_single == scheduling)
-    {
-        tc_scheduling_sfs_single(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_sfs_multiple == scheduling)
-    {
-        tc_scheduling_sfs_multiple(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_free_rk == scheduling)
-    {
-        tc_scheduling_free_schedule_rk(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_free_karl == scheduling)
-    {
-        tc_scheduling_free_schedule_karl(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_free_finite == scheduling)
-    {
-        tc_scheduling_free_schedule_finite(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
-    else if (tc_scheduling_enum_free_dynamic == scheduling)
-    {
-        tc_scheduling_dynamic_free_schedule(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
-    }
+    tc_scheduling(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     
     isl_set_free(tile);
     isl_set_free(ii_set);

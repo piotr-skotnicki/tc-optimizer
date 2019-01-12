@@ -319,7 +319,7 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
     
     if (tc_scheduling_enum_unknown == value)
     {
-        tc_error("No scheduling specified.");
+        tc_warn("No scheduling specified.");
     }
     
     return value;

@@ -7,6 +7,11 @@
 #include "scop.h"
 #include "debug.h"
 #include "utility.h"
+#include "scheduling.h"
+#include "lex_scheduling.h"
+#include "sfs_scheduling.h"
+#include "free_scheduling.h"
+#include "dynamic_free_scheduling.h"
 
 #include <isl/ctx.h>
 #include <isl/options.h>
@@ -115,6 +120,53 @@ int main(int argc, char* argv[])
                 break;
             }
 
+            enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
+
+            switch (scheduling)
+            {
+                case tc_scheduling_enum_lex:
+                {
+                    tc_scheduling = &tc_scheduling_lex;
+                }
+                break;
+
+                case tc_scheduling_enum_sfs_tile:
+                {
+                    tc_scheduling = &tc_scheduling_sfs_tiles;
+                }
+                break;
+
+                case tc_scheduling_enum_sfs_single:
+                {
+                    tc_scheduling = &tc_scheduling_sfs_single;
+                }
+                break;
+
+                case tc_scheduling_enum_sfs_multiple:
+                {
+                    tc_scheduling = &tc_scheduling_sfs_multiple;
+                }
+                break;
+
+                case tc_scheduling_enum_free_rk:
+                {
+                    tc_scheduling = &tc_scheduling_free_schedule_rk;
+                }
+                break;
+
+                case tc_scheduling_enum_free_karl:
+                {
+                    tc_scheduling = &tc_scheduling_free_schedule_karl;
+                }
+                break;
+
+                case tc_scheduling_enum_free_dynamic:
+                {
+                    tc_scheduling = &tc_scheduling_dynamic_free_schedule;
+                }
+                break;
+            }
+
             enum tc_algorithm_enum algorithm = tc_options_algorithm(options);
             
             struct timeval start_time, end_time;
@@ -162,7 +214,7 @@ int main(int argc, char* argv[])
                 fprintf(stderr, "Total calculations time: %ld ms\n", elapsed);
             }
         }
-                
+
         tc_scop_free(scop);     
 
         isl_ctx_free(ctx);
