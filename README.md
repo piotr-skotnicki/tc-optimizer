@@ -90,6 +90,8 @@ Manual
 
     tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 
+> **Hint:** Use `source scripts/tc-completion.bash` to enable bash completions.
+
 ### Algorithms:
 
     --stencil-tiling             Concurrent start tiling for stencils
