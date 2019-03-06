@@ -1,5 +1,5 @@
 #ifndef TC_OPTIONS_H
-#define	TC_OPTIONS_H
+#define TC_OPTIONS_H
 
 #include <isl/ctx.h>
 #include <isl/set.h>
@@ -14,6 +14,7 @@ enum tc_algorithm_enum
 {
     tc_algorithm_enum_regular_tiling,
     tc_algorithm_enum_correction_tiling,
+    tc_algorithm_enum_correction_inv_tiling,
     tc_algorithm_enum_merge_tiling,
     tc_algorithm_enum_stencil_tiling,
     tc_algorithm_enum_unknown

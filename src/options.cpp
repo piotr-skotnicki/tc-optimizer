@@ -26,10 +26,11 @@ void tc_options_help()
         "\n"
         " Algorithms:\n"
         "\n"
-        "    --stencil-tiling       Concurrent start tiling for stencils\n"
-        "    --regular-tiling       Tiling with regular tile shapes\n"
-        "    --correction-tiling    Tiling with tiles correction\n"
-        "    --merge-tiling         Tiling with tiles merging\n"
+        "    --stencil-tiling             Concurrent start tiling for stencils\n"
+        "    --regular-tiling             Tiling with regular tile shapes\n"
+        "    --correction-tiling          Tiling with tiles correction\n"
+        "    --correction-inv-tiling      Tiling with GT tiles correction\n"
+        "    --merge-tiling               Tiling with tiles merging\n"
         "\n"
         " Scheduling:\n"
         "\n"
@@ -269,8 +270,8 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
 {    
     enum tc_algorithm_enum value = tc_algorithm_enum_unknown;
     
-    static const char* strings[] = { "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--merge-tiling" };
-    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_merge_tiling };
+    static const char* strings[] = { "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling" };
+    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_correction_inv_tiling, tc_algorithm_enum_merge_tiling };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -598,7 +599,7 @@ static int tc_options_editorial_distance(const char* a, const char* b)
 void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
-        "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--merge-tiling",
+        "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling",
         "--lex-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--tarjan-tc",
@@ -646,4 +647,3 @@ void tc_options_check_spelling(struct tc_options* options)
         }
     }
 }
-

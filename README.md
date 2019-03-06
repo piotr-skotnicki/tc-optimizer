@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.3.0
+TC Optimizing Compiler 0.3.1
 ============================
 
 Introduction
@@ -95,6 +95,7 @@ Manual
     --stencil-tiling             Concurrent start tiling for stencils
     --regular-tiling             Tiling with regular tile shapes
     --correction-tiling          Tiling with LT tiles correction
+    --correction-inv-tiling      Tiling with GT tiles correction
     --merge-tiling               Tiling with tiles merging
 
 ### Scheduling:

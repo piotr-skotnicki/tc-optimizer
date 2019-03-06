@@ -2,6 +2,7 @@
 #include "regular_tiling.h"
 #include "merge_tiling.h"
 #include "correction_tiling.h"
+#include "correction_inv_tiling.h"
 #include "options.h"
 #include "transitive_closure.h"
 #include "scop.h"
@@ -12,6 +13,7 @@
 #include "sfs_scheduling.h"
 #include "free_scheduling.h"
 #include "dynamic_free_scheduling.h"
+#include "timer.h"
 
 #include <isl/ctx.h>
 #include <isl/options.h>
@@ -20,8 +22,6 @@
 
 #include <stddef.h>
 #include <stdio.h>
-
-#include <sys/time.h>
 
 int main(int argc, char* argv[])
 {
@@ -169,8 +169,7 @@ int main(int argc, char* argv[])
 
             enum tc_algorithm_enum algorithm = tc_options_algorithm(options);
             
-            struct timeval start_time, end_time;
-            gettimeofday(&start_time, NULL);
+            struct tc_timer* timer = tc_timer_start();
             
             switch (algorithm)
             {
@@ -192,6 +191,12 @@ int main(int argc, char* argv[])
                 }
                 break;
 
+                case tc_algorithm_enum_correction_inv_tiling:
+                {
+                    tc_algorithm_correction_inv_tiling(scop, options);
+                }
+                break;
+
                 case tc_algorithm_enum_merge_tiling:
                 {
                     tc_algorithm_merge_tiling(scop, options);
@@ -204,14 +209,10 @@ int main(int argc, char* argv[])
                 }
                 break;
             }
-            
-            gettimeofday(&end_time, NULL);
-            
+
             // if (tc_options_is_set(options, NULL, "--time"))
             {
-                unsigned long elapsed = 1000 * (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_usec - start_time.tv_usec) / 1000;
-                
-                fprintf(stderr, "Total calculations time: %ld ms\n", elapsed);
+                tc_debug("Total calculations time: %ld ms", tc_timer_stop(timer));
             }
         }
 
@@ -219,8 +220,8 @@ int main(int argc, char* argv[])
 
         isl_ctx_free(ctx);
     }
-        
+
     fclose(options->output);
-    
+
     tc_options_free(options);
 }
