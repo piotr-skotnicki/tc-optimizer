@@ -8,7 +8,6 @@
 #include "debug.h"
 #include "transitive_closure.h"
 #include "slicing.h"
-#include "serial_codegen.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>
@@ -124,8 +123,6 @@ void tc_algorithm_correction_inv_tiling(struct tc_scop* scop, struct tc_options*
 
     isl_map* Rtile = tc_Rtile_map(II, tile_trg, R_normalized);
     tc_debug_map(Rtile, "R_TILE");
-
-    enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
     
     tc_scheduling(scop, options, LD, S, R, ii_set, tile_trg, Rtile, II, I);
 

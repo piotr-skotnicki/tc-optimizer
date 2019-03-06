@@ -1,6 +1,6 @@
 # TC Optimizing Compiler
 
-AC_INIT([tc], [0.3.1], [pskotnicki@wi.zut.edu.pl])
+AC_INIT([tc], [0.3.2], [pskotnicki@wi.zut.edu.pl])
 
 AC_CONFIG_AUX_DIR([build-aux])
 

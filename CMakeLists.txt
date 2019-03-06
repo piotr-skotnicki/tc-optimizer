@@ -24,6 +24,7 @@ add_executable(tc
     src/merge_tiling.cpp
     src/correction_tiling.cpp
     src/correction_inv_tiling.cpp
+    src/split_tiling.cpp
     src/scheduling.cpp
     src/lex_scheduling.cpp
     src/sfs_scheduling.cpp

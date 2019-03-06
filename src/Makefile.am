@@ -17,6 +17,7 @@ tc_SOURCES = \
 	merge_tiling.cpp \
 	correction_tiling.cpp \
 	correction_inv_tiling.cpp \
+	split_tiling.cpp \
 	scheduling.cpp \
 	lex_scheduling.cpp \
 	sfs_scheduling.cpp \

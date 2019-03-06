@@ -1,3 +1,7 @@
+2018-12-14 Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>
+version: 0.3.2:
+    * split tiling algorithm
+---
 2018-12-11 Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>
 version: 0.3.1:
     * inverted correction tiling algorithm

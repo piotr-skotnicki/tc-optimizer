@@ -1,6 +1,7 @@
 #include "stencil_tiling.h"
 #include "regular_tiling.h"
 #include "merge_tiling.h"
+#include "split_tiling.h"
 #include "correction_tiling.h"
 #include "correction_inv_tiling.h"
 #include "options.h"
@@ -200,6 +201,12 @@ int main(int argc, char* argv[])
                 case tc_algorithm_enum_merge_tiling:
                 {
                     tc_algorithm_merge_tiling(scop, options);
+                }
+                break;
+
+                case tc_algorithm_enum_split_tiling:
+                {
+                    tc_algorithm_split_tiling(scop, options);
                 }
                 break;
                 

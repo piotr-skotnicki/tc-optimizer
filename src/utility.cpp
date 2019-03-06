@@ -1063,6 +1063,32 @@ std::string tc_tuples_gt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rh
     return str;
 }
 
+std::string tc_tuples_tlt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs)
+{
+    isl_id_list* ids_0_lhs = isl_id_list_from_id(isl_id_list_get_id(lhs, 0));
+    isl_id_list* ids_0_rhs = isl_id_list_from_id(isl_id_list_get_id(rhs, 0));
+    
+    std::string str = tc_conjunction(tc_tuples_lt(lhs, rhs), tc_tuples_eq(ids_0_lhs, ids_0_rhs));
+    
+    isl_id_list_free(ids_0_lhs);
+    isl_id_list_free(ids_0_rhs);
+    
+    return str;
+}
+
+std::string tc_tuples_tgt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs)
+{
+    isl_id_list* ids_0_lhs = isl_id_list_from_id(isl_id_list_get_id(lhs, 0));
+    isl_id_list* ids_0_rhs = isl_id_list_from_id(isl_id_list_get_id(rhs, 0));
+    
+    std::string str = tc_conjunction(tc_tuples_gt(lhs, rhs), tc_tuples_eq(ids_0_lhs, ids_0_rhs));
+    
+    isl_id_list_free(ids_0_lhs);
+    isl_id_list_free(ids_0_rhs);
+    
+    return str;
+}
+
 std::string tc_tuples_op(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs, const char* op)
 {
     std::string str;    

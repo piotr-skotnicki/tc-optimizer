@@ -171,6 +171,10 @@ std::string tc_tuples_lt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rh
 
 std::string tc_tuples_gt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs);
 
+std::string tc_tuples_tlt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs);
+
+std::string tc_tuples_tgt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs);
+
 std::string tc_tuples_op(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs, const char* op);
 
 __isl_give isl_set* tc_lexmin_set_pos(__isl_take isl_set* set, int pos);

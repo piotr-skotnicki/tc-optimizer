@@ -17,6 +17,7 @@ enum tc_algorithm_enum
     tc_algorithm_enum_correction_inv_tiling,
     tc_algorithm_enum_merge_tiling,
     tc_algorithm_enum_stencil_tiling,
+    tc_algorithm_enum_split_tiling,
     tc_algorithm_enum_unknown
 };
 

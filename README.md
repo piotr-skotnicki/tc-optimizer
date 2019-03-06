@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.3.1
+TC Optimizing Compiler 0.3.2
 ============================
 
 Introduction
@@ -99,6 +99,7 @@ Manual
     --correction-tiling          Tiling with LT tiles correction
     --correction-inv-tiling      Tiling with GT tiles correction
     --merge-tiling               Tiling with tiles merging
+    --split-tiling               Tiling with tiles splitting
 
 ### Scheduling:
 

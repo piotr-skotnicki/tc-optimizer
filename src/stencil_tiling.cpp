@@ -18,32 +18,6 @@
 #include <map>
 #include <string>
 
-static std::string tc_algorithm_stencil_tuples_tlt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs)
-{
-    isl_id_list* ids_0_lhs = isl_id_list_from_id(isl_id_list_get_id(lhs, 0));
-    isl_id_list* ids_0_rhs = isl_id_list_from_id(isl_id_list_get_id(rhs, 0));
-    
-    std::string str = tc_conjunction(tc_tuples_lt(lhs, rhs), tc_tuples_eq(ids_0_lhs, ids_0_rhs));
-    
-    isl_id_list_free(ids_0_lhs);
-    isl_id_list_free(ids_0_rhs);
-    
-    return str;
-}
-
-static std::string tc_algorithm_stencil_tuples_tgt(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs)
-{
-    isl_id_list* ids_0_lhs = isl_id_list_from_id(isl_id_list_get_id(lhs, 0));
-    isl_id_list* ids_0_rhs = isl_id_list_from_id(isl_id_list_get_id(rhs, 0));
-    
-    std::string str = tc_conjunction(tc_tuples_gt(lhs, rhs), tc_tuples_eq(ids_0_lhs, ids_0_rhs));
-    
-    isl_id_list_free(ids_0_lhs);
-    isl_id_list_free(ids_0_rhs);
-    
-    return str;
-}
-
 void tc_algorithm_stencil_tiling(struct tc_scop* scop, struct tc_options* options)
 {
     isl_ctx* ctx = scop->ctx;
@@ -95,9 +69,9 @@ void tc_algorithm_stencil_tiling(struct tc_scop* scop, struct tc_options* option
     {
         k = k + 1;
         
-        isl_set* tile_lt = tc_tile_set_of(tile, ii_set, II, &tc_algorithm_stencil_tuples_tlt);
+        isl_set* tile_lt = tc_tile_set_of(tile, ii_set, II, &tc_tuples_tlt);
         
-        isl_set* tile_gt = tc_tile_set_of(tile, ii_set, II, &tc_algorithm_stencil_tuples_tgt);
+        isl_set* tile_gt = tc_tile_set_of(tile, ii_set, II, &tc_tuples_tgt);
         
         isl_set* subtile = isl_set_copy(tile);
         
