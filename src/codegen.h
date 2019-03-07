@@ -1,5 +1,5 @@
 #ifndef TC_CODEGEN_H
-#define	TC_CODEGEN_H
+#define TC_CODEGEN_H
 
 #include "scop.h"
 #include "options.h"

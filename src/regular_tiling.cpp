@@ -70,12 +70,9 @@ void tc_algorithm_regular_tiling(struct tc_scop* scop, struct tc_options* option
         isl_set_free(bounds);
     }
     
-    isl_map* Rtile = tc_Rtile_map(II, tile, R_normalized);
-    
+    isl_map* Rtile = tc_Rtile_map(II, tile, R_normalized);    
     tc_debug_map(Rtile, "R_TILE");
 
-    enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
-    
     tc_scheduling(scop, options, LD, S, R, ii_set, tile, Rtile, II, I);
     
     isl_map_free(R_normalized);

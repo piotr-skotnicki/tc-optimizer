@@ -1,5 +1,5 @@
 #ifndef TC_REGULAR_TILING_H
-#define	TC_REGULAR_TILING_H
+#define TC_REGULAR_TILING_H
 
 #include "scop.h"
 #include "options.h"

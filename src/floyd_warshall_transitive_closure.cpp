@@ -36,6 +36,7 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
         if (id2index.count(in_name) == 0)
         {
             id2index[in_name] = size;
+
             index2id[size] = in_name;            
             ++size;
         }
@@ -43,6 +44,7 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
         if (id2index.count(out_name) == 0)
         {
             id2index[out_name] = size;
+
             index2id[size] = out_name;
             ++size;
         }
@@ -212,6 +214,8 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
     
     free(relations);
     
+    tc_debug_umap(R_plus, "R+ denorm");
+
     isl_union_map_free(R);
     
     return R_plus;

@@ -126,8 +126,6 @@ void tc_algorithm_merge_tiling(struct tc_scop* scop, struct tc_options* options)
         isl_set_free(bounds);
     }
     
-    enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
-    
     tc_scheduling(scop, options, LD, S, R, ii_set_m, tile_m, Rtile_m, II, I);
     
     isl_set_free(tile);

@@ -941,6 +941,11 @@ __isl_give isl_id_list* tc_ids_sub(__isl_keep isl_id_list* list, int begin, int 
     return sublist;
 }
 
+__isl_give isl_id_list* tc_ids_get(__isl_keep isl_id_list* list, int pos)
+{
+    return tc_ids_sub(list, pos, pos + 1);
+}
+
 __isl_give isl_id_list* tc_ids_single(__isl_keep isl_ctx* ctx, const char* id)
 {
     isl_id_list* result = isl_id_list_alloc(ctx, 1);

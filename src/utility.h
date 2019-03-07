@@ -155,6 +155,8 @@ __isl_give isl_id_list* tc_ids_ter(__isl_keep isl_id_list* list);
 
 __isl_give isl_id_list* tc_ids_sub(__isl_keep isl_id_list* list, int begin, int end);
 
+__isl_give isl_id_list* tc_ids_get(__isl_keep isl_id_list* list, int pos);
+
 __isl_give isl_id_list* tc_ids_single(__isl_keep isl_ctx* ctx, const char* id);
 
 std::string tc_conjunction(const std::string& lhs, const std::string& rhs);

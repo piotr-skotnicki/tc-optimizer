@@ -33,6 +33,10 @@ __isl_give isl_map* tc_Tcycle_map(__isl_keep isl_id_list* II, __isl_keep isl_map
 
 __isl_give isl_set* tc_tile_m_set(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_set* ii_set_m, __isl_keep isl_map* Rscc);
 
+__isl_give isl_set* tc_Incycles_set(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_map* R_plus);
+
+__isl_give isl_map* tc_Incycles_map(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_map* R_plus);
+
 isl_bool tc_tile_check_vld(__isl_keep isl_set* tile, __isl_keep isl_set* ii_set, __isl_keep isl_id_list* II, __isl_keep isl_map* R_plus);
 
 void tc_tile_loop_nest(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tile, __isl_give isl_set** ii_set, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());

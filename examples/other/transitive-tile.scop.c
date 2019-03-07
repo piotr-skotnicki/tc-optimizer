@@ -1,19 +1,20 @@
 int main()
 {
 #if 0
+#define M 4000
 #define N 4000
 #else
+  int M;
   int N;
 #endif
 
-  int A[N];
+  int A[M+1][N+1];
 
 #pragma scop
-  for (int i = 0; i < N; ++i) {
+  for (int i = 0; i < M; ++i) {
     for (int j = 0; j < N; ++j) {
-S1:   A[i] = A[i] + A[j] * 5;
+S1:   A[i][j] = A[i+1][j == N-1 ? 0 : j+1];
     }
-S2: A[i] = A[i] + 1;
   }
 #pragma endscop
 }

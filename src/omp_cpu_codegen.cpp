@@ -33,9 +33,9 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
     ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, scop);
     
     isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
-    
+
     tc_debug_umap(S_prim, "S_prim");
-            
+
     isl_printer* printer = isl_printer_to_str(ctx);    
     
     printer = isl_printer_set_output_format(printer, ISL_FORMAT_C);

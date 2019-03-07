@@ -400,6 +400,170 @@ __isl_give isl_set* tc_tile_m_set(__isl_keep isl_id_list* II, __isl_keep isl_set
     return tile_m;
 }
 
+__isl_give isl_set* tc_Incycles_set(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_map* R_plus)
+{
+    // IN_CYCLES := { [II] : exists JJ,I,I',J,J' s.t. II <> JJ and I,I' in TILE(II) and J,J' in TILE(JJ) and J in R+(I) and I' in R+(J') }
+
+    isl_ctx* ctx = isl_set_get_ctx(tile);
+
+    isl_id_list* I = tc_ids_sequence(ctx, "i", isl_set_dim(tile, isl_dim_set));
+    isl_id_list* Iprim = tc_ids_prim(I);
+
+    isl_id_list* J = tc_ids_sequence(ctx, "j", isl_set_dim(tile, isl_dim_set));
+    isl_id_list* Jprim = tc_ids_prim(J);
+
+    isl_id_list* JJ = tc_ids_sequence(ctx, "jj", isl_id_list_n_id(II));
+
+    isl_id_list* I_Iprim_J_Jprim_II_JJ = isl_id_list_concat(
+                                            isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(I), isl_id_list_copy(Iprim))
+                                                             , isl_id_list_concat(isl_id_list_copy(J), isl_id_list_copy(Jprim)))
+                                          , isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(JJ)));
+
+    isl_set* Incycles = tc_make_set(ctx, I_Iprim_J_Jprim_II_JJ, II, tc_tuples_neq(II, JJ).c_str());
+
+    isl_set* tile_constraints_JJ_J = tc_rename_params(isl_set_copy(tile), II, JJ);
+    tile_constraints_JJ_J = tc_make_set_constraints(tile_constraints_JJ_J, J);
+
+    isl_set* tile_constraints_JJ_Jprim = tc_rename_params(isl_set_copy(tile), II, JJ);
+    tile_constraints_JJ_Jprim = tc_make_set_constraints(tile_constraints_JJ_Jprim, Jprim);
+
+    isl_set* tile_constraints_II_I = tc_make_set_constraints(isl_set_copy(tile), I);
+    isl_set* tile_constraints_II_Iprim = tc_make_set_constraints(isl_set_copy(tile), Iprim);
+
+    isl_set* R_plus_constraints_I_J = tc_make_map_constraints(isl_map_copy(R_plus), I, J);
+    isl_set* R_plus_constraints_Jprim_Iprim = tc_make_map_constraints(isl_map_copy(R_plus), Jprim, Iprim);
+
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_JJ_J);
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_JJ_Jprim);
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_II_I);
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_II_Iprim);
+    Incycles = isl_set_intersect_params(Incycles, R_plus_constraints_I_J);
+    Incycles = isl_set_intersect_params(Incycles, R_plus_constraints_Jprim_Iprim);
+
+    Incycles = tc_project_out_params(Incycles, I_Iprim_J_Jprim_II_JJ);
+
+    Incycles = isl_set_coalesce(Incycles);
+
+    isl_id_list_free(I);
+    isl_id_list_free(Iprim);
+    isl_id_list_free(J);
+    isl_id_list_free(Jprim);
+    isl_id_list_free(JJ);
+    isl_id_list_free(I_Iprim_J_Jprim_II_JJ);
+
+    return Incycles;
+}
+
+__isl_give isl_set* tc_Incycles_set2(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_map* R_plus)
+{
+    // lex zamiast neq, może szybsze ?
+
+    // IN_CYCLES := { [II] : exists JJ,I,I',J,J' s.t. II << JJ and I,I' in TILE(II) and J,J' in TILE(JJ) and J in R+(I) and I' in R+(J') }
+
+    isl_ctx* ctx = isl_set_get_ctx(tile);
+
+    isl_id_list* I = tc_ids_sequence(ctx, "i", isl_set_dim(tile, isl_dim_set));
+    isl_id_list* Iprim = tc_ids_prim(I);
+
+    isl_id_list* J = tc_ids_sequence(ctx, "j", isl_set_dim(tile, isl_dim_set));
+    isl_id_list* Jprim = tc_ids_prim(J);
+
+    isl_id_list* JJ = tc_ids_sequence(ctx, "jj", isl_id_list_n_id(II));
+
+    isl_id_list* I_Iprim_J_Jprim_II_JJ = isl_id_list_concat(
+                                            isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(I), isl_id_list_copy(Iprim))
+                                                             , isl_id_list_concat(isl_id_list_copy(J), isl_id_list_copy(Jprim)))
+                                          , isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(JJ)));
+
+    isl_set* Incycles = tc_make_set(ctx, I_Iprim_J_Jprim_II_JJ, II, tc_tuples_lt(II, JJ).c_str());
+
+    isl_set* tile_constraints_JJ_J = tc_rename_params(isl_set_copy(tile), II, JJ);
+    tile_constraints_JJ_J = tc_make_set_constraints(tile_constraints_JJ_J, J);
+
+    isl_set* tile_constraints_JJ_Jprim = tc_rename_params(isl_set_copy(tile), II, JJ);
+    tile_constraints_JJ_Jprim = tc_make_set_constraints(tile_constraints_JJ_Jprim, Jprim);
+
+    isl_set* tile_constraints_II_I = tc_make_set_constraints(isl_set_copy(tile), I);
+    isl_set* tile_constraints_II_Iprim = tc_make_set_constraints(isl_set_copy(tile), Iprim);
+
+    isl_set* R_plus_constraints_I_J = tc_make_map_constraints(isl_map_copy(R_plus), I, J);
+    isl_set* R_plus_constraints_Jprim_Iprim = tc_make_map_constraints(isl_map_copy(R_plus), Jprim, Iprim);
+
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_JJ_J);
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_JJ_Jprim);
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_II_I);
+    Incycles = isl_set_intersect_params(Incycles, tile_constraints_II_Iprim);
+    Incycles = isl_set_intersect_params(Incycles, R_plus_constraints_I_J);
+    Incycles = isl_set_intersect_params(Incycles, R_plus_constraints_Jprim_Iprim);
+
+    Incycles = tc_project_out_params(Incycles, I_Iprim_J_Jprim_II_JJ);
+
+    Incycles = isl_set_coalesce(Incycles);
+
+    isl_id_list_free(I);
+    isl_id_list_free(Iprim);
+    isl_id_list_free(J);
+    isl_id_list_free(Jprim);
+    isl_id_list_free(JJ);
+    isl_id_list_free(I_Iprim_J_Jprim_II_JJ);
+
+    return Incycles;
+}
+
+__isl_give isl_map* tc_Incycles_map(__isl_keep isl_id_list* II, __isl_keep isl_set* tile, __isl_keep isl_map* R_plus)
+{
+    // IN_CYCLES := { [II] -> [JJ] : exists I,I',J,J' s.t. II << JJ and I,I' in TILE(II) and J,J' in TILE(JJ) and J in R+(I) and I' in R+(J') }
+
+    isl_ctx* ctx = isl_set_get_ctx(tile);
+
+    isl_id_list* I = tc_ids_sequence(ctx, "i", isl_set_dim(tile, isl_dim_set));
+    isl_id_list* Iprim = tc_ids_prim(I);
+
+    isl_id_list* J = tc_ids_sequence(ctx, "j", isl_set_dim(tile, isl_dim_set));
+    isl_id_list* Jprim = tc_ids_prim(J);
+
+    isl_id_list* JJ = tc_ids_sequence(ctx, "jj", isl_id_list_n_id(II));
+
+    isl_id_list* I_Iprim_J_Jprim_II_JJ = isl_id_list_concat(
+                                            isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(I), isl_id_list_copy(Iprim))
+                                                             , isl_id_list_concat(isl_id_list_copy(J), isl_id_list_copy(Jprim)))
+                                          , isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(JJ)));
+
+    isl_map* Incycles = tc_make_map(ctx, I_Iprim_J_Jprim_II_JJ, II, JJ, tc_tuples_lt(II, JJ).c_str());
+
+    isl_set* tile_constraints_JJ_J = tc_rename_params(isl_set_copy(tile), II, JJ);
+    tile_constraints_JJ_J = tc_make_set_constraints(tile_constraints_JJ_J, J);
+
+    isl_set* tile_constraints_JJ_Jprim = tc_rename_params(isl_set_copy(tile), II, JJ);
+    tile_constraints_JJ_Jprim = tc_make_set_constraints(tile_constraints_JJ_Jprim, Jprim);
+
+    isl_set* tile_constraints_II_I = tc_make_set_constraints(isl_set_copy(tile), I);
+    isl_set* tile_constraints_II_Iprim = tc_make_set_constraints(isl_set_copy(tile), Iprim);
+
+    isl_set* R_plus_constraints_I_J = tc_make_map_constraints(isl_map_copy(R_plus), I, J);
+    isl_set* R_plus_constraints_Jprim_Iprim = tc_make_map_constraints(isl_map_copy(R_plus), Jprim, Iprim);
+
+    Incycles = isl_map_intersect_params(Incycles, tile_constraints_JJ_J);
+    Incycles = isl_map_intersect_params(Incycles, tile_constraints_JJ_Jprim);
+    Incycles = isl_map_intersect_params(Incycles, tile_constraints_II_I);
+    Incycles = isl_map_intersect_params(Incycles, tile_constraints_II_Iprim);
+    Incycles = isl_map_intersect_params(Incycles, R_plus_constraints_I_J);
+    Incycles = isl_map_intersect_params(Incycles, R_plus_constraints_Jprim_Iprim);
+
+    Incycles = tc_map_project_out_params(Incycles, I_Iprim_J_Jprim_II_JJ);
+
+    Incycles = isl_map_coalesce(Incycles);
+
+    isl_id_list_free(I);
+    isl_id_list_free(Iprim);
+    isl_id_list_free(J);
+    isl_id_list_free(Jprim);
+    isl_id_list_free(JJ);
+    isl_id_list_free(I_Iprim_J_Jprim_II_JJ);
+
+    return Incycles;
+}
+
 isl_bool tc_tile_check_vld(__isl_keep isl_set* tile, __isl_keep isl_set* ii_set, __isl_keep isl_id_list* II, __isl_keep isl_map* R_plus)
 {
     isl_set* tile_gt = tc_tile_gt_set(tile, ii_set, II);

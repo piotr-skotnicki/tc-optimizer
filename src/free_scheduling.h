@@ -1,5 +1,5 @@
 #ifndef TC_FREE_SCHEDULING_H
-#define	TC_FREE_SCHEDULING_H
+#define TC_FREE_SCHEDULING_H
 
 #include "scop.h"
 #include "options.h"

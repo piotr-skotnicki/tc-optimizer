@@ -32,10 +32,15 @@ void tc_options_help()
         "    --correction-inv-tiling      Tiling with GT tiles correction\n"
         "    --merge-tiling               Tiling with tiles merging\n"
         "    --split-tiling               Tiling with tiles splitting\n"
+        "    --mod-correction-tiling      Tiling with LT cyclic tiles modified correction\n"
+        //"    --mod-correction-inv-tiling  Tiling with GT cyclic tiles correction\n"
         "\n"
-        " Scheduling:\n"
+        " Schedulers:\n"
         "\n"
         "    --lex-scheduling               Lexicographic order execution\n"
+        "    --isl-scheduling               Integer set library scheduler\n"
+        "    --isl-wave-scheduling          Integer set library scheduler with wavefronting\n"
+        "    --feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)\n"
         "    --sfs-single-scheduling        Tiling of synchronization-free slices with single sources\n"
         "    --sfs-multiple-scheduling      Tiling of synchronization-free slices with multiple sources\n"
         "    --sfs-tile-scheduling          Tile-wise synchronization-free slices\n"
@@ -63,7 +68,7 @@ void tc_options_help()
         "    -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: " TC_STR(TC_CONF_DEFAULT_TILE_SIZE) ")\n"
         "    --debug   | -d       Verbose mode\n"
         "    --report             Generate tile statistics report (use -R for each parameter)\n"
-        // "    --time               Measure calculations time\n"
+        //"    --time               Measure calculations time\n"
         "    --inline             Always inline loop bounds expressions\n"
         "    -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600\n"
         "    -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600\n"
@@ -74,7 +79,7 @@ void tc_options_help()
         "\n"
         " e.g.:\n"
         "    ./src/tc ./examples/stencils/heat-1d.scop.c --stencil-tiling --omp-for-codegen -b 150,25000 --debug\n"
-        "    ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-single-scheduling --omp-for-codegen -b 8\n" //--time
+        "    ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-single-scheduling --omp-for-codegen -b 8\n" // --time
         "    ./src/tc ./examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -b S1:16 -b S2:16,8 -b S3:16\n"
         "\n"
     );
@@ -271,8 +276,8 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
 {    
     enum tc_algorithm_enum value = tc_algorithm_enum_unknown;
     
-    static const char* strings[] = { "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling" };
-    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_correction_inv_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling };
+    static const char* strings[] = { "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling" };
+    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_correction_inv_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_mod_correction_tiling };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -301,8 +306,8 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
 {    
     enum tc_scheduling_enum value = tc_scheduling_enum_unknown;
     
-    static const char* strings[] = { "--lex-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-rk-scheduling", "--free-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling" };
-    static enum tc_scheduling_enum values[] = { tc_scheduling_enum_lex, tc_scheduling_enum_sfs_tile, tc_scheduling_enum_sfs_single, tc_scheduling_enum_sfs_multiple, tc_scheduling_enum_free_rk, tc_scheduling_enum_free_karl, tc_scheduling_enum_free_finite, tc_scheduling_enum_free_dynamic };
+    static const char* strings[] = { "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-rk-scheduling", "--free-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling" };
+    static enum tc_scheduling_enum values[] = { tc_scheduling_enum_lex, tc_scheduling_enum_isl, tc_scheduling_enum_isl_wavefronting, tc_scheduling_enum_feautrier, tc_scheduling_enum_sfs_tile, tc_scheduling_enum_sfs_single, tc_scheduling_enum_sfs_multiple, tc_scheduling_enum_free_rk, tc_scheduling_enum_free_karl, tc_scheduling_enum_free_finite, tc_scheduling_enum_free_dynamic };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -600,8 +605,8 @@ static int tc_options_editorial_distance(const char* a, const char* b)
 void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
-        "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling",
-        "--lex-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
+        "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling",
+        "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--tarjan-tc",
         "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", /*"--time", */"--use-macros",
@@ -649,3 +654,4 @@ void tc_options_check_spelling(struct tc_options* options)
         }
     }
 }
+

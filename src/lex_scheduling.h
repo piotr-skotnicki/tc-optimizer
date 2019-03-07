@@ -1,5 +1,5 @@
 #ifndef TC_LEX_SCHEDULING_H
-#define	TC_LEX_SCHEDULING_H
+#define TC_LEX_SCHEDULING_H
 
 #include "scop.h"
 #include "options.h"

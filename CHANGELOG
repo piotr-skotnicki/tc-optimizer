@@ -1,3 +1,8 @@
+2019-01-02 Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>
+version: 0.3.3:
+    * modified correction tiling
+    * isl scheduling
+---
 2018-12-14 Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>
 version: 0.3.2:
     * split tiling algorithm

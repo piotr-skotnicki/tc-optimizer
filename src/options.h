@@ -18,6 +18,7 @@ enum tc_algorithm_enum
     tc_algorithm_enum_merge_tiling,
     tc_algorithm_enum_stencil_tiling,
     tc_algorithm_enum_split_tiling,
+    tc_algorithm_enum_mod_correction_tiling,
     tc_algorithm_enum_unknown
 };
 
@@ -31,6 +32,9 @@ enum tc_scheduling_enum
     tc_scheduling_enum_free_dynamic,
     tc_scheduling_enum_sfs_single,
     tc_scheduling_enum_sfs_multiple,
+    tc_scheduling_enum_isl,
+    tc_scheduling_enum_isl_wavefronting,
+    tc_scheduling_enum_feautrier,
     tc_scheduling_enum_unknown
 };
 

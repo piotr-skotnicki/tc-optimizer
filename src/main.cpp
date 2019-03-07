@@ -4,6 +4,7 @@
 #include "split_tiling.h"
 #include "correction_tiling.h"
 #include "correction_inv_tiling.h"
+#include "mod_correction_tiling.h"
 #include "options.h"
 #include "transitive_closure.h"
 #include "scop.h"
@@ -11,6 +12,7 @@
 #include "utility.h"
 #include "scheduling.h"
 #include "lex_scheduling.h"
+#include "isl_scheduling.h"
 #include "sfs_scheduling.h"
 #include "free_scheduling.h"
 #include "dynamic_free_scheduling.h"
@@ -18,6 +20,7 @@
 
 #include <isl/ctx.h>
 #include <isl/options.h>
+#include <isl/id.h>
 
 #include <pet.h>
 
@@ -31,7 +34,7 @@ int main(int argc, char* argv[])
     tc_options_check_spelling(options);
 
     options->output = stdout;
-    
+
     if (tc_options_is_set(options, "-v", "--version"))
     {
         tc_options_credits();
@@ -41,9 +44,9 @@ int main(int argc, char* argv[])
         tc_options_help();
     }
     else
-    {        
+    {
         tc_debug_flag = tc_options_is_verbose(options);
-        
+
         const char* file = tc_options_source_file(options);
 
         struct pet_options* poptions = pet_options_new_with_defaults();
@@ -51,11 +54,11 @@ int main(int argc, char* argv[])
         isl_ctx* ctx = isl_ctx_alloc_with_options(&pet_options_args, poptions);    
 
         pet_options_set_autodetect(ctx, 0);
-        
+
         isl_options_set_ast_always_print_block(ctx, 1);
 
         struct tc_scop* scop = tc_scop_extract(ctx, file);
-        
+
         if (NULL == scop)
         {
             tc_error("No SCoP was found in file `%s'.", file);
@@ -63,7 +66,7 @@ int main(int argc, char* argv[])
         else
         {
             isl_set* defines = tc_options_get_defines(options, ctx);
-        
+
             scop->domain = tc_union_set_fix_params_bounds(scop->domain, isl_set_copy(defines));
 
             scop->relation = tc_union_map_fix_params_bounds(scop->relation, isl_set_copy(defines));
@@ -166,12 +169,30 @@ int main(int argc, char* argv[])
                     tc_scheduling = &tc_scheduling_dynamic_free_schedule;
                 }
                 break;
+
+                case tc_scheduling_enum_isl:
+                {
+                    tc_scheduling = &tc_scheduling_adapter_isl;
+                }
+                break;
+
+                case tc_scheduling_enum_isl_wavefronting:
+                {
+                    tc_scheduling = &tc_scheduling_adapter_isl_wavefronting;
+                }
+                break;
+
+                case tc_scheduling_enum_feautrier:
+                {
+                    tc_scheduling = &tc_scheduling_adapter_feautrier;
+                }
+                break;
             }
 
             enum tc_algorithm_enum algorithm = tc_options_algorithm(options);
-            
+
             struct tc_timer* timer = tc_timer_start();
-            
+
             switch (algorithm)
             {
                 case tc_algorithm_enum_stencil_tiling:
@@ -209,6 +230,12 @@ int main(int argc, char* argv[])
                     tc_algorithm_split_tiling(scop, options);
                 }
                 break;
+
+                case tc_algorithm_enum_mod_correction_tiling:
+                {
+                    tc_algorithm_mod_correction_tiling(scop, options);
+                }
+                break;
                 
                 default:
                 {
@@ -223,7 +250,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        tc_scop_free(scop);     
+        tc_scop_free(scop);
 
         isl_ctx_free(ctx);
     }
@@ -232,3 +259,4 @@ int main(int argc, char* argv[])
 
     tc_options_free(options);
 }
+

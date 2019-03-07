@@ -287,8 +287,6 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
     isl_map* Rtile = tc_Rtile_map(II, tile_vld, R_normalized);
     
     tc_debug_map(Rtile, "R_TILE");
-        
-    enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
     
     tc_scheduling(scop, options, LD, S, R, ii_set, tile_vld, Rtile, II, I);
     

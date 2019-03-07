@@ -25,11 +25,13 @@ add_executable(tc
     src/correction_tiling.cpp
     src/correction_inv_tiling.cpp
     src/split_tiling.cpp
+    src/mod_correction_tiling.cpp
     src/scheduling.cpp
     src/lex_scheduling.cpp
     src/sfs_scheduling.cpp
     src/free_scheduling.cpp
     src/dynamic_free_scheduling.cpp
+    src/isl_scheduling.cpp
     src/serial_codegen.cpp
     src/omp_cpu_codegen.cpp
     src/transitive_closure.cpp

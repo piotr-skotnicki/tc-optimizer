@@ -1,5 +1,5 @@
 #ifndef TC_AST_H
-#define	TC_AST_H
+#define TC_AST_H
 
 #include <isl/ctx.h>
 #include <isl/id.h>

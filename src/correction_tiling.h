@@ -1,5 +1,5 @@
 #ifndef TC_CORRECTION_TILING_H
-#define	TC_CORRECTION_TILING_H
+#define TC_CORRECTION_TILING_H
 
 #include "scop.h"
 #include "options.h"

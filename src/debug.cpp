@@ -626,7 +626,7 @@ void tc_debug_pw_multi_aff(__isl_keep isl_pw_multi_aff* maff, const char* msg, .
     free(str);
 }
 
-void tc_debug_union_pw_multi_aff(__isl_keep isl_union_pw_multi_aff* maff, const char* msg, ...)
+void tc_debug_union_pw_multi_aff(__isl_keep isl_union_pw_multi_aff* umaff, const char* msg, ...)
 {
     if (!tc_debug_flag)
         return;
@@ -636,7 +636,7 @@ void tc_debug_union_pw_multi_aff(__isl_keep isl_union_pw_multi_aff* maff, const 
     vfprintf(stderr, msg, varargs);
     va_end(varargs);
 
-    char* str = isl_union_pw_multi_aff_to_str(maff);
+    char* str = isl_union_pw_multi_aff_to_str(umaff);
 
     fprintf(stderr, " := %s;\n\n", str);
     fflush(stderr);

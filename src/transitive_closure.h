@@ -1,5 +1,5 @@
 #ifndef TC_TRANSITIVE_CLOSURE_H
-#define	TC_TRANSITIVE_CLOSURE_H
+#define TC_TRANSITIVE_CLOSURE_H
 
 #include <isl/map.h>
 #include <isl/union_map.h>

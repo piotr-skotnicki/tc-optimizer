@@ -18,13 +18,15 @@ tc_SOURCES = \
 	correction_tiling.cpp \
 	correction_inv_tiling.cpp \
 	split_tiling.cpp \
+	mod_correction_tiling.cpp \
 	scheduling.cpp \
 	lex_scheduling.cpp \
 	sfs_scheduling.cpp \
 	free_scheduling.cpp \
 	dynamic_free_scheduling.cpp \
+	isl_scheduling.cpp \
 	serial_codegen.cpp \
-	omp_cpu_codegen.cpp \    
+	omp_cpu_codegen.cpp \
 	transitive_closure.cpp \
 	tarjan_transitive_closure.cpp \
 	floyd_warshall_transitive_closure.cpp \
