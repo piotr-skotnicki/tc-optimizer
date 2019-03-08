@@ -1,5 +1,6 @@
 #include "free_scheduling.h"
 #include "omp_cpu_codegen.h"
+#include "omp_gpu_codegen.h"
 #include "slicing.h"
 #include "utility.h"
 #include "scop.h"
@@ -58,6 +59,10 @@ void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* opt
     {
         tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, II, 0);
     }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
+    }
     
     isl_id_list_free(k_param_list);
     isl_union_set_free(LD);
@@ -110,6 +115,10 @@ void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* o
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
         tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+    }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
     }
     
     isl_id_list_free(k_param_list);
@@ -197,6 +206,10 @@ void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options*
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
         tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+    }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
     }
     
     isl_id_list_free(k_param_list);

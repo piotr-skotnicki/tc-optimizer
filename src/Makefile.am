@@ -27,6 +27,7 @@ tc_SOURCES = \
 	isl_scheduling.cpp \
 	serial_codegen.cpp \
 	omp_cpu_codegen.cpp \
+	omp_gpu_codegen.cpp \
 	transitive_closure.cpp \
 	tarjan_transitive_closure.cpp \
 	floyd_warshall_transitive_closure.cpp \

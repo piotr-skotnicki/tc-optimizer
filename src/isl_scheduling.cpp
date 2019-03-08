@@ -6,6 +6,8 @@
 #include "scop.h"
 #include "options.h"
 
+#include "omp_gpu_codegen.h"
+
 #include <isl/ctx.h>
 #include <isl/map.h>
 #include <isl/set.h>
@@ -181,6 +183,8 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
 
     tc_debug_umap(F_best, "F_best");
 
+    //F_best = isl_union_map_read_from_str(ctx, "[_PB_N] -> { S3[i, j, k] -> [i + j + 2k, j + k, k, i, 1]; S1[i, j, k] -> [i + j + 2k, i + k, j, k, 2]; S2[i, j] -> [3j + i, i + j, j, j, 0] }");
+
     isl_map* F_best_norm = isl_map_from_union_map(isl_union_map_apply_domain(F_best, isl_union_map_copy(S)));
     tc_debug_map(F_best_norm, "F_best_norm");
 
@@ -244,6 +248,10 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
         tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, k_I, parallel_iterators, 0);
+    }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, k_I, parallel_iterators);
     }
 
     isl_id_list_free(k);

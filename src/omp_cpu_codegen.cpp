@@ -26,11 +26,15 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
     ast_build = isl_ast_build_set_iterators(ast_build, isl_id_list_copy(iterators));
     
     struct tc_ast_visitor_context* visitor_context = tc_ast_visitor_context_alloc(ctx);
+    visitor_context->scop = scop;
     visitor_context->parallel_iterators = parallel_iterators;
+    
+    std::vector<struct tc_ast_for_annotation*> annotations_stack;
+    visitor_context->annotations_stack = &annotations_stack;
     
     ast_build = isl_ast_build_set_before_each_for(ast_build, &tc_ast_visitor_before_for, visitor_context);
     ast_build = isl_ast_build_set_after_each_for(ast_build, &tc_ast_visitor_after_for, visitor_context);
-    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, scop);
+    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, visitor_context);
     
     isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
 
@@ -105,8 +109,14 @@ void tc_codegen_omp_task_for(struct tc_scop* scop, struct tc_options* options, _
     isl_ast_build* ast_build = isl_ast_build_from_context(isl_set_copy(scop->pet->context));
                 
     ast_build = isl_ast_build_set_iterators(ast_build, isl_id_list_copy(iterators));
+
+    struct tc_ast_visitor_context* visitor_context = tc_ast_visitor_context_alloc(ctx);
+    visitor_context->scop = scop;
     
-    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, scop);
+    std::vector<struct tc_ast_for_annotation*> annotations_stack;
+    visitor_context->annotations_stack = &annotations_stack;
+    
+    ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, visitor_context);
 
     isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
             

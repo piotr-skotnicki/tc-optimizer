@@ -7,6 +7,8 @@
 
 #include <pet.h>
 
+#include <vector>
+
 struct tc_ast_stmt_annotation
 {
     struct pet_stmt* stmt;
@@ -16,16 +18,18 @@ struct tc_ast_stmt_annotation
 
 struct tc_ast_for_annotation
 {
-    isl_id_list* nested_iterators;
+    isl_id_list* nested_statements;
     
     isl_bool is_parallel;
 };
 
 struct tc_ast_visitor_context
 {
-    isl_id_list* annotations_stack;
+    struct tc_scop* scop;
+
+    std::vector<struct tc_ast_for_annotation*>* annotations_stack;
     
-    isl_id_list* parallel_iterators;    
+    isl_id_list* parallel_iterators;
 };
 
 struct tc_ast_visitor_context* tc_ast_visitor_context_alloc(__isl_keep isl_ctx* ctx);

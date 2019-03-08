@@ -1,5 +1,6 @@
 #include "sfs_scheduling.h"
 #include "omp_cpu_codegen.h"
+#include "omp_gpu_codegen.h"
 #include "utility.h"
 #include "scop.h"
 #include "slicing.h"
@@ -97,6 +98,10 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
         tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, IR, 0);
+    }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, IR);
     }
 
     isl_map_free(Rtile);
@@ -252,6 +257,10 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
         tc_codegen_omp_task_for(scop, options, S_ext, slice, iterators, IR_II, 1);
+    }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, slice, iterators, IR_II);
     }
             
     isl_id_list_free(I);
@@ -411,6 +420,10 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
         tc_codegen_omp_task_for(scop, options, S_ext, slice, iterators, II, 1);
+    }
+    else if (tc_codegen_enum_omp_gpu == codegen)
+    {
+        tc_codegen_omp_gpu(scop, options, S_ext, slice, iterators, II);
     }
 
     isl_id_list_free(I);

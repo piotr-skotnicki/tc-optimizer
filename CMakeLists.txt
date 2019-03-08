@@ -34,6 +34,7 @@ add_executable(tc
     src/isl_scheduling.cpp
     src/serial_codegen.cpp
     src/omp_cpu_codegen.cpp
+    src/omp_gpu_codegen.cpp
     src/transitive_closure.cpp
     src/tarjan_transitive_closure.cpp
     src/floyd_warshall_transitive_closure.cpp

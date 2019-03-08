@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.3.3
+TC Optimizing Compiler 0.3.4
 ============================
 
 Introduction
@@ -33,7 +33,7 @@ TC implements a number of tiling transformation algorithms as well as schedulers
 
 For the example loop nest, the correction technique can be applied with a tile size of 32x32:
 
-    /* TC Optimizing Compiler 0.3.3 */
+    /* TC Optimizing Compiler 0.3.4 */
     /* ./tc ../examples/other/correction.scop.c --correction-tiling --lex-scheduling --serial-codegen -b 32 */
     #define min(x,y)    ((x) < (y) ? (x) : (y))
     #define max(x,y)    ((x) > (y) ? (x) : (y))
@@ -121,6 +121,7 @@ Manual
     --serial-codegen       Serial code generator
     --omp-for-codegen      OpenMP parallel for generator
     --omp-task-codegen     OpenMP parallel task generator
+    --omp-gpu-codegen      OpenMP offloading to GPU target
 
 ### Transitive closure:
 

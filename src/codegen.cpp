@@ -21,6 +21,7 @@ struct tc_codegen_context* tc_codegen_context_alloc(__isl_keep isl_ctx* ctx)
     
     context->in_parallel_region = isl_bool_false;    
     context->options = NULL;
+    context->scop = NULL;
     
     return context;
 }

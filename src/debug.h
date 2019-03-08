@@ -11,6 +11,7 @@
 #include <isl/schedule.h>
 #include <isl/aff.h>
 #include <isl/id.h>
+#include <isl/ast.h>
 
 #include <barvinok/isl.h>
 
@@ -52,6 +53,8 @@ void tc_debug_umap(__isl_keep isl_union_map* umap, const char* msg, ...);
 
 void tc_debug_umap_latex(__isl_keep isl_union_map* umap, const char* msg, ...);
 
+void tc_debug_id(__isl_keep isl_id* id, const char* msg, ...);
+
 void tc_debug_id_list(__isl_keep isl_id_list* list, const char* msg, ...);
 
 void tc_debug_val(__isl_keep isl_val* val, const char* msg, ...);
@@ -79,5 +82,7 @@ void tc_debug_union_pw_multi_aff(__isl_keep isl_union_pw_multi_aff* umaff, const
 void tc_debug_multi_union_pw_aff(__isl_keep isl_multi_union_pw_aff* muaff, const char* msg, ...);
 
 void tc_debug_schedule(__isl_keep isl_schedule* schedule, const char* msg, ...);
+
+void tc_debug_ast_expr(__isl_keep isl_ast_expr* expr, const char* msg, ...);
 
 #endif // TC_DEBUG_H

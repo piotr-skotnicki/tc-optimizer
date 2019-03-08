@@ -220,12 +220,34 @@ struct pet_stmt* tc_scop_get_pet_stmt(struct tc_scop* scop, const char* label)
     for (int i = 0; i < pet->n_stmt; ++i) 
     {
         struct pet_stmt* stmt = pet->stmts[i];
-    
+
         const char* stmt_label = isl_set_get_tuple_name(stmt->domain);
-        
+
         if (NULL != stmt_label && 0 == strcmp(label, stmt_label))
         {
             value = stmt;
+            break;
+        }
+    }
+    
+    return value;
+}
+
+struct pet_array* tc_scop_get_pet_array(struct tc_scop* scop, const char* name)
+{
+    struct pet_array* value = NULL;
+    
+    struct pet_scop* pet = scop->pet;
+    
+    for (int i = 0; i < pet->n_array; ++i) 
+    {
+        struct pet_array* array = pet->arrays[i];
+
+        const char* array_name = isl_set_get_tuple_name(array->extent);
+
+        if (NULL != array_name && 0 == strcmp(name, array_name))
+        {
+            value = array;
             break;
         }
     }

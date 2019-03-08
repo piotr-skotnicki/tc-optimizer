@@ -376,6 +376,24 @@ void tc_debug_umap_latex(__isl_keep isl_union_map* umap, const char* msg, ...)
     free(str);
 }
 
+void tc_debug_id(__isl_keep isl_id* id, const char* msg, ...)
+{
+    if (!tc_debug_flag)
+        return;
+
+    va_list varargs;
+    va_start(varargs, msg);
+    vfprintf(stderr, msg, varargs);
+    va_end(varargs);
+
+    char* str = isl_id_to_str(id);
+
+    fprintf(stderr, " := \"%s\";\n\n", str);
+    fflush(stderr);
+
+    free(str);
+}
+
 void tc_debug_id_list(__isl_keep isl_id_list* list, const char* msg, ...)
 {
     if (!tc_debug_flag)
@@ -673,6 +691,24 @@ void tc_debug_schedule(__isl_keep isl_schedule* schedule, const char* msg, ...)
     va_end(varargs);
 
     char* str = isl_schedule_to_str(schedule);
+
+    fprintf(stderr, " := %s;\n\n", str);
+    fflush(stderr);
+    
+    free(str);
+}
+
+void tc_debug_ast_expr(__isl_keep isl_ast_expr* expr, const char* msg, ...)
+{
+    if (!tc_debug_flag)
+        return;
+
+    va_list varargs;
+    va_start(varargs, msg);
+    vfprintf(stderr, msg, varargs);
+    va_end(varargs);
+
+    char* str = isl_ast_expr_to_str(expr);
 
     fprintf(stderr, " := %s;\n\n", str);
     fflush(stderr);

@@ -35,4 +35,6 @@ void tc_scop_free(struct tc_scop* scop);
 
 struct pet_stmt* tc_scop_get_pet_stmt(struct tc_scop* scop, const char* label);
 
+struct pet_array* tc_scop_get_pet_array(struct tc_scop* scop, const char* name);
+
 #endif // TC_SCOP_H

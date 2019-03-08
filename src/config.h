@@ -1,7 +1,7 @@
 #ifndef TC_CONFIG_H
 #define TC_CONFIG_H
 
-#define TC_CONF_VERSION "0.3.3"
+#define TC_CONF_VERSION "0.3.4"
 
 #define TC_CONF_INDENT_SIZE 2
 

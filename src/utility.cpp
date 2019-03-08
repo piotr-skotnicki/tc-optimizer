@@ -1242,6 +1242,52 @@ __isl_give isl_set* tc_get_set_bounds(__isl_keep isl_set* set, __isl_keep isl_id
     return bounds;
 }
 
+isl_bool tc_union_map_has_input_tuple(__isl_keep isl_union_map* umap, const char* name)
+{
+    isl_bool result = isl_bool_false;
+    
+    isl_map_list* maps = tc_collect_maps(umap);
+    
+    for (int i = 0; i < isl_map_list_n_map(maps) && result == isl_bool_false; ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps, i);
+        
+        if (0 == strcmp(name, isl_map_get_tuple_name(map, isl_dim_in)))
+        {
+            result = isl_bool_true;
+        }
+        
+        isl_map_free(map);
+    }
+    
+    isl_map_list_free(maps);
+    
+    return result;
+}
+
+isl_bool tc_union_map_has_output_tuple(__isl_keep isl_union_map* umap, const char* name)
+{
+    isl_bool result = isl_bool_false;
+    
+    isl_map_list* maps = tc_collect_maps(umap);
+    
+    for (int i = 0; i < isl_map_list_n_map(maps) && result == isl_bool_false; ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps, i);
+        
+        if (0 == strcmp(name, isl_map_get_tuple_name(map, isl_dim_out)))
+        {
+            result = isl_bool_true;
+        }
+        
+        isl_map_free(map);
+    }
+    
+    isl_map_list_free(maps);
+    
+    return result;
+}
+
 __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name)
 {
     isl_map* result = NULL;

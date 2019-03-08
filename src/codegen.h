@@ -15,6 +15,8 @@ struct tc_codegen_context
     isl_bool in_parallel_region;
     
     struct tc_options* options;
+
+    struct tc_scop* scop;
 };
 
 struct tc_codegen_context* tc_codegen_context_alloc(__isl_keep isl_ctx* ctx);

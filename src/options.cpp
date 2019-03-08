@@ -54,6 +54,7 @@ void tc_options_help()
         "    --serial-codegen       Serial code generator\n"
         "    --omp-for-codegen      OpenMP parallel for generator\n"
         "    --omp-task-codegen     OpenMP parallel task generator\n"
+        "    --omp-gpu-codegen      OpenMP offloading to GPU target\n"
         "\n"
         " Transitive closure:\n"
         "\n"
@@ -336,8 +337,8 @@ enum tc_codegen_enum tc_options_codegen(struct tc_options* options)
 {    
     enum tc_codegen_enum value = tc_codegen_enum_unknown;
     
-    static const char* strings[] = { "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen" };
-    static enum tc_codegen_enum values[] = { tc_codegen_enum_serial, tc_codegen_enum_omp_cpu_for, tc_codegen_enum_omp_cpu_task };
+    static const char* strings[] = { "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen" };
+    static enum tc_codegen_enum values[] = { tc_codegen_enum_serial, tc_codegen_enum_omp_cpu_for, tc_codegen_enum_omp_cpu_task, tc_codegen_enum_omp_gpu };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -607,7 +608,7 @@ void tc_options_check_spelling(struct tc_options* options)
     static const char* strings[] = {
         "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling",
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
-        "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen",
+        "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--tarjan-tc",
         "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", /*"--time", */"--use-macros",
         "-g", "--out", "-o",

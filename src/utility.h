@@ -197,6 +197,10 @@ long tc_lexmax_param_value(__isl_keep isl_set* set, __isl_take isl_id* param);
 
 __isl_give isl_set* tc_get_set_bounds(__isl_keep isl_set* set, __isl_keep isl_id_list* LB, __isl_keep isl_id_list* UB);
 
+isl_bool tc_union_map_has_input_tuple(__isl_keep isl_union_map* umap, const char* name);
+
+isl_bool tc_union_map_has_output_tuple(__isl_keep isl_union_map* umap, const char* name);
+
 __isl_give isl_map* tc_get_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name);
 
 __isl_give isl_union_map* tc_get_union_map_for_input_tuple(__isl_keep isl_union_map* umap, const char* name);

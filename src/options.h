@@ -43,6 +43,7 @@ enum tc_codegen_enum
     tc_codegen_enum_serial,
     tc_codegen_enum_omp_cpu_for,
     tc_codegen_enum_omp_cpu_task,
+    tc_codegen_enum_omp_gpu,
     tc_codegen_enum_unknown
 };
 
