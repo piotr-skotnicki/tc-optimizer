@@ -73,7 +73,7 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
     isl_map* R_normalized = tc_normalize_union_map(R, S);
     tc_debug_map(R_normalized, "R_norm");
     
-    int exact;
+    isl_bool exact = isl_bool_false;
     isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);
         
     tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);    

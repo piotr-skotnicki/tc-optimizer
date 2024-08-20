@@ -53,7 +53,7 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     
     repr_ind = tc_parameterize_all(repr_ind, II);
         
-    int exact;
+    isl_bool exact = isl_bool_false;
     isl_map* Rtile_plus = tc_transitive_closure(isl_map_copy(Rtile), S, &exact);
     isl_map* Rtile_star = isl_map_union(isl_map_copy(Rtile_plus), tc_make_identity(isl_map_copy(Rtile)));
     
@@ -136,7 +136,7 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     
     isl_map* R_normalized = tc_normalize_union_map(R, S);
     
-    int exact;
+    isl_bool exact = isl_bool_false;
     
     isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);
     
@@ -298,7 +298,7 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     
     isl_map* R_normalized = tc_normalize_union_map(R, S);    
     
-    int exact;
+    isl_bool exact = isl_bool_false;
     
     isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);
     

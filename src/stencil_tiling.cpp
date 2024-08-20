@@ -46,7 +46,7 @@ void tc_algorithm_stencil_tiling(struct tc_scop* scop, struct tc_options* option
     
     isl_map* R_normalized = tc_normalize_union_map(R, S);
 
-    int exact;
+    isl_bool exact = isl_bool_false;
     isl_map* R_plus_normalized = tc_transitive_closure(R_normalized, S, &exact);
     
     tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);

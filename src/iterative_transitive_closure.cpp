@@ -9,7 +9,7 @@
 static isl_stat tc_iterative_union_closure(__isl_take isl_basic_map* bmap, void* user)
 {
     isl_map** union_map = (isl_map**)user;
-    int exact = 0;
+    isl_bool exact = isl_bool_false;
 
     isl_map* R = isl_map_from_basic_map(isl_basic_map_copy(bmap));
 
@@ -24,11 +24,11 @@ static isl_stat tc_iterative_union_closure(__isl_take isl_basic_map* bmap, void*
 
     if (*union_map)
     {
-        *union_map = isl_map_union(*union_map, exact ? isl_map_copy(R_plus) : isl_map_from_basic_map(isl_basic_map_copy(bmap)));
+        *union_map = isl_map_union(*union_map, (exact == isl_bool_true) ? isl_map_copy(R_plus) : isl_map_from_basic_map(isl_basic_map_copy(bmap)));
     }
     else
     {
-        *union_map = exact ? isl_map_copy(R_plus) : isl_map_from_basic_map(isl_basic_map_copy(bmap));
+        *union_map = (exact == isl_bool_true) ? isl_map_copy(R_plus) : isl_map_from_basic_map(isl_basic_map_copy(bmap));
     }
 
     *union_map = isl_map_compute_divs(*union_map);
@@ -41,7 +41,7 @@ static isl_stat tc_iterative_union_closure(__isl_take isl_basic_map* bmap, void*
     return isl_stat_ok;
 }
 
-__isl_give isl_map* tc_iterative_transitive_closure(__isl_take isl_map* map, int max_iterations, int max_disjunctions, int* exact) 
+__isl_give isl_map* tc_iterative_transitive_closure(__isl_take isl_map* map, int max_iterations, int max_disjunctions, isl_bool* exact)
 {
     isl_map* out = NULL;
     int n = 0;

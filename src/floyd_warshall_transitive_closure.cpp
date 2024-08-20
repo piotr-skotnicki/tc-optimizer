@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-__isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_union_map* R, int* exact)
+__isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_union_map* R, isl_bool* exact)
 {
     isl_map* tcRR = NULL;
     isl_map* tcPR = NULL;
@@ -81,7 +81,7 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
     {
         if (relations[r][r] != NULL)
         {        
-            //int exact;            
+            //isl_bool exact = isl_bool_false;
             
             tc_debug_map(relations[r][r], "RR");
             //tcRR = isl_map_transitive_closure(isl_map_copy(relations[r][r]), exact);

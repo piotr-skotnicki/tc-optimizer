@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.3.4
+TC Optimizing Compiler 0.4.0
 ============================
 
 [![Latest release](https://img.shields.io/github/v/release/piotr-skotnicki/tc-optimizer)](https://github.com/piotr-skotnicki/tc-optimizer/releases/latest)
@@ -6,7 +6,7 @@ TC Optimizing Compiler 0.3.4
 Introduction
 ------------
 
-TC is an automatic source-to-source optimizing compiler for affine loop nests, generating sequential or parallel tiled code based on the application of a transitive closure of a loop nest dependence graph, and combining *Polyhedral* and *Iteration Space Slicing* frameworks. TC utilizes a state-of-the-art polyhedral compilation toolchain, that is:
+TC is an automatic source-to-source optimizing compiler for affine loop nests, generating sequential or parallel tiled code based on the application of a transitive closure of a loop nest dependence graph, and combining the *Polyhedral Model* and *Iteration Space Slicing* frameworks. TC utilizes a state-of-the-art polyhedral compilation toolchain, that is:
 
 - Polyhedral Extraction Tool [\[3\]](#references) for extracting polyhedral representations of original loop nests,
 - Integer Set Library [\[1\]](#references) for performing dependence analysis, manipulating sets and relations as well as generating output code, 
@@ -182,7 +182,7 @@ Contact
 
 In case of questions/problems/bugs, please contact:
 
-Piotr Skotnicki \<<pskotnicki@wi.zut.edu.pl>\>
+Piotr Skotnicki \<<pskotnicki@zut.edu.pl>\>
 
 West Pomeranian University of Technology \
 Faculty of Computer Science and Information Technology \

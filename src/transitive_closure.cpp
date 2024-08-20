@@ -11,15 +11,15 @@
 
 #include <stddef.h>
 
-__isl_give isl_map* (*tc_transitive_closure)(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+__isl_give isl_map* (*tc_transitive_closure)(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact);
 
-__isl_give isl_map* (*tc_map_power)(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact);
+__isl_give isl_map* (*tc_map_power)(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact);
 
-__isl_give isl_map* tc_transitive_closure_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_transitive_closure_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 0;
+        *exact = isl_bool_false;
     }
 
     struct tc_timer* timer = tc_timer_start();
@@ -31,11 +31,11 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_map(__isl_take isl_map* R,
     return R_plus;
 }
 
-__isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 0;
+        *exact = isl_bool_false;
     }
 
     isl_union_map* R_denorm = tc_denormalize_map(R, S);
@@ -55,11 +55,11 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_m
     return R_plus;
 }
 
-__isl_give isl_map* tc_transitive_closure_adapter_floyd_warshall(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_transitive_closure_adapter_floyd_warshall(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 0;
+        *exact = isl_bool_false;
     }
 
     isl_union_map* R_denorm = tc_denormalize_map(R, S);
@@ -79,11 +79,11 @@ __isl_give isl_map* tc_transitive_closure_adapter_floyd_warshall(__isl_take isl_
     return R_plus;
 }
 
-__isl_give isl_map* tc_transitive_closure_adapter_iterative(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_transitive_closure_adapter_iterative(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 0;
+        *exact = isl_bool_false;
     }
 
     struct tc_timer* timer = tc_timer_start();
@@ -95,11 +95,11 @@ __isl_give isl_map* tc_transitive_closure_adapter_iterative(__isl_take isl_map* 
     return R_plus;
 }
 
-__isl_give isl_map* tc_transitive_closure_adapter_tarjan(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_transitive_closure_adapter_tarjan(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 1;
+        *exact = isl_bool_true;
     }
 
     struct tc_timer* timer = tc_timer_start();
@@ -111,11 +111,11 @@ __isl_give isl_map* tc_transitive_closure_adapter_tarjan(__isl_take isl_map* R, 
     return R_plus;
 }
 
-__isl_give isl_map* tc_map_power_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_map_power_adapter_isl_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 0;
+        *exact = isl_bool_false;
     }
 
     struct tc_timer* timer = tc_timer_start();
@@ -127,11 +127,11 @@ __isl_give isl_map* tc_map_power_adapter_isl_map(__isl_take isl_map* R, __isl_ke
     return R_k;
 }
 
-__isl_give isl_map* tc_map_power_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, int* exact)
+__isl_give isl_map* tc_map_power_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
 {
     if (NULL != exact)
     {
-        *exact = 0;
+        *exact = isl_bool_false;
     }
 
     isl_union_map* R_denorm = tc_denormalize_map(R, S);

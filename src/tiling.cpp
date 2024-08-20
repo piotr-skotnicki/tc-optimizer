@@ -379,7 +379,7 @@ __isl_give isl_set* tc_tile_m_set(__isl_keep isl_id_list* II, __isl_keep isl_set
     
     isl_set* ii_set_m_constraints = tc_make_set_constraints(isl_set_copy(ii_set_m), II);
         
-    int exact;
+    isl_bool exact = isl_bool_false;
     isl_map* Tcycle_plus = isl_map_transitive_closure(isl_map_copy(Tcycle), &exact);
     isl_map* Tcycle_star = isl_map_union(Tcycle_plus, tc_make_identity(isl_map_copy(Tcycle)));
     

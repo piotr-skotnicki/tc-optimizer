@@ -70,7 +70,7 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
         
     tc_debug_map(R_normalized, "R_norm");
 
-    int exact;
+    isl_bool exact = isl_bool_false;
     isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);        
     tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);
 
@@ -78,7 +78,7 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
     tc_debug_umap(R_plus, "R^+ denorm");
     isl_union_map_free(R_plus);
 
-    if (exact == 0)
+    if (exact != isl_bool_true)
     {
         tc_error("Inexact R+");
     }

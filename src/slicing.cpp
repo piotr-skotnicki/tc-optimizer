@@ -46,7 +46,7 @@ __isl_give isl_map* tc_Rusc_map(__isl_keep isl_map* R, __isl_keep isl_union_map*
     
     isl_map* R_U_R_inv = isl_map_union(isl_map_copy(R), R_inv);
     
-    int exact;
+    isl_bool exact = isl_bool_false;
     isl_map* R_U_R_inv_plus = tc_transitive_closure(isl_map_copy(R_U_R_inv), S, &exact);
     isl_map* R_U_R_inv_star = isl_map_union(R_U_R_inv_plus, tc_make_identity(R_U_R_inv));    
     R_U_R_inv_star = isl_map_coalesce(R_U_R_inv_star);
@@ -86,7 +86,7 @@ __isl_give isl_map* tc_Rusc3_map(__isl_keep isl_set* uds, __isl_keep isl_map* R,
     
     if (NULL == R_plus)
     {
-        int exact;
+        isl_bool exact = isl_bool_false;
         R_plus = tc_transitive_closure(isl_map_copy(R), S, &exact);
     }
     else
@@ -132,7 +132,7 @@ __isl_give isl_map* tc_Rusc2_map(__isl_keep isl_set* uds, __isl_keep isl_map* R,
     
     if (NULL == R_plus)
     {
-        int exact;
+        isl_bool exact = isl_bool_false;
         R_plus = tc_transitive_closure(isl_map_copy(R), S, &exact);
     }
     else
@@ -265,7 +265,7 @@ isl_bool tc_topology_is_graph(__isl_keep isl_set* cds, __isl_keep isl_set* cdd)
 
 __isl_give isl_set* tc_Sk_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __isl_keep isl_map* R_plus, __isl_keep isl_union_map* S, __isl_give isl_id** k_param)
 {
-    int exact;
+    isl_bool exact = isl_bool_false;
     
     isl_map* R_k = tc_map_power(isl_map_copy(R), S, &exact);
     //isl_map* R_k = isl_map_power(isl_map_copy(R), &exact);
@@ -339,7 +339,7 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     
     tc_debug_umap(Sprim, "S'");
     
-    int exact;
+    isl_bool exact = isl_bool_false;
     //isl_map* Rprim_plus = tc_transitive_closure(isl_map_copy(Rprim), Sprim, &exact);
     isl_map* Rprim_plus = tc_transitive_closure_adapter_isl_map(isl_map_copy(Rprim), Sprim, &exact);
     isl_map* Rprim_star = isl_map_union(isl_map_copy(Rprim_plus), tc_make_identity(Rprim));

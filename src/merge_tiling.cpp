@@ -79,7 +79,7 @@ void tc_algorithm_merge_tiling(struct tc_scop* scop, struct tc_options* options)
     tc_debug_umap(Rtile_denormalized, "R_TILE_denorm");
     isl_union_map_free(Rtile_denormalized);
                     
-    int exact;    
+    isl_bool exact = isl_bool_false;
     isl_map* Rtile_plus = tc_transitive_closure(isl_map_copy(Rtile), S, &exact);
     //Rtile_plus = isl_map_compute_divs(Rtile_plus);
     Rtile_plus = isl_map_coalesce(Rtile_plus);
