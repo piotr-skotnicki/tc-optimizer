@@ -92,7 +92,7 @@ void tc_options_credits()
         "TC Optimizing Compiler\n"
         "version " TC_CONF_VERSION "\n"
         "\n"
-        "Piotr Skotnicki <pskotnicki@wi.zut.edu.pl>\n"
+        "Piotr Skotnicki <pskotnicki@zut.edu.pl>\n"
         "\n"
         "West Pomeranian University of Technology\n"
         "Faculty of Computer Science and Information Technology\n"

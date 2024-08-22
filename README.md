@@ -38,7 +38,7 @@ TC implements a number of tiling transformation algorithms as well as schedulers
 For the example loop nest, the correction technique can be applied with a tile size of 32x32:
 
 ```c
-/* TC Optimizing Compiler 0.3.4 */
+/* TC Optimizing Compiler 0.4.0 */
 /* ./tc ../examples/other/correction.scop.c --correction-tiling --lex-scheduling --serial-codegen -b 32 */
 #define min(x,y)    ((x) < (y) ? (x) : (y))
 #define max(x,y)    ((x) > (y) ? (x) : (y))
@@ -76,7 +76,7 @@ Installation
 
 ```
 automake autoconf libtool pkg-config libgmp3-dev libclang-dev
-llvm libntl-dev g++ make git zlib1g-dev libglpk-dev
+llvm libntl-dev g++ make git clang zlib1g-dev libglpk-dev
 ```
 
 ### Downloading:
