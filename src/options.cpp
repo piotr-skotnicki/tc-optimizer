@@ -519,10 +519,10 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
     
     const char* name = (NULL != long_name ? long_name : (NULL != short_name ? short_name : "(unknown)"));
     
-    isl_space* space = isl_space_alloc(ctx, 0, 0, 0);
-    
+    isl_space* space = isl_space_unit(ctx);
+
     isl_set* bounds = isl_set_universe(space);
-    
+
     bounds = isl_set_params(bounds);
         
     for (int i = 0; i < argc; ++i)
