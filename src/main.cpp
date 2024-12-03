@@ -21,6 +21,7 @@
 #include <isl/ctx.h>
 #include <isl/options.h>
 #include <isl/id.h>
+#include <isl/isl_options_private.h>
 
 #include <pet.h>
 
@@ -51,7 +52,10 @@ int main(int argc, char* argv[])
 
         struct pet_options* poptions = pet_options_new_with_defaults();
 
-        isl_ctx* ctx = isl_ctx_alloc_with_options(&pet_options_args, poptions);    
+        isl_ctx* ctx = isl_ctx_alloc_with_options(&pet_options_args, poptions);
+
+        struct isl_options* isloptions = isl_ctx_options(ctx);
+        isloptions->closure = ISL_CLOSURE_ISL;
 
         pet_options_set_autodetect(ctx, 0);
 
@@ -98,6 +102,20 @@ int main(int argc, char* argv[])
                 case tc_transitive_closure_enum_isl_union_map:
                 {
                     tc_transitive_closure = &tc_transitive_closure_adapter_isl_union_map;
+                    tc_map_power = &tc_map_power_adapter_isl_map;
+                }
+                break;
+
+                case tc_transitive_closure_enum_omega_map:
+                {
+                    tc_transitive_closure = &tc_transitive_closure_adapter_omega_map;
+                    tc_map_power = &tc_map_power_adapter_isl_map;
+                }
+                break;
+
+                case tc_transitive_closure_enum_omega_union_map:
+                {
+                    tc_transitive_closure = &tc_transitive_closure_adapter_omega_union_map;
                     tc_map_power = &tc_map_power_adapter_isl_map;
                 }
                 break;

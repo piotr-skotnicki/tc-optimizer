@@ -6,6 +6,8 @@
 #include "debug.h"
 #include "timer.h"
 
+#include <isl/ctx.h>
+#include <isl/isl_options_private.h>
 #include <isl/map.h>
 #include <isl/union_map.h>
 
@@ -22,11 +24,18 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_map(__isl_take isl_map* R,
         *exact = isl_bool_false;
     }
 
+    isl_options* isloptions = isl_ctx_options(isl_map_get_ctx(R));
+
+    const int choice = isloptions->closure;
+    isloptions->closure = ISL_CLOSURE_ISL;
+
     struct tc_timer* timer = tc_timer_start();
 
     isl_map* R_plus = isl_map_transitive_closure(R, exact);
 
     tc_debug("R+ calculations time: %ld ms", tc_timer_stop(timer));
+
+    isloptions->closure = choice;
 
     return R_plus;
 }
@@ -37,6 +46,11 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_m
     {
         *exact = isl_bool_false;
     }
+
+    isl_options* isloptions = isl_ctx_options(isl_map_get_ctx(R));
+
+    const int choice = isloptions->closure;
+    isloptions->closure = ISL_CLOSURE_ISL;
 
     isl_union_map* R_denorm = tc_denormalize_map(R, S);
 
@@ -51,6 +65,8 @@ __isl_give isl_map* tc_transitive_closure_adapter_isl_union_map(__isl_take isl_m
     isl_map* R_plus = tc_normalize_union_map(R_plus_denorm, S);
 
     isl_union_map_free(R_plus_denorm);
+
+    isloptions->closure = choice;
 
     return R_plus;
 }
@@ -91,6 +107,60 @@ __isl_give isl_map* tc_transitive_closure_adapter_iterative(__isl_take isl_map* 
     isl_map* R_plus = tc_iterative_transitive_closure(R, 10, 100, exact);
 
     tc_debug("R+ calculations time: %ld ms", tc_timer_stop(timer));
+
+    return R_plus;
+}
+
+__isl_give isl_map* tc_transitive_closure_adapter_omega_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
+{
+    if (NULL != exact)
+    {
+        *exact = isl_bool_false;
+    }
+
+    isl_options* isloptions = isl_ctx_options(isl_map_get_ctx(R));
+
+    const int choice = isloptions->closure;
+    isloptions->closure = ISL_CLOSURE_BOX;
+
+    struct tc_timer* timer = tc_timer_start();
+
+    isl_map* R_plus = isl_map_transitive_closure(R, exact);
+
+    tc_debug("R+ calculations time: %ld ms", tc_timer_stop(timer));
+
+    isloptions->closure = choice;
+
+    return R_plus;
+}
+
+__isl_give isl_map* tc_transitive_closure_adapter_omega_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
+{
+    if (NULL != exact)
+    {
+        *exact = isl_bool_false;
+    }
+
+    isl_options* isloptions = isl_ctx_options(isl_map_get_ctx(R));
+
+    const int choice = isloptions->closure;
+    isloptions->closure = ISL_CLOSURE_BOX;
+
+    isl_union_map* R_denorm = tc_denormalize_map(R, S);
+
+    isl_map_free(R);
+
+    struct tc_timer* timer = tc_timer_start();
+
+    isl_union_map* R_plus_denorm = isl_union_map_transitive_closure(R_denorm, exact);
+
+    tc_debug("R+ calculations time: %ld ms", tc_timer_stop(timer));
+
+    isl_map* R_plus = tc_normalize_union_map(R_plus_denorm, S);
+
+    isl_union_map_free(R_plus_denorm);
+
+    isloptions->closure = choice;
 
     return R_plus;
 }

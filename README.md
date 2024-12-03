@@ -150,6 +150,8 @@ tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 --isl-union-map-tc     ISL union map transitive closure
 --floyd-warshall-tc    Floyd-Warshall algorithm
 --iterative-tc         Iterative algorithm
+--omega-map-tc         Omega normalized map transitive closure
+--omega-union-map-tc   Omega union map transitive closure
 --tarjan-tc            Tarjan algorithm for finite graphs
 ```
 
