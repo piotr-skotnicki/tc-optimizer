@@ -4,6 +4,7 @@ complete -f -W "--stencil-tiling --regular-tiling --correction-tiling --correcti
                 --serial-codegen --omp-for-codegen --omp-task-codegen --omp-gpu-codegen \
                 --isl-map-tc --isl-union-map-tc --floyd-warshall-tc --iterative-tc --omega-map-tc --omega-union-map-tc --tarjan-tc \
                 -b -R --report --cache -d --debug -D --version -v --help -h --inline --time --use-macros \
+                -y --yes \
                 -g --out -o \
                 -m --max" \
     tc

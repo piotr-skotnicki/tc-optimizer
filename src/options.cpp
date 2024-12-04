@@ -77,6 +77,7 @@ void tc_options_help()
         "    -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600\n"
         "    --cache <value>      Cache line length in bytes (default: " TC_STR(TC_CONF_DEFAULT_CACHE_LINE) ")\n"
         "    --use-macros         Use macro definitions in place of statements\n"
+        "    --yes     | -y       Non-interactive mode\n"
         "    --version | -v       Print compiler info\n"
         "    --help    | -h       Print help\n"
         "\n"
@@ -614,7 +615,8 @@ void tc_options_check_spelling(struct tc_options* options)
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc",
         "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", /*"--time", */"--use-macros",
         "-g", "--out", "-o",
-        "-m", "--max"
+        "-m", "--max",
+        "-y", "--yes",
     };
     
     int argc = options->argc;

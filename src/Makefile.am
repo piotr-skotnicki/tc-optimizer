@@ -34,7 +34,8 @@ tc_SOURCES = \
 	iterative_transitive_closure.cpp \
 	tile_statistics.cpp \
 	for_decorator.cpp \
-	timer.cpp
+	timer.cpp \
+	input_output.cpp
 
 tc_CPPFLAGS = \
 	-I$(top_srcdir)/isl/include \

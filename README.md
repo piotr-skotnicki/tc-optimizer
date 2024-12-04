@@ -166,6 +166,7 @@ tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600
 --cache <value>      Cache line length in bytes (default: 64)
 --use-macros         Use macro definitions in place of statements
+--yes     | -y       Non-interactive mode
 --version | -v       Print compiler info
 --help    | -h       Print help
 ```

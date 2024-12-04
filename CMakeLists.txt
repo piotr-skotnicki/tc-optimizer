@@ -41,7 +41,8 @@ add_executable(tc
     src/iterative_transitive_closure.cpp
     src/tile_statistics.cpp
     src/for_decorator.cpp
-    src/timer.cpp)
+    src/timer.cpp
+    src/input_output.cpp)
 
 include(ExternalProject)
 
