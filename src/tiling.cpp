@@ -29,7 +29,7 @@ __isl_give isl_set* tc_tile_set(__isl_keep isl_id_list* II, __isl_keep isl_id_li
     
     isl_set* statement_schedule_range = isl_map_range(isl_map_copy(statement_schedule));
             
-    char buff[2048];   
+    char buff[4096];
     std::string tile_set_str;
     for (int i = 0, j = 0; i < n_LD_normalized_dim; ++i)
     {
@@ -102,7 +102,7 @@ __isl_give isl_set* tc_ii_set_set(__isl_keep isl_id_list* II, const std::vector<
     
     isl_set* statement_schedule_range = isl_map_range(isl_map_copy(tile_schedule));
     
-    char buff[2048];   
+    char buff[4096];
     std::string ii_set_str;
     for (int i = 0, j = 0; i < n_LD_normalized_dim; ++i)
     {

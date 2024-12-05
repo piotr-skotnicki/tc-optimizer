@@ -280,7 +280,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
     char* cond_str = isl_ast_expr_to_C_str(cond);
     char* inc_str = isl_ast_expr_to_C_str(inc);
 
-    char for_declaration[1024];
+    char for_declaration[4096];
     snprintf(for_declaration, sizeof(for_declaration), "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
 
     free(init_str);
@@ -416,7 +416,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
     char* cond_str = isl_ast_expr_to_C_str(cond);
     char* inc_str = isl_ast_expr_to_C_str(inc);
 
-    char for_declaration[1024];
+    char for_declaration[4096];
     snprintf(for_declaration, sizeof(for_declaration), "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
 
     free(init_str);

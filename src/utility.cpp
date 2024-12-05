@@ -392,7 +392,7 @@ __isl_give isl_set* tc_make_set(__isl_keep isl_ctx* ctx
                               , __isl_keep isl_id_list* vars
                               , const char* constraints)
 {
-    char set_str[1024];
+    char set_str[2048];
     
     if (NULL == constraints || 0 == strlen(constraints))
     {
@@ -435,7 +435,7 @@ __isl_give isl_map* tc_make_map(__isl_keep isl_ctx* ctx
                               , __isl_keep isl_id_list* out
                               , const char* constraints)
 {
-    char map_str[1024];
+    char map_str[2048];
     
     if (NULL == constraints || 0 == strlen(constraints))
     {
@@ -482,7 +482,7 @@ __isl_give isl_set* tc_make_params(__isl_keep isl_ctx* ctx
                                  , __isl_keep isl_id_list* params
                                  , const char* constraints)
 {
-    char set_str[1024];
+    char set_str[2048];
     
     snprintf(set_str, sizeof(set_str), "[%s] -> { : %s }", tc_comma(params).c_str(), constraints);
     
@@ -852,7 +852,7 @@ __isl_give isl_union_map* tc_union_map_closure(__isl_take isl_union_map* umap, i
 
 __isl_give isl_id_list* tc_ids_sequence(__isl_keep isl_ctx* ctx, const char* id, int size)
 {
-    char buff[50];
+    char buff[2048];
     
     isl_id_list* result = isl_id_list_alloc(ctx, size);
     
@@ -868,7 +868,7 @@ __isl_give isl_id_list* tc_ids_sequence(__isl_keep isl_ctx* ctx, const char* id,
 
 __isl_give isl_id_list* tc_ids_add_suffix(__isl_keep isl_id_list* list, const char* suffix)
 {
-    char buff[50];
+    char buff[2048];
     
     isl_ctx* ctx = isl_id_list_get_ctx(list);
     
@@ -892,7 +892,7 @@ __isl_give isl_id_list* tc_ids_add_suffix(__isl_keep isl_id_list* list, const ch
 
 __isl_give isl_id_list* tc_ids_double(__isl_keep isl_id_list* list)
 {
-    char buff[50];
+    char buff[2048];
     
     isl_ctx* ctx = isl_id_list_get_ctx(list);
     
