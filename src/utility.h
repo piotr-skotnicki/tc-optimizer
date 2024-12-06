@@ -21,6 +21,18 @@ __isl_give isl_map* tc_map_rename_dim(__isl_take isl_map* map, isl_dim_type dim,
 
 __isl_give isl_map* tc_map_rename_params(__isl_take isl_map* map, __isl_keep isl_id_list* from, __isl_keep isl_id_list* to);
 
+__isl_give isl_set* tc_remove_dim_names(__isl_take isl_set* set, isl_dim_type dim, __isl_keep isl_id_list* names);
+
+__isl_give isl_map* tc_map_remove_dim_names(__isl_take isl_map* map, isl_dim_type dim, __isl_keep isl_id_list* names);
+
+__isl_give isl_set* tc_remove_params(__isl_take isl_set* set, __isl_keep isl_id_list* names);
+
+__isl_give isl_map* tc_map_remove_params(__isl_take isl_map* map, __isl_keep isl_id_list* names);
+
+__isl_give isl_union_set* tc_union_set_remove_params(__isl_take isl_union_set* uset, __isl_keep isl_id_list* names);
+
+__isl_give isl_union_map* tc_union_map_remove_params(__isl_take isl_union_map* umap, __isl_keep isl_id_list* names);
+
 __isl_give isl_set* tc_project_out_dim_names(__isl_take isl_set* set, isl_dim_type dim, __isl_keep isl_id_list* names);
 
 __isl_give isl_set* tc_project_out_params(__isl_take isl_set* set, __isl_keep isl_id_list* names);
@@ -259,6 +271,8 @@ __isl_give isl_union_map* tc_extend_schedule(__isl_take isl_union_map* S, int n)
 __isl_give isl_union_map* tc_extend_union_map(__isl_take isl_union_map* umap, int n);
 
 __isl_give isl_set* tc_get_params_set(__isl_take isl_set* set, __isl_keep isl_id_list* params);
+
+__isl_give isl_id_list* tc_get_params_ids(__isl_keep isl_set* set);
 
 isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos);
 

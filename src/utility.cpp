@@ -62,7 +62,7 @@ __isl_give isl_map* tc_map_rename_params(__isl_take isl_map* map, __isl_keep isl
     return tc_map_rename_dim(map, isl_dim_param, from, to);
 }
 
-__isl_give isl_set* tc_project_out_dim_names(__isl_take isl_set* set, isl_dim_type dim, __isl_keep isl_id_list* names)
+__isl_give isl_set* tc_remove_dim_names(__isl_take isl_set* set, isl_dim_type dim, __isl_keep isl_id_list* names)
 {    
     for (int i = 0; i < isl_id_list_n_id(names); ++i)
     {
@@ -70,11 +70,109 @@ __isl_give isl_set* tc_project_out_dim_names(__isl_take isl_set* set, isl_dim_ty
         
         int pos = isl_set_find_dim_by_id(set, dim, id);
         
-        set = isl_set_project_out(set, dim, pos, 1);
+        set = isl_set_remove_dims(set, dim, pos, 1);
         
         isl_id_free(id);
     }
     
+    return set;
+}
+
+__isl_give isl_map* tc_map_remove_dim_names(__isl_take isl_map* map, isl_dim_type dim, __isl_keep isl_id_list* names)
+{
+    for (int i = 0; i < isl_id_list_n_id(names); ++i)
+    {
+        isl_id* id = isl_id_list_get_id(names, i);
+
+        int pos = isl_map_find_dim_by_id(map, dim, id);
+
+        map = isl_map_remove_dims(map, dim, pos, 1);
+
+        isl_id_free(id);
+    }
+
+    return map;
+}
+
+__isl_give isl_set* tc_remove_params(__isl_take isl_set* set, __isl_keep isl_id_list* names)
+{
+    return tc_remove_dim_names(set, isl_dim_param, names);
+}
+
+__isl_give isl_map* tc_map_remove_params(__isl_take isl_map* map, __isl_keep isl_id_list* names)
+{
+    return tc_map_remove_dim_names(map, isl_dim_param, names);
+}
+
+__isl_give isl_union_set* tc_union_set_remove_params(__isl_take isl_union_set* uset, __isl_keep isl_id_list* names)
+{
+    isl_set_list* sets = tc_collect_sets(uset);
+
+    isl_union_set* result = NULL;
+
+    for (int i = 0; i < isl_set_list_n_set(sets); ++i)
+    {
+        isl_set* set = isl_set_list_get_set(sets, i);
+        set = tc_remove_params(set, names);
+
+        if (NULL == result)
+        {
+            result = isl_union_set_from_set(set);
+        }
+        else
+        {
+            result = isl_union_set_add_set(result, set);
+        }
+    }
+
+    isl_union_set_free(uset);
+    isl_set_list_free(sets);
+
+    return result;
+}
+
+__isl_give isl_union_map* tc_union_map_remove_params(__isl_take isl_union_map* umap, __isl_keep isl_id_list* names)
+{
+    isl_map_list* maps = tc_collect_maps(umap);
+
+    isl_union_map* result = NULL;
+
+    for (int i = 0; i < isl_map_list_n_map(maps); ++i)
+    {
+        isl_map* map = isl_map_list_get_map(maps, i);
+        map = tc_map_remove_params(map, names);
+
+        if (NULL == result)
+        {
+            result = isl_union_map_from_map(map);
+        }
+        else
+        {
+            result = isl_union_map_add_map(result, map);
+        }
+    }
+
+    isl_map_list_free(maps);
+
+    return result;
+}
+
+__isl_give isl_set* tc_project_out_dim_names(__isl_take isl_set* set, isl_dim_type dim, __isl_keep isl_id_list* names)
+{
+    for (int i = 0; i < isl_id_list_n_id(names); ++i)
+    {
+        isl_id* id = isl_id_list_get_id(names, i);
+
+        int pos = isl_set_find_dim_by_id(set, dim, id);
+
+        if (pos >= 0)
+        {
+            set = isl_set_project_out(set, dim, pos, 1);
+        }
+
+        isl_id_free(id);
+    }
+
     return set;
 }
 
@@ -644,8 +742,6 @@ __isl_give isl_set* tc_set_fix_param_value(__isl_take isl_set* set, __isl_take i
     
     set = isl_set_fix_si(set, isl_dim_param, pos, value);
     
-    set = isl_set_project_out(set, isl_dim_param, pos, 1);
-    
     isl_id_free(name);
     
     return set;
@@ -656,8 +752,6 @@ __isl_give isl_map* tc_map_fix_param_value(__isl_take isl_map* map, __isl_take i
     int pos = isl_map_find_dim_by_id(map, isl_dim_param, name);
     
     map = isl_map_fix_si(map, isl_dim_param, pos, value);
-    
-    map = isl_map_project_out(map, isl_dim_param, pos, 1);
     
     isl_id_free(name);
     
@@ -1883,6 +1977,22 @@ __isl_give isl_set* tc_get_params_set(__isl_take isl_set* set, __isl_keep isl_id
     params_set = tc_lift_up_set_params(params_set, params);
     
     return params_set;
+}
+
+__isl_give isl_id_list* tc_get_params_ids(__isl_take isl_set* set)
+{
+    isl_ctx* ctx = isl_set_get_ctx(set);
+
+    int n_param = isl_set_n_param(set);
+
+    isl_id_list* params = isl_id_list_alloc(ctx, n_param);
+
+    for (int i = 0; i < n_param; ++i)
+    {
+        params = isl_id_list_add(params, isl_set_get_dim_id(set, isl_dim_param, i));
+    }
+
+    return params;
 }
 
 isl_bool tc_map_carries_dependences(__isl_keep isl_map* map, int pos)
