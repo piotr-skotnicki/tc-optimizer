@@ -58,7 +58,7 @@ __isl_give isl_map* tc_iterative_transitive_closure(__isl_take isl_map* map, int
 
     *exact = isl_map_is_equal(compose, out);
             
-    while (!*exact && /*compose->n < max_disjunctions &&*/ n < max_iterations) 
+    while (!*exact && isl_map_n_basic_map(compose) < max_disjunctions && n < max_iterations) 
     {
         tc_debug("n=%d", n);
 
