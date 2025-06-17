@@ -83,7 +83,7 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
         tc_error("Inexact R+");
     }
     
-    int k = 0;
+    int k = 1;
     
     isl_set_list* tiles_k = isl_set_list_alloc(ctx, 1);
     
