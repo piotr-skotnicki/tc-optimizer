@@ -1,3 +1,4 @@
+#include "diamond_tiling.h"
 #include "stencil_tiling.h"
 #include "regular_tiling.h"
 #include "merge_tiling.h"
@@ -213,6 +214,18 @@ int main(int argc, char* argv[])
 
             switch (algorithm)
             {
+                case tc_algorithm_enum_diamond_tiling:
+                {
+                    tc_algorithm_diamond_tiling(scop, options, true);
+                }
+                break;
+
+                case tc_algorithm_enum_semi_diamond_tiling:
+                {
+                    tc_algorithm_diamond_tiling(scop, options, false);
+                }
+                break;
+
                 case tc_algorithm_enum_stencil_tiling:
                 {
                     tc_algorithm_stencil_tiling(scop, options);

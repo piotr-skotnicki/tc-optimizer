@@ -20,6 +20,7 @@ add_executable(tc
     src/ast.cpp
     src/slicing.cpp
     src/regular_tiling.cpp
+    src/diamond_tiling.cpp
     src/stencil_tiling.cpp
     src/merge_tiling.cpp
     src/correction_tiling.cpp

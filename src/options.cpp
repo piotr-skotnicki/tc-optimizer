@@ -26,6 +26,8 @@ void tc_options_help()
         "\n"
         " Algorithms:\n"
         "\n"
+        "    --diamond-tiling             Diamond tiling for stencils\n"
+        "    --semi-diamond-tiling        Diamond tiling without tile expansion\n"
         "    --stencil-tiling             Concurrent start tiling for stencils\n"
         "    --regular-tiling             Tiling with regular tile shapes\n"
         "    --correction-tiling          Tiling with LT tiles correction\n"
@@ -280,8 +282,8 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
 {    
     enum tc_algorithm_enum value = tc_algorithm_enum_unknown;
     
-    static const char* strings[] = { "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling" };
-    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_correction_inv_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_mod_correction_tiling };
+    static const char* strings[] = { "--diamond-tiling", "--semi-diamond-tiling", "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling" };
+    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_diamond_tiling, tc_algorithm_enum_semi_diamond_tiling, tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_correction_inv_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_mod_correction_tiling };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -327,12 +329,7 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
             }
         }
     }
-    
-    if (tc_scheduling_enum_unknown == value)
-    {
-        tc_warn("No scheduling specified.");
-    }
-    
+
     return value;
 }
 
@@ -609,7 +606,7 @@ static int tc_options_editorial_distance(const char* a, const char* b)
 void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
-        "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling",
+        "--diamond-tiling", "--semi-diamond-tiling", "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling",
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc",
@@ -617,6 +614,7 @@ void tc_options_check_spelling(struct tc_options* options)
         "-g", "--out", "-o",
         "-m", "--max",
         "-y", "--yes",
+        "--drop-bounds",
     };
     
     int argc = options->argc;

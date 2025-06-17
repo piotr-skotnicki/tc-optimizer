@@ -109,6 +109,8 @@ tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 ### Algorithms:
 
 ```
+--diamond-tiling             Diamond tiling for stencils
+--semi-diamond-tiling        Diamond tiling without tile expansion
 --stencil-tiling             Concurrent start tiling for stencils
 --regular-tiling             Tiling with regular tile shapes
 --correction-tiling          Tiling with LT tiles correction
@@ -196,6 +198,6 @@ References
 
 [1] Verdoolaege S (2010) ISL: an integer set library for the polyhedral model. In: Mathematical software--ICMS 2010, Lecture notes in computer science. vol 6327. Springer, Berlin, pp 299--302
 
-[2] Verdoolaege S, Seghir R, Beyls K et al. Algorithmica (2007) 48: 37. https://doi.org/10.1007/s00453-006-1231-0
+[2] Verdoolaege S, Seghir R, Beyls K et al. Counting integer points in parametric polytopes using barvinok’s rational functions. Algorithmica (2007) 48: 37
 
 [3] Verdoolaege S, Grosser T (2012) Polyhedral extraction tool. In: Proceedings of the 2nd international workshop on polyhedral compilation techniques. Paris, France

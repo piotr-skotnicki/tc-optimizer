@@ -13,6 +13,7 @@ tc_SOURCES = \
 	ast.cpp \
 	slicing.cpp \
 	regular_tiling.cpp \
+	diamond_tiling.cpp \
 	stencil_tiling.cpp \
 	merge_tiling.cpp \
 	correction_tiling.cpp \

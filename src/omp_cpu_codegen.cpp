@@ -37,6 +37,10 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
     ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, visitor_context);
     
     isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
+    //S_prim = isl_union_map_compute_divs(S_prim);
+    S_prim = isl_union_map_remove_redundancies(S_prim);
+    S_prim = isl_union_map_coalesce(S_prim);
+    S_prim = isl_union_map_detect_equalities(S_prim);
 
     tc_debug_umap(S_prim, "S_prim");
 
