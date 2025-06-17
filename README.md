@@ -1,4 +1,4 @@
-TC Optimizing Compiler 0.4.0
+TC Optimizing Compiler 0.4.1
 ============================
 
 [![Latest release](https://img.shields.io/github/v/release/piotr-skotnicki/tc-optimizer)](https://github.com/piotr-skotnicki/tc-optimizer/releases/latest)
@@ -38,7 +38,7 @@ TC implements a number of tiling transformation algorithms as well as schedulers
 For the example loop nest, the correction technique can be applied with a tile size of 32x32:
 
 ```c
-/* TC Optimizing Compiler 0.4.0 */
+/* TC Optimizing Compiler 0.4.1 */
 /* ./tc ../examples/other/correction.scop.c --correction-tiling --lex-scheduling --serial-codegen -b 32 */
 #define min(x,y)    ((x) < (y) ? (x) : (y))
 #define max(x,y)    ((x) > (y) ? (x) : (y))
