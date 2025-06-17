@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 __isl_give isl_printer* tc_for_decorator_omp_task_nested(__isl_take isl_printer* printer, __isl_take isl_ast_print_options* ast_options, __isl_keep isl_ast_node* node, void* user)
 {
@@ -282,6 +283,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
 
     char for_declaration[4096];
     snprintf(for_declaration, sizeof(for_declaration), "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
+    //snprintf(for_declaration, sizeof(for_declaration), "for (%s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
 
     free(init_str);
     free(cond_str);
@@ -352,8 +354,10 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
     const char* type = isl_options_get_ast_iterator_type(ctx);
     
     char lb_variable[512], ub_variable[512];
-    snprintf(lb_variable, sizeof(lb_variable), "%s_lb", name);
-    snprintf(ub_variable, sizeof(ub_variable), "%s_ub", name);
+    //snprintf(lb_variable, sizeof(lb_variable), "%s_lb", name);
+    //snprintf(ub_variable, sizeof(ub_variable), "%s_ub", name);
+    snprintf(lb_variable, sizeof(lb_variable), "%s_%d_lb", name, rand() % 100000);
+    snprintf(ub_variable, sizeof(ub_variable), "%s_%d_ub", name, rand() % 100000);
         
     isl_ast_node* body = isl_ast_node_for_get_body(node);
     isl_ast_expr* init = isl_ast_node_for_get_init(node);
@@ -418,6 +422,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
 
     char for_declaration[4096];
     snprintf(for_declaration, sizeof(for_declaration), "for (register %s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
+    //snprintf(for_declaration, sizeof(for_declaration), "for (%s %s = %s; %s; %s += %s) {", type, name, init_str, cond_str, name, inc_str);
 
     free(init_str);
     free(cond_str);
