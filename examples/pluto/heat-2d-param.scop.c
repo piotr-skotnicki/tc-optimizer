@@ -1,0 +1,29 @@
+int main()
+{
+#if 0
+# define N 4000
+# define T 1000
+#else
+  int N;
+  int T;
+#endif
+
+  double A[2][N+2][N+2];
+
+  int _T = T;
+  int _N = N;
+#pragma scop
+  for (int t = 0; t < _T; t++) {
+    for (int i = 1; i < _N + 1; i++) {
+      for (int j = 1; j < _N + 1; j++) {
+S1:     A[(t + 1) % 2][i][j] =
+            0.125 * (A[t % 2][i + 1][j] - 2.0 * A[t % 2][i][j] +
+                     A[t % 2][i - 1][j]) +
+            0.125 * (A[t % 2][i][j + 1] - 2.0 * A[t % 2][i][j] +
+                     A[t % 2][i][j - 1]) +
+            A[t % 2][i][j];
+      }
+    }
+  }
+#pragma endscop
+}
