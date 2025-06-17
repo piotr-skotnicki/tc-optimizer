@@ -155,6 +155,8 @@ __isl_give isl_union_map* tc_union_map_closure(__isl_take isl_union_map* umap, i
 
 __isl_give isl_id_list* tc_ids_sequence(__isl_keep isl_ctx* ctx, const char* id, int size);
 
+__isl_give isl_id_list* tc_ids_sequence_offset(__isl_keep isl_ctx* ctx, const char* id, int size, int offset);
+
 __isl_give isl_id_list* tc_ids_add_suffix(__isl_keep isl_id_list* list, const char* suffix);
 
 __isl_give isl_id_list* tc_ids_double(__isl_keep isl_id_list* list);

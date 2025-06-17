@@ -960,6 +960,22 @@ __isl_give isl_id_list* tc_ids_sequence(__isl_keep isl_ctx* ctx, const char* id,
     return result;
 }
 
+__isl_give isl_id_list* tc_ids_sequence_offset(__isl_keep isl_ctx* ctx, const char* id, int size, int offset)
+{
+    char buff[2048];
+    
+    isl_id_list* result = isl_id_list_alloc(ctx, size);
+    
+    for (int i = 0; i < size; ++i)
+    {
+        snprintf(buff, sizeof(buff), "%s%d", id, i + offset);
+        
+        result = isl_id_list_add(result, isl_id_alloc(ctx, buff, NULL));
+    }
+    
+    return result;
+}
+
 __isl_give isl_id_list* tc_ids_add_suffix(__isl_keep isl_id_list* list, const char* suffix)
 {
     char buff[2048];
