@@ -7,6 +7,7 @@
 #include "tile_statistics.h"
 #include "debug.h"
 #include "transitive_closure.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>
@@ -77,8 +78,10 @@ void tc_algorithm_mod_correction_tiling(struct tc_scop* scop, struct tc_options*
 
     if (exact != isl_bool_true)
     {
-        tc_error("Inexact R+");
-        //tc_warn("Inexact R+");
+        tc_warn("Inexact R^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        if (!tc_io_confirm(options, "Continue?")) {
+            tc_die(tc_exit_code_inexact);
+        }
     }
 
     isl_map* Rtile = tc_Rtile_map(II, tile, R_normalized);
