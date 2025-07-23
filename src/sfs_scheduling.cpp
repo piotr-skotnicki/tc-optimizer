@@ -58,15 +58,27 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     isl_map* Rtile_star = isl_map_union(isl_map_copy(Rtile_plus), tc_make_identity(isl_map_copy(Rtile)));
     
     tc_debug_map(Rtile_star, "R_TILE* (exact=%d)", exact);
-                    
-    isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
-    isl_map* Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
-    
-    tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
 
-    // S_slice = R*((R_USC*)(e))
-    isl_set* Sslice = isl_set_apply(isl_set_apply(isl_set_copy(repr_ind), Rusc_star), isl_map_copy(Rtile_star));
-    
+    isl_set* Sslice = NULL;
+    if (isl_map_is_empty(Rusc) == isl_bool_true)
+    {
+        // S_slice = R*(e)
+        Sslice = isl_set_apply(isl_set_copy(repr_ind), isl_map_copy(Rtile_star));
+        Sslice = isl_set_coalesce(Sslice);
+    }
+    else
+    {
+        isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
+        isl_map* Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
+        Rusc_star = isl_map_coalesce(Rusc_star);
+
+        tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
+
+        // S_slice = R*((R_USC*)(e))
+        Sslice = isl_set_apply(isl_set_apply(isl_set_copy(repr_ind), Rusc_star), isl_map_copy(Rtile_star));
+        Sslice = isl_set_coalesce(Sslice);
+    }
+
     tc_debug_set(Sslice, "SLICE");
     
     Sslice = tc_lift_up_set_params(Sslice, II);
@@ -177,16 +189,26 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     tile_repr_ind = isl_set_coalesce(tile_repr_ind);    
     
     tc_debug_set(tile_repr_ind, "TILE_REPR_IND");
-    
-    isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
-    isl_map* Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
-    Rusc_star = isl_map_coalesce(Rusc_star);
-    
-    tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
 
-    // SFS := R^∗(R_USC^∗(TILE_REPR_IND))
-    isl_set* sfs = isl_set_apply(isl_set_apply(tile_repr_ind, Rusc_star), R_star_normalized);
-    sfs = isl_set_coalesce(sfs);
+    isl_set* sfs = NULL;
+    if (isl_map_is_empty(Rusc) == isl_bool_true)
+    {
+        // SFS := R^∗(TILE_REPR_IND)
+        sfs = isl_set_apply(tile_repr_ind, R_star_normalized);
+        sfs = isl_set_coalesce(sfs);
+    }
+    else
+    {
+        isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
+        isl_map* Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
+        Rusc_star = isl_map_coalesce(Rusc_star);
+
+        tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
+
+        // SFS := R^∗(R_USC^∗(TILE_REPR_IND))
+        sfs = isl_set_apply(isl_set_apply(tile_repr_ind, Rusc_star), R_star_normalized);
+        sfs = isl_set_coalesce(sfs);
+    }
     
     tc_debug_set(sfs, "SFS");
         
@@ -343,16 +365,27 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
         tc_debug_set_card(tile_repr_ind_params, "params TILE_REPR_IND");
         isl_set_free(tile_repr_ind_params);
     }
-    
-    isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
-    isl_map* Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
-    
-    tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
 
-    // SFS := R^∗(R_USC^∗(TILE_REPR_IND))
-    isl_set* sfs = isl_set_apply(isl_set_apply(tile_repr_ind, Rusc_star), R_star_normalized);
-    sfs = isl_set_coalesce(sfs);
-    
+    isl_set* sfs = NULL;
+    if (isl_map_is_empty(Rusc) == isl_bool_true)
+    {
+        // SFS := R^∗(TILE_REPR_IND)
+        sfs = isl_set_apply(tile_repr_ind, R_star_normalized);
+        sfs = isl_set_coalesce(sfs);
+    }
+    else
+    {
+        isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
+        isl_map* Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
+        Rusc_star = isl_map_coalesce(Rusc_star);
+
+        tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
+
+        // SFS := R^∗(R_USC^∗(TILE_REPR_IND))
+        sfs = isl_set_apply(isl_set_apply(tile_repr_ind, Rusc_star), R_star_normalized);
+        sfs = isl_set_coalesce(sfs);
+    }
+
     tc_debug_set(sfs, "SFS");
         
     // II_SFS := [II] -> { [II'] : II' in II_SET AND exists I s.t. I in TILE_VLD(II') AND I in SFS(II) }
