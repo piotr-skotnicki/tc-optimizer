@@ -42,10 +42,10 @@ __isl_give isl_set* tc_tile_set(__isl_keep isl_id_list* II, __isl_keep isl_id_li
             isl_id* II_i = isl_id_list_get_id(II, i);
             isl_id* I_i = isl_id_list_get_id(I, i);
 
-            snprintf(buff, sizeof(buff), "%d * %s + %s <= %s <= min( %d * (%s + 1) + %s - 1, %s ) and %s >= 0 and ",
-                       BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(I_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(UB_i), isl_id_get_name(II_i));
-            //snprintf(buff, sizeof(buff), "%d * %s <= %s <= min( %d * (%s + 1) - 1, %s ) and %s >= 0 and ",
-            //           BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(I_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(UB_i), isl_id_get_name(II_i));
+            //snprintf(buff, sizeof(buff), "%d * %s + %s <= %s <= min( %d * (%s + 1) + %s - 1, %s ) and %s >= 0 and ",
+            //           BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(I_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(UB_i), isl_id_get_name(II_i));
+            snprintf(buff, sizeof(buff), "%d * %s <= %s <= min( %d * (%s + 1) - 1, %s ) and %s >= 0 and ",
+                       BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(I_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(UB_i), isl_id_get_name(II_i));
 
             tile_set_str += buff;
             
@@ -64,8 +64,8 @@ __isl_give isl_set* tc_tile_set(__isl_keep isl_id_list* II, __isl_keep isl_id_li
     statement_schedule_range = tc_parameterize_all(statement_schedule_range, II);
     statement_schedule_range = isl_set_params(statement_schedule_range);
         
-    isl_set* bounds = tc_get_set_bounds(LD_normalized, LB, UB);
-    //isl_set* bounds = tc_get_set_bounds(set_normalized, LB, UB);    
+    //isl_set* bounds = tc_get_set_bounds(LD_normalized, LB, UB);
+    isl_set* bounds = tc_get_set_bounds(set_normalized, LB, UB);
         
     isl_id_list* LB_UB = isl_id_list_concat(LB, UB);
     
@@ -114,10 +114,10 @@ __isl_give isl_set* tc_ii_set_set(__isl_keep isl_id_list* II, const std::vector<
             isl_id* UB_i = isl_id_list_get_id(UB, i);
             isl_id* II_i = isl_id_list_get_id(II, i);
         
-            snprintf(buff, sizeof(buff), "%s >= 0 and %d * %s + %s <= %s and ",
-                       isl_id_get_name(II_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(UB_i));
-            //snprintf(buff, sizeof(buff), "%s >= 0 and %d * %s <= %s and ",
-            //           isl_id_get_name(II_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(UB_i));
+            //snprintf(buff, sizeof(buff), "%s >= 0 and %d * %s + %s <= %s and ",
+            //           isl_id_get_name(II_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(LB_i), isl_id_get_name(UB_i));
+            snprintf(buff, sizeof(buff), "%s >= 0 and %d * %s <= %s and ",
+                       isl_id_get_name(II_i), BLOCK[j], isl_id_get_name(II_i), isl_id_get_name(UB_i));
 
             ii_set_str += buff;
             
@@ -132,8 +132,8 @@ __isl_give isl_set* tc_ii_set_set(__isl_keep isl_id_list* II, const std::vector<
     }
     ii_set_str += "true";
         
-    isl_set* bounds = tc_get_set_bounds(LD_normalized, LB, UB);
-    //isl_set* bounds = tc_get_set_bounds(set_normalized, LB, UB);
+    //isl_set* bounds = tc_get_set_bounds(LD_normalized, LB, UB);
+    isl_set* bounds = tc_get_set_bounds(set_normalized, LB, UB);
 
     isl_id_list* LB_UB = isl_id_list_concat(LB, UB);
     
