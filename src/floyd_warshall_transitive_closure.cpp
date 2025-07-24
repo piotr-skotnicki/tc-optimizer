@@ -32,6 +32,9 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
         
         const char* in_name = isl_map_get_tuple_name(map, isl_dim_in);
         const char* out_name = isl_map_get_tuple_name(map, isl_dim_out);
+
+        in_name = in_name == NULL ? "" : in_name;
+        out_name = out_name == NULL ? "" : out_name;
         
         if (id2index.count(in_name) == 0)
         {
@@ -68,6 +71,9 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
         
         const char* in_name = isl_map_get_tuple_name(map, isl_dim_in);
         const char* out_name = isl_map_get_tuple_name(map, isl_dim_out);
+        
+        in_name = in_name == NULL ? "" : in_name;
+        out_name = out_name == NULL ? "" : out_name;
 
         map = isl_map_reset_tuple_id(map, isl_dim_in);
         map = isl_map_reset_tuple_id(map, isl_dim_out);
@@ -195,8 +201,15 @@ __isl_give isl_union_map* tc_floyd_warshall_transitive_closure(__isl_take isl_un
             
             if (map != NULL)
             {
-                map = isl_map_set_tuple_name(map, isl_dim_in, index2id[i].c_str());
-                map = isl_map_set_tuple_name(map, isl_dim_out, index2id[j].c_str());
+                if (index2id[i].length() != 0)
+                {
+                    map = isl_map_set_tuple_name(map, isl_dim_in, index2id[i].c_str());
+                }
+
+                if (index2id[i].length() != 0)
+                {
+                    map = isl_map_set_tuple_name(map, isl_dim_out, index2id[j].c_str());
+                }
 
                 if (R_plus == NULL)
                 {
