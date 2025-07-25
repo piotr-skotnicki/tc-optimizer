@@ -9,6 +9,7 @@
 #include "transitive_closure.h"
 #include "slicing.h"
 #include "serial_codegen.h"
+#include "tuples.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>

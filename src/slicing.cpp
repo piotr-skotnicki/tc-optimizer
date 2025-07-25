@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "transitive_closure.h"
 #include "options.h"
+#include "tuples.h"
 
 #include <isl/ctx.h>
 #include <isl/set.h>

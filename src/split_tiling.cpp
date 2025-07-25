@@ -9,6 +9,7 @@
 #include "transitive_closure.h"
 #include "tile_statistics.h"
 #include "scheduling.h"
+#include "tuples.h"
 
 #include <isl/ctx.h>
 #include <isl/set.h>

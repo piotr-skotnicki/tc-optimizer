@@ -1,12 +1,12 @@
 #include "isl_scheduling.h"
 #include "serial_codegen.h"
 #include "omp_cpu_codegen.h"
+#include "omp_gpu_codegen.h"
 #include "debug.h"
 #include "utility.h"
 #include "scop.h"
 #include "options.h"
-
-#include "omp_gpu_codegen.h"
+#include "tuples.h"
 
 #include <isl/ctx.h>
 #include <isl/map.h>

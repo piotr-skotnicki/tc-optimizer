@@ -1,6 +1,7 @@
 #include "tiling.h"
 #include "utility.h"
 #include "debug.h"
+#include "tuples.h"
 
 #include <isl/id.h>
 #include <isl/set.h>

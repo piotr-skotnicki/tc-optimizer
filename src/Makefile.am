@@ -36,7 +36,8 @@ tc_SOURCES = \
 	tile_statistics.cpp \
 	for_decorator.cpp \
 	timer.cpp \
-	input_output.cpp
+	input_output.cpp \
+	tuples.cpp
 
 tc_CPPFLAGS = \
 	-I$(top_srcdir)/isl/include \

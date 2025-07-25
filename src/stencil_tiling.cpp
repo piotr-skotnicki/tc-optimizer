@@ -8,6 +8,7 @@
 #include "serial_codegen.h"
 #include "debug.h"
 #include "transitive_closure.h"
+#include "tuples.h"
 
 #include <isl/id.h>
 
