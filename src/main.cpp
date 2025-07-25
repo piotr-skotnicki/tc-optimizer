@@ -18,6 +18,7 @@
 #include "free_scheduling.h"
 #include "dynamic_free_scheduling.h"
 #include "timer.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/options.h>
@@ -32,10 +33,8 @@
 int main(int argc, char* argv[])
 {
     struct tc_options* options = tc_options_alloc(argc, argv);
-    
-    tc_options_check_spelling(options);
 
-    options->output = stdout;
+    tc_options_check_spelling(options);
 
     if (tc_options_is_set(options, "-v", "--version"))
     {
@@ -47,6 +46,16 @@ int main(int argc, char* argv[])
     }
     else
     {
+        if (tc_options_is_set(options, "-o", "--out"))
+        {
+            const char* output_file = tc_options_output_file(options);
+            options->output = tc_io_open_output(output_file);
+        }
+        else
+        {
+            options->output = stdout;
+        }
+
         tc_debug_flag = tc_options_is_verbose(options);
 
         const char* file = tc_options_source_file(options);
@@ -286,7 +295,7 @@ int main(int argc, char* argv[])
         isl_ctx_free(ctx);
     }
 
-    fclose(options->output);
+    tc_io_close(options->output);
 
     tc_options_free(options);
 }

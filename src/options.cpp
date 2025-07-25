@@ -71,6 +71,7 @@ void tc_options_help()
         " Options:\n"
         "\n"
         "    -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: " TC_STR(TC_CONF_DEFAULT_TILE_SIZE) ")\n"
+        "    --out     | -o       Output file (default: stdout)\n"
         "    --debug   | -d       Verbose mode\n"
         "    --report             Generate tile statistics report (use -R for each parameter)\n"
         //"    --time               Measure calculations time\n"
@@ -112,6 +113,7 @@ struct tc_options* tc_options_alloc(int argc, char* argv[])
     
     options->argc = argc;
     options->argv = argv;
+    options->output = NULL;
     
     return options;
 }
@@ -192,7 +194,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
     int argc = options->argc;
     char** argv = options->argv;
     
-    const char* value = 0;
+    const char* value = NULL;
         
     const char* name = (NULL != long_name ? long_name : (NULL != short_name ? short_name : "(unknown)"));
     

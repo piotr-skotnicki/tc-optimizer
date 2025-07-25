@@ -161,6 +161,7 @@ tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 
 ```
 -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: 32)
+--out     | -o       Output file (default: stdout)
 --debug   | -d       Verbose mode
 --report             Generate tile statistics report (use -R for each parameter)
 --inline             Always inline loop bounds expressions
