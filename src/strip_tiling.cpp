@@ -1,4 +1,4 @@
-#include "stencil_tiling.h"
+#include "strip_tiling.h"
 #include "scop.h"
 #include "tiling.h"
 #include "for_decorator.h"
@@ -19,7 +19,7 @@
 #include <map>
 #include <string>
 
-void tc_algorithm_stencil_tiling(struct tc_scop* scop, struct tc_options* options)
+void tc_algorithm_strip_tiling(struct tc_scop* scop, struct tc_options* options)
 {
     isl_ctx* ctx = scop->ctx;
     

@@ -1,4 +1,4 @@
-#include "mod_correction_tiling.h"
+#include "scc_correction_tiling.h"
 #include "scheduling.h"
 #include "tiling.h"
 #include "utility.h"
@@ -26,7 +26,7 @@
 #include <vector>
 #include <map>
 
-void tc_algorithm_mod_correction_tiling(struct tc_scop* scop, struct tc_options* options)
+void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options* options)
 {
     isl_ctx* ctx = scop->ctx;
     

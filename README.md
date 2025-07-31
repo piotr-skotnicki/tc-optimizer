@@ -6,7 +6,7 @@ TC Optimizing Compiler 0.4.1
 Introduction
 ------------
 
-TC is an automatic source-to-source optimizing compiler for affine loop nests, generating sequential or parallel tiled code based on the application of a transitive closure of a loop nest dependence graph, and combining the *Polyhedral Model* and *Iteration Space Slicing* frameworks. TC utilizes a state-of-the-art polyhedral compilation toolchain, that is:
+TC is an automatic source-to-source optimizing compiler for affine loop nests, generating sequential or parallel tiled code based on the application of the transitive closure of a loop nest dependence graph, and combining the *Polyhedral Model* and *Iteration Space Slicing* frameworks. TC utilizes a state-of-the-art polyhedral compilation toolchain, that is:
 
 - Polyhedral Extraction Tool [\[3\]](#references) for extracting polyhedral representations of original loop nests,
 - Integer Set Library [\[1\]](#references) for performing dependence analysis, manipulating sets and relations as well as generating output code, 
@@ -31,7 +31,7 @@ S1:   A[i][j] = A[i][j+1] + A[i+1][j] + A[i+1][j-1];
 
 > **Note:** The source file containing the loop nest should be valid C code, and simplified as much as possible. Array accesses must not exceed array bounds. Since version 0.3.0, iterators of a for loop must be declared inside that for loop itself, otherwise they will create a dependency for outer loops.
 
-TC implements a number of tiling transformation algorithms as well as schedulers and code generators (including parallel generators utilizing OpenMP), all available to choose from through command line options (full description below). One is encouraged to experiment with various combinations of algorithms, schedulers and code generators, as well as tile sizes and transitive closure algorithms.
+TC implements a number of tiling transformation algorithms as well as schedulers and code generators (including parallel generators utilizing OpenMP), all available to choose from through command line options (a full description below). One is encouraged to experiment with various combinations of algorithms, schedulers and code generators, as well as tile sizes and transitive closure algorithms.
 
 > **Note:** TC is primarily used for studying algorithms utilizing transitive closure. Despite being able to generate efficient tiled code, some features are still in development.
 
@@ -101,26 +101,26 @@ Manual
 ### Usage:
 
 ```
-tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
+tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 ```
 
 > **Hint:** Use `source scripts/tc-completion.bash` to enable bash completions.
 
-### Algorithms:
+### Tiling:
 
 ```
 --diamond-tiling             Diamond tiling for stencils
 --semi-diamond-tiling        Diamond tiling without tile expansion
---stencil-tiling             Concurrent start tiling for stencils
---regular-tiling             Tiling with regular tile shapes
---correction-tiling          Tiling with LT tiles correction
---correction-inv-tiling      Tiling with GT tiles correction
---merge-tiling               Tiling with tiles merging
---split-tiling               Tiling with tiles splitting
---mod-correction-tiling      Tiling with LT cyclic tiles modified correction
+--strip-tiling               Iterative layer removal from stencils
+--regular-tiling             Regular tile shapes
+--correction-tiling          Correction of lexicographically smaller tiles
+--inv-correction-tiling      Correction of lexicographically greater tiles
+--scc-correction-tiling      Correction of strongly connected components
+--merge-tiling               Merging of strongly connected components
+--split-tiling               Splitting based on problematic iterations
 ```
 
-### Schedulers:
+### Scheduling:
 
 ```
 --lex-scheduling               Lexicographic order execution
@@ -136,7 +136,7 @@ tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]
 --dynamic-free-scheduling      Dynamic free scheduling
 ```
 
-### Code generators:
+### Code generator:
 
 ```
 --serial-codegen       Serial code generator
@@ -178,7 +178,7 @@ Examples
 --------
 
 ```
-./src/tc ./examples/stencils/heat-1d.scop.c --stencil-tiling --omp-for-codegen -b 150,25000 --debug
+./src/tc ./examples/stencils/heat-1d.scop.c --strip-tiling --omp-for-codegen -b 150,25000 --debug
 ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-single-scheduling --omp-for-codegen -b 8
 ./src/tc ./examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -b S1:16 -b S2:16,8 -b S3:16
 ```

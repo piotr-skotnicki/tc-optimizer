@@ -14,12 +14,12 @@ tc_SOURCES = \
 	slicing.cpp \
 	regular_tiling.cpp \
 	diamond_tiling.cpp \
-	stencil_tiling.cpp \
+	strip_tiling.cpp \
 	merge_tiling.cpp \
 	correction_tiling.cpp \
-	correction_inv_tiling.cpp \
+	inv_correction_tiling.cpp \
 	split_tiling.cpp \
-	mod_correction_tiling.cpp \
+	scc_correction_tiling.cpp \
 	scheduling.cpp \
 	lex_scheduling.cpp \
 	sfs_scheduling.cpp \

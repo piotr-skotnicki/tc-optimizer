@@ -22,22 +22,22 @@ void tc_options_help()
         "\n"
         " Usage:\n"
         "\n"
-        "    tc <input.c> <algorithm> <scheduling> <codegen> [<closure>] [<options>...]\n"
+        "    tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]\n"
         "\n"
-        " Algorithms:\n"
+        " Tiling:\n"
         "\n"
         "    --diamond-tiling             Diamond tiling for stencils\n"
         "    --semi-diamond-tiling        Diamond tiling without tile expansion\n"
-        "    --stencil-tiling             Concurrent start tiling for stencils\n"
+        "    --strip-tiling               Iterative layer removal from stencils\n"
         "    --regular-tiling             Tiling with regular tile shapes\n"
-        "    --correction-tiling          Tiling with LT tiles correction\n"
-        "    --correction-inv-tiling      Tiling with GT tiles correction\n"
-        "    --merge-tiling               Tiling with tiles merging\n"
-        "    --split-tiling               Tiling with tiles splitting\n"
-        "    --mod-correction-tiling      Tiling with LT cyclic tiles modified correction\n"
+        "    --correction-tiling          Correction of lexicographically smaller tiles\n"
+        "    --inv-correction-tiling      Correction of lexicographically greater tiles\n"
+        "    --scc-correction-tiling      Correction of strongly connected components\n"
+        "    --merge-tiling               Merging of strongly connected components\n"
+        "    --split-tiling               Splitting based on problematic iterations\n"
         //"    --mod-correction-inv-tiling  Tiling with GT cyclic tiles correction\n"
         "\n"
-        " Schedulers:\n"
+        " Scheduler:\n"
         "\n"
         "    --lex-scheduling               Lexicographic order execution\n"
         "    --isl-scheduling               Integer set library scheduler\n"
@@ -51,7 +51,7 @@ void tc_options_help()
         "    --free-finite-scheduling       Exact free scheduling for finite graphs\n"
         "    --dynamic-free-scheduling      Dynamic free scheduling\n"
         "\n"
-        " Code generators:\n"
+        " Code generator:\n"
         "\n"
         "    --serial-codegen       Serial code generator\n"
         "    --omp-for-codegen      OpenMP parallel for generator\n"
@@ -284,8 +284,8 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
 {    
     enum tc_algorithm_enum value = tc_algorithm_enum_unknown;
     
-    static const char* strings[] = { "--diamond-tiling", "--semi-diamond-tiling", "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling" };
-    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_diamond_tiling, tc_algorithm_enum_semi_diamond_tiling, tc_algorithm_enum_stencil_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_correction_inv_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_mod_correction_tiling };
+    static const char* strings[] = { "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--regular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling" };
+    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_diamond_tiling, tc_algorithm_enum_semi_diamond_tiling, tc_algorithm_enum_strip_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_inv_correction_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_scc_correction_tiling };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -608,7 +608,7 @@ static int tc_options_editorial_distance(const char* a, const char* b)
 void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
-        "--diamond-tiling", "--semi-diamond-tiling", "--stencil-tiling", "--regular-tiling", "--correction-tiling", "--correction-inv-tiling", "--merge-tiling", "--split-tiling", "--mod-correction-tiling",
+        "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--regular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling",
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc",
@@ -659,4 +659,3 @@ void tc_options_check_spelling(struct tc_options* options)
         }
     }
 }
-

@@ -1,11 +1,11 @@
 #include "diamond_tiling.h"
-#include "stencil_tiling.h"
+#include "strip_tiling.h"
 #include "regular_tiling.h"
 #include "merge_tiling.h"
 #include "split_tiling.h"
 #include "correction_tiling.h"
-#include "correction_inv_tiling.h"
-#include "mod_correction_tiling.h"
+#include "inv_correction_tiling.h"
+#include "scc_correction_tiling.h"
 #include "options.h"
 #include "transitive_closure.h"
 #include "scop.h"
@@ -235,9 +235,9 @@ int main(int argc, char* argv[])
                 }
                 break;
 
-                case tc_algorithm_enum_stencil_tiling:
+                case tc_algorithm_enum_strip_tiling:
                 {
-                    tc_algorithm_stencil_tiling(scop, options);
+                    tc_algorithm_strip_tiling(scop, options);
                 }
                 break;
 
@@ -253,9 +253,9 @@ int main(int argc, char* argv[])
                 }
                 break;
 
-                case tc_algorithm_enum_correction_inv_tiling:
+                case tc_algorithm_enum_inv_correction_tiling:
                 {
-                    tc_algorithm_correction_inv_tiling(scop, options);
+                    tc_algorithm_inv_correction_tiling(scop, options);
                 }
                 break;
 
@@ -271,9 +271,9 @@ int main(int argc, char* argv[])
                 }
                 break;
 
-                case tc_algorithm_enum_mod_correction_tiling:
+                case tc_algorithm_enum_scc_correction_tiling:
                 {
-                    tc_algorithm_mod_correction_tiling(scop, options);
+                    tc_algorithm_scc_correction_tiling(scop, options);
                 }
                 break;
                 
