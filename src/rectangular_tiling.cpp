@@ -1,4 +1,4 @@
-#include "regular_tiling.h"
+#include "rectangular_tiling.h"
 #include "scheduling.h"
 #include "utility.h"
 #include "tiling.h"
@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-void tc_algorithm_regular_tiling(struct tc_scop* scop, struct tc_options* options)
+void tc_algorithm_rectangular_tiling(struct tc_scop* scop, struct tc_options* options)
 {
     isl_ctx* ctx = scop->ctx;
     

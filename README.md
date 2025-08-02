@@ -112,7 +112,7 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 --diamond-tiling             Diamond tiling for stencils
 --semi-diamond-tiling        Diamond tiling without tile expansion
 --strip-tiling               Iterative layer removal from stencils
---regular-tiling             Regular tile shapes
+--rectangular-tiling         Classic hyper-rectangular tiling
 --correction-tiling          Correction of lexicographically smaller tiles
 --inv-correction-tiling      Correction of lexicographically greater tiles
 --scc-correction-tiling      Correction of strongly connected components
@@ -123,7 +123,7 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 ### Scheduling:
 
 ```
---lex-scheduling               Lexicographic order execution
+--lex-scheduling               Lexicographic execution order
 --isl-scheduling               Integer set library scheduler
 --isl-wave-scheduling          Integer set library scheduler with wavefronting
 --feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)

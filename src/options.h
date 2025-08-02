@@ -12,7 +12,7 @@
 
 enum tc_algorithm_enum
 {
-    tc_algorithm_enum_regular_tiling,
+    tc_algorithm_enum_rectangular_tiling,
     tc_algorithm_enum_correction_tiling,
     tc_algorithm_enum_inv_correction_tiling,
     tc_algorithm_enum_diamond_tiling,

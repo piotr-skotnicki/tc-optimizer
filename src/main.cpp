@@ -1,6 +1,6 @@
 #include "diamond_tiling.h"
 #include "strip_tiling.h"
-#include "regular_tiling.h"
+#include "rectangular_tiling.h"
 #include "merge_tiling.h"
 #include "split_tiling.h"
 #include "correction_tiling.h"
@@ -241,9 +241,9 @@ int main(int argc, char* argv[])
                 }
                 break;
 
-                case tc_algorithm_enum_regular_tiling:
+                case tc_algorithm_enum_rectangular_tiling:
                 {
-                    tc_algorithm_regular_tiling(scop, options);
+                    tc_algorithm_rectangular_tiling(scop, options);
                 }
                 break;
 

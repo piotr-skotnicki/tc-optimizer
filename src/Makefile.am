@@ -12,7 +12,7 @@ tc_SOURCES = \
 	codegen.cpp \
 	ast.cpp \
 	slicing.cpp \
-	regular_tiling.cpp \
+	rectangular_tiling.cpp \
 	diamond_tiling.cpp \
 	strip_tiling.cpp \
 	merge_tiling.cpp \

@@ -29,7 +29,7 @@ void tc_options_help()
         "    --diamond-tiling             Diamond tiling for stencils\n"
         "    --semi-diamond-tiling        Diamond tiling without tile expansion\n"
         "    --strip-tiling               Iterative layer removal from stencils\n"
-        "    --regular-tiling             Tiling with regular tile shapes\n"
+        "    --rectangular-tiling         Classic hyper-rectangular tiling\n"
         "    --correction-tiling          Correction of lexicographically smaller tiles\n"
         "    --inv-correction-tiling      Correction of lexicographically greater tiles\n"
         "    --scc-correction-tiling      Correction of strongly connected components\n"
@@ -39,7 +39,7 @@ void tc_options_help()
         "\n"
         " Scheduler:\n"
         "\n"
-        "    --lex-scheduling               Lexicographic order execution\n"
+        "    --lex-scheduling               Lexicographic execution order\n"
         "    --isl-scheduling               Integer set library scheduler\n"
         "    --isl-wave-scheduling          Integer set library scheduler with wavefronting\n"
         "    --feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)\n"
@@ -284,8 +284,8 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
 {    
     enum tc_algorithm_enum value = tc_algorithm_enum_unknown;
     
-    static const char* strings[] = { "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--regular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling" };
-    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_diamond_tiling, tc_algorithm_enum_semi_diamond_tiling, tc_algorithm_enum_strip_tiling, tc_algorithm_enum_regular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_inv_correction_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_scc_correction_tiling };
+    static const char* strings[] = { "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--rectangular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling" };
+    static enum tc_algorithm_enum values[] = { tc_algorithm_enum_diamond_tiling, tc_algorithm_enum_semi_diamond_tiling, tc_algorithm_enum_strip_tiling, tc_algorithm_enum_rectangular_tiling, tc_algorithm_enum_correction_tiling, tc_algorithm_enum_inv_correction_tiling, tc_algorithm_enum_merge_tiling, tc_algorithm_enum_split_tiling, tc_algorithm_enum_scc_correction_tiling };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -583,7 +583,7 @@ static int tc_options_editorial_distance(const char* a, const char* b)
         tab[0][j] = j;
     }
 
-    /* ./tc ../examples/other/levenshtein.scop.c --regular-tiling --lex-scheduling --serial-codegen -b 4 */
+    /* ./tc ../examples/other/levenshtein.scop.c --rectangular-tiling --lex-scheduling --serial-codegen -b 4 */
     #define min(x,y)    ((x) < (y) ? (x) : (y))
     #define floord(n,d) (((n)<0) ? -((-(n)+(d)-1)/(d)) : (n)/(d))
     #pragma scop
@@ -608,7 +608,7 @@ static int tc_options_editorial_distance(const char* a, const char* b)
 void tc_options_check_spelling(struct tc_options* options)
 {
     static const char* strings[] = {
-        "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--regular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling",
+        "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--rectangular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling",
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc",
