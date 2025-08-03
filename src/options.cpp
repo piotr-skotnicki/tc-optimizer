@@ -1,6 +1,7 @@
 #include "options.h"
 #include "config.h"
 #include "debug.h"
+#include "input_output.h"
 
 #include <isl/space.h>
 
@@ -162,6 +163,7 @@ int tc_options_get_int(struct tc_options* options, const char* short_name, const
     if (!isdigit(str[0]))
     {
         tc_error("Missing integer value for %s.", short_name);
+        tc_die(tc_exit_code_usage);
     }
     else
     {
@@ -180,6 +182,7 @@ long tc_options_get_long(struct tc_options* options, const char* short_name, con
     if (!isdigit(str[0]))
     {
         tc_error("Missing integer value for %s.", short_name);
+        tc_die(tc_exit_code_usage);
     }
     else
     {
@@ -208,6 +211,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
             if (i + 1 >= argc)
             {
                 tc_error("Missing value for %s.", name);
+                tc_die(tc_exit_code_usage);
             }
             else
             {
@@ -222,6 +226,7 @@ const char* tc_options_get_string(struct tc_options* options, const char* short_
     if (!found)
     {
         tc_error("Missing required option %s.", name);
+        tc_die(tc_exit_code_usage);
     }
     
     return value;
@@ -298,6 +303,7 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
             else
             {
                 tc_error("More than one algorithms specified.");
+                tc_die(tc_exit_code_usage);
             }
         }
     }
@@ -305,6 +311,7 @@ enum tc_algorithm_enum tc_options_algorithm(struct tc_options* options)
     if (tc_algorithm_enum_unknown == value)
     {
         tc_error("No algorithm specified.");
+        tc_die(tc_exit_code_usage);
     }
     
     return value;
@@ -328,6 +335,7 @@ enum tc_scheduling_enum tc_options_scheduling(struct tc_options* options)
             else
             {
                 tc_error("More than one scheduling specified.");
+                tc_die(tc_exit_code_usage);
             }
         }
     }
@@ -353,6 +361,7 @@ enum tc_codegen_enum tc_options_codegen(struct tc_options* options)
             else
             {
                 tc_error("More than one code generators specified.");
+                tc_die(tc_exit_code_usage);
             }
         }
     }
@@ -360,6 +369,7 @@ enum tc_codegen_enum tc_options_codegen(struct tc_options* options)
     if (tc_codegen_enum_unknown == value)
     {
         tc_error("No code generator specified.");
+        tc_die(tc_exit_code_usage);
     }
     
     return value;
@@ -383,6 +393,7 @@ enum tc_transitive_closure_enum tc_options_transitive_closure(struct tc_options*
             else
             {
                 tc_error("More than one transitive closure algorithms specified.");
+                tc_die(tc_exit_code_usage);
             }
         }
     }
@@ -406,6 +417,7 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
             if (i + 1 >= argc)
             {
                 tc_error("Missing block size.");
+                tc_die(tc_exit_code_usage);
             }
             else
             {
@@ -432,6 +444,7 @@ std::map<std::string, std::vector<int> > tc_options_blocks(struct tc_options* op
                 if (NULL == label || NULL == sizes)
                 {
                     tc_error("Invalid block size.");
+                    tc_die(tc_exit_code_usage);
                 }
                 else
                 {
@@ -471,6 +484,7 @@ std::vector<std::vector<std::string> > tc_options_groups(struct tc_options* opti
             if (i + 1 >= argc)
             {
                 tc_error("Missing group specification.");
+                tc_die(tc_exit_code_usage);
             }
             else
             {
@@ -483,6 +497,7 @@ std::vector<std::vector<std::string> > tc_options_groups(struct tc_options* opti
                 if (NULL == statement)
                 {
                     tc_error("Invalid group specification.");
+                    tc_die(tc_exit_code_usage);
                 }
                 else
                 {
@@ -534,6 +549,7 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
             if (i + 1 >= argc)
             {
                 tc_error("Missing value for %s.", name);
+                tc_die(tc_exit_code_usage);
             }
             else
             {
@@ -547,6 +563,7 @@ __isl_give isl_set* tc_options_collect_values(struct tc_options* options, const 
                 if (NULL == param || NULL == value_str)
                 {
                     tc_error("Invalid value for %s.", name);
+                    tc_die(tc_exit_code_usage);
                 }
                 else
                 {
@@ -655,6 +672,7 @@ void tc_options_check_spelling(struct tc_options* options)
                 }
                 
                 tc_error("Unknown option: `%s'. Did you mean `%s' ?\nIf not, type `--help' for the list of available options.", argv[i], best_string);                
+                tc_die(tc_exit_code_usage);
             }    
         }
     }

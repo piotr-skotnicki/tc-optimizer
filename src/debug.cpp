@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "input_output.h"
 
 #include <isl/printer.h>
 
@@ -43,8 +44,7 @@ void tc_error(const char* msg, ...)
     va_end(varargs);
     
     fprintf(stderr, "\n");
-    
-    tc_die(1);
+    fflush(stderr);
 }
 
 void tc_assert(int condition, const char* msg, ...)
@@ -62,7 +62,7 @@ void tc_assert(int condition, const char* msg, ...)
     fprintf(stderr, "\n");
     fflush(stderr);
 
-    tc_die(1);
+    tc_die(tc_exit_code_assertion);
 }
 
 void tc_die(int status)

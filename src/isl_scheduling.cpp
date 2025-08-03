@@ -7,6 +7,7 @@
 #include "scop.h"
 #include "options.h"
 #include "tuples.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/map.h>
@@ -42,7 +43,7 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
     if (schedule == NULL)
     {
         tc_error("Cannot compute ISL schedule");
-        return;
+        tc_die(tc_exit_code_failure);
     }
 
     isl_union_map* F = tc_schedule_umap(schedule);
@@ -158,6 +159,7 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
                     if (isl_schedule_node_n_children(node) > 1)
                     {
                         tc_error("Unable to process the scheduling tree");
+                        tc_die(tc_exit_code_failure);
                     }
                     else
                     {
@@ -197,6 +199,7 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
     else
     {
         tc_error("# Schedule F_best is not valid");
+        tc_die(tc_exit_code_failure);
     }    
     
     // TILE_EXT := { [k, II, I] : k = F(II) and II in II_SET and I in TILE(II) }

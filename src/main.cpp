@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
         if (NULL == scop)
         {
             tc_error("No SCoP was found in file `%s'.", file);
+            tc_die(tc_exit_code_input);
         }
         else
         {
@@ -94,6 +95,7 @@ int main(int argc, char* argv[])
             if (isl_union_set_is_empty(scop->domain))
             {
                 tc_error("SCoP is empty.");
+                tc_die(tc_exit_code_input);
             }
             
             enum tc_transitive_closure_enum transitive_closure = tc_options_transitive_closure(options);
@@ -280,6 +282,7 @@ int main(int argc, char* argv[])
                 default:
                 {
                     tc_error("Invalid algorithm");
+                    tc_die(tc_exit_code_internal);
                 }
                 break;
             }

@@ -53,7 +53,12 @@ __isl_give isl_map* tc_Rusc_map(__isl_keep isl_map* R, __isl_keep isl_union_map*
     R_U_R_inv_star = isl_map_coalesce(R_U_R_inv_star);
     
     tc_debug_map(R_U_R_inv_star, "(R + R^-1)* (exact=%d)", exact);
-       
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact (R + R^-1)*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+    }
+
     isl_set* R_U_R_inv_star_constraints_e_e_prim = tc_make_map_constraints(R_U_R_inv_star, e, e_prim);
         
     isl_id_list* e_eprim = isl_id_list_concat(isl_id_list_copy(e), isl_id_list_copy(e_prim));
@@ -278,6 +283,11 @@ __isl_give isl_set* tc_Sk_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     R_k = isl_set_unwrap(isl_map_range(R_k));
     
     tc_debug_map(R_k, "R^k (exact=%d)", exact);
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R^k. The results can be non-optimal. Restart TC with a different transitive closure method.");
+    }
         
     isl_set* uds = tc_uds_set(R);
     isl_set* ind = tc_ind_set(LD, R);
@@ -345,8 +355,13 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     isl_map* Rprim_plus = tc_transitive_closure_adapter_isl_map(isl_map_copy(Rprim), Sprim, &exact);
     isl_map* Rprim_star = isl_map_union(isl_map_copy(Rprim_plus), tc_make_identity(Rprim));
     
-    tc_debug_map(Rprim_plus, "R'+ (exact=%d)", exact);
-    
+    tc_debug_map(Rprim_plus, "R'^+ (exact=%d)", exact);
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R'^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+    }
+
     isl_set* uds = tc_uds_set(R);
     isl_set* ind = tc_ind_set(LD, R);
     

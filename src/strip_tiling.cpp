@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "transitive_closure.h"
 #include "tuples.h"
+#include "input_output.h"
 
 #include <isl/id.h>
 
@@ -51,7 +52,16 @@ void tc_algorithm_strip_tiling(struct tc_scop* scop, struct tc_options* options)
     isl_map* R_plus_normalized = tc_transitive_closure(R_normalized, S, &exact);
     
     tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);
-        
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        if (!tc_io_confirm(options, "Continue?"))
+        {
+            tc_die(tc_exit_code_inexact);
+        }
+    }
+
     std::map<std::string, std::vector<int> > blocks = tc_options_blocks(options);
     
     isl_set* tile;

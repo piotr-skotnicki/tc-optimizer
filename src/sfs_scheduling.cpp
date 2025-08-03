@@ -8,6 +8,7 @@
 #include "options.h"
 #include "debug.h"
 #include "transitive_closure.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/id.h>
@@ -24,7 +25,7 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     if (!tc_is_lex_forward(Rtile))
     {
         tc_error("Backward relation detected.");
-        return;
+        tc_die(tc_exit_code_nonlex);
     }
     
     isl_set* Suds = tc_uds_set(Rtile);
@@ -59,6 +60,11 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     
     tc_debug_map(Rtile_star, "R_TILE* (exact=%d)", exact);
 
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R_TILE*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+    }
+
     isl_set* Sslice = NULL;
     if (isl_map_is_empty(Rusc) == isl_bool_true)
     {
@@ -73,6 +79,11 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
         Rusc_star = isl_map_coalesce(Rusc_star);
 
         tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
+
+        if (exact != isl_bool_true)
+        {
+            tc_warn("Inexact R_USC*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        }
 
         // S_slice = R*((R_USC*)(e))
         Sslice = isl_set_apply(isl_set_apply(isl_set_copy(repr_ind), Rusc_star), isl_map_copy(Rtile_star));
@@ -141,7 +152,7 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     if (!tc_is_lex_forward(Rtile))
     {
         tc_error("Backward relation detected.");
-        return;
+        tc_die(tc_exit_code_nonlex);
     }
         
     isl_set* LD_normalized = tc_normalize_union_set(LD, S);
@@ -155,6 +166,11 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     isl_map* R_star_normalized = isl_map_union(isl_map_copy(R_plus_normalized), tc_make_identity(isl_map_copy(R_normalized)));
         
     tc_debug_map(R_star_normalized, "R* (exact=%d)", exact);
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+    }
     
     isl_id_list* IR = tc_ids_sequence(ctx, "ir", isl_set_n_dim(tile_vld));
     isl_id_list* IIprim = tc_ids_prim(II);
@@ -204,6 +220,11 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
         Rusc_star = isl_map_coalesce(Rusc_star);
 
         tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
+
+        if (exact != isl_bool_true)
+        {
+            tc_warn("Inexact R_USC*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        }
 
         // SFS := R^∗(R_USC^∗(TILE_REPR_IND))
         sfs = isl_set_apply(isl_set_apply(tile_repr_ind, Rusc_star), R_star_normalized);
@@ -313,7 +334,7 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     if (!tc_is_lex_forward(Rtile))
     {
         tc_error("Backward relation detected.");
-        return;
+        tc_die(tc_exit_code_nonlex);
     }
         
     isl_set* LD_normalized = tc_normalize_union_set(LD, S);
@@ -327,6 +348,11 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     isl_map* R_star_normalized = isl_map_union(isl_map_copy(R_plus_normalized), tc_make_identity(isl_map_copy(R_normalized)));
         
     tc_debug_map(R_star_normalized, "R* (exact=%d)", exact);
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+    }
     
     isl_id_list* IIprim = tc_ids_prim(II);
     
@@ -380,6 +406,11 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
         Rusc_star = isl_map_coalesce(Rusc_star);
 
         tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
+
+        if (exact != isl_bool_true)
+        {
+            tc_warn("Inexact R_USC*. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        }
 
         // SFS := R^∗(R_USC^∗(TILE_REPR_IND))
         sfs = isl_set_apply(isl_set_apply(tile_repr_ind, Rusc_star), R_star_normalized);

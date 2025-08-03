@@ -4,6 +4,7 @@
 #include "scop.h"
 #include "options.h"
 #include "debug.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/id.h>
@@ -16,7 +17,7 @@ void tc_scheduling_lex(struct tc_scop* scop, struct tc_options* options, __isl_t
     if (!tc_is_lex_forward(Rtile))
     {
         tc_error("Backward relation detected");
-        return;
+        tc_die(tc_exit_code_nonlex);
     }
     
     isl_set* tile_ext = tc_lift_up_set_params(tile, II);

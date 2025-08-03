@@ -10,6 +10,7 @@
 #include "slicing.h"
 #include "serial_codegen.h"
 #include "tuples.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>
@@ -77,7 +78,16 @@ void tc_algorithm_correction_tiling(struct tc_scop* scop, struct tc_options* opt
     isl_bool exact = isl_bool_false;
     isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);
         
-    tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);    
+    tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        if (!tc_io_confirm(options, "Continue?"))
+        {
+            tc_die(tc_exit_code_inexact);
+        }
+    }
     
     isl_set* tile_lt = tc_tile_lt_set(tile, ii_set, II);
     isl_set* tile_gt = tc_tile_gt_set(tile, ii_set, II);

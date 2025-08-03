@@ -10,6 +10,7 @@
 #include "transitive_closure.h"
 #include "debug.h"
 #include "slicing.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>
@@ -85,7 +86,16 @@ void tc_algorithm_merge_tiling(struct tc_scop* scop, struct tc_options* options)
     Rtile_plus = isl_map_coalesce(Rtile_plus);
     
     tc_debug_map(Rtile_plus, "R_TILE^+ (exact=%d)", exact);
-        
+
+    if (exact != isl_bool_true)
+    {
+        tc_warn("Inexact R_TILE^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        if (!tc_io_confirm(options, "Continue?"))
+        {
+            tc_die(tc_exit_code_inexact);
+        }
+    }
+
     isl_map* Tcycle = tc_Tcycle_map(II, Rtile_plus);
     Tcycle = isl_map_coalesce(Tcycle);
     tc_debug_map(Tcycle, "T_CYCLE");

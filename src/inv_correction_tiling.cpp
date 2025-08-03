@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "transitive_closure.h"
 #include "slicing.h"
+#include "input_output.h"
 
 #include <isl/ctx.h>
 #include <isl/space.h>
@@ -77,7 +78,11 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
 
     if (exact != isl_bool_true)
     {
-        tc_error("Inexact R+");
+        tc_warn("Inexact R^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        if (!tc_io_confirm(options, "Continue?"))
+        {
+            tc_die(tc_exit_code_inexact);
+        }
     }
 
     isl_set* tile_lt = tc_tile_lt_set(tile, ii_set, II);

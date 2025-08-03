@@ -35,7 +35,7 @@ FILE* tc_io_open_output(const char* path)
     if (file == NULL)
     {
         tc_error("Failed to open output file `%s'", path);
-        tc_die(tc_exit_code_failure);
+        tc_die(tc_exit_code_input);
     }
     return file;
 }
