@@ -382,7 +382,7 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
         }
         tc_debug_id_list(IIspace0_all, "IIspace0_all(%d)", k);
 
-        isl_set* ii_set_phase = tc_ii_set(isl_set_copy(tile_phase), II_all);
+        isl_set* ii_set_phase = tc_ii_set_from_tile(isl_set_copy(tile_phase), II_all);
         tc_debug_set(ii_set_phase, "II_SET_ALL");
 
         isl_set* tile_lt = tc_tile_set_of(tile_phase, ii_set_phase, II_all, &tc_tuples_t_ii_lt);
@@ -494,7 +494,7 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
     tc_debug("# Tuple extension phase");
 
     isl_set* tile_vld = isl_set_copy(tile_all);
-    isl_set* ii_set_all = tc_ii_set(isl_set_copy(tile_vld), II_k);
+    isl_set* ii_set_all = tc_ii_set_from_tile(isl_set_copy(tile_vld), II_k);
 
     tc_debug_set(tile_vld, "TILE_PLOT");
     tc_debug_set(ii_set_all, "II_SET_PLOT");
@@ -519,7 +519,7 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
         tile_vld_LD = isl_set_coalesce(tile_vld_LD);
         tc_debug_set(tile_vld_LD, "TILE_VLD_LD");
 
-        isl_set* ii_set_ext = tc_ii_set(isl_set_copy(tile_vld_LD), II_k);
+        isl_set* ii_set_ext = tc_ii_set_from_tile(isl_set_copy(tile_vld_LD), II_k);
         tc_debug_set(ii_set_ext, "II_SET_LD");
     }
 
