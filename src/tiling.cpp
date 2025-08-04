@@ -88,7 +88,7 @@ __isl_give isl_set* tc_tile_set(__isl_keep isl_id_list* II, __isl_keep isl_id_li
     
     return tile;
 }
-    
+
 __isl_give isl_set* tc_ii_set(__isl_keep isl_id_list* II, const std::vector<int>& BLOCK, __isl_keep isl_set* set, __isl_keep isl_map* tile_schedule, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S)
 {    
     isl_ctx* ctx = isl_set_get_ctx(set);
@@ -641,7 +641,7 @@ void tc_tile_loop_nest(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* S
 __isl_give isl_set* tc_tile_set2(__isl_keep isl_id_list* II, __isl_keep isl_id_list* I, const std::vector<int>& BLOCK, __isl_keep isl_set* set, __isl_keep isl_map* statement_schedule, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S)
 {
     isl_ctx* ctx = isl_set_get_ctx(set);
-
+    
     isl_set* LD_normalized = tc_normalize_union_set(LD, S);
     isl_set* set_normalized = isl_set_apply(isl_set_copy(set), isl_map_copy(statement_schedule));
 
@@ -650,7 +650,7 @@ __isl_give isl_set* tc_tile_set2(__isl_keep isl_id_list* II, __isl_keep isl_id_l
     isl_set* statement_schedule_range = isl_map_range(isl_map_copy(statement_schedule));
 
     char buff[4096];
-    std::string tiling_str;
+    std::string tile_set_str;
     for (int i = 0, j = 0; i < n_LD_normalized_dim; ++i)
     {
         isl_val* val = isl_set_plain_get_val_if_fixed(statement_schedule_range, isl_dim_set, i);
@@ -660,10 +660,9 @@ __isl_give isl_set* tc_tile_set2(__isl_keep isl_id_list* II, __isl_keep isl_id_l
             isl_id* II_i = isl_id_list_get_id(II, i);
             isl_id* I_i = isl_id_list_get_id(I, i);
 
-            //snprintf(buff, sizeof(buff), "%s = floor((%s - 32) / %d)-1 and ", isl_id_get_name(II_i), isl_id_get_name(I_i), BLOCK[j]);
             snprintf(buff, sizeof(buff), "%s = floor(%s / %d) and ", isl_id_get_name(II_i), isl_id_get_name(I_i), BLOCK[j]);
 
-            tiling_str += buff;
+            tile_set_str += buff;
 
             j = j + 1;
 
@@ -673,16 +672,18 @@ __isl_give isl_set* tc_tile_set2(__isl_keep isl_id_list* II, __isl_keep isl_id_l
 
         isl_val_free(val);
     }
-    tiling_str += "true";
+    tile_set_str += "true";
 
-    isl_id_list* II_I = isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(I));
-    isl_map* tiling = tc_make_map(ctx, NULL, I, II_I, tiling_str.c_str());
+    statement_schedule_range = tc_parameterize_all(statement_schedule_range, II);
+    statement_schedule_range = isl_set_params(statement_schedule_range);
 
-    isl_set* tile = isl_set_apply(isl_set_copy(LD_normalized), tiling);
-    tile = tc_lift_down_set_vars(tile, II);
+    isl_set* tile = tc_make_set(ctx, II, I, tile_set_str.c_str());
+
+    tile = isl_set_intersect(tile, set_normalized);
+    tile = isl_set_intersect_params(tile, statement_schedule_range);
+
     tile = isl_set_coalesce(tile);
 
-    isl_id_list_free(II_I);
     isl_set_free(LD_normalized);
 
     return tile;
@@ -725,9 +726,7 @@ void tc_tile_loop_nest2(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* 
             *tiles = isl_set_union(*tiles, isl_set_copy(tile));
         }
 
-        isl_set* ii_set = isl_set_params(tile);
-        ii_set = tc_lift_up_set_params(ii_set, II);
-        ii_set = isl_set_coalesce(ii_set);
+        isl_set* ii_set = tc_ii_set_from_tile(tile, II);
 
         if (NULL == *ii_sets)
         {
@@ -785,9 +784,7 @@ void tc_tile_loop_nest3(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* 
             *tiles = isl_set_union(*tiles, isl_set_copy(tile));
         }
 
-        isl_set* ii_set = isl_set_params(tile);
-        ii_set = tc_lift_up_set_params(ii_set, II);
-        ii_set = isl_set_coalesce(ii_set);
+        isl_set* ii_set = tc_ii_set_from_tile(tile, II);
 
         if (NULL == *ii_sets)
         {
