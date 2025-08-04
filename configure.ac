@@ -11,15 +11,21 @@ AM_INIT_AUTOMAKE([foreign])
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
-debug="false"
-AC_ARG_ENABLE(debug, [  --enable-debug  debug compilation ], debug="true")
+debug="no"
 
-AM_CONDITIONAL(TC_DEBUG, test x$debug = xtrue)
+AC_ARG_ENABLE(
+    [debug],
+    [AS_HELP_STRING([--enable-debug], [enable debug mode])],
+    [debug="yes"],
+    [debug="no"]
+)
 
-if test $debug = "true"; then
-    CFLAGS="$CFLAGS -g -O0"
+if test "x$debug" = "xyes"; then
+    CFLAGS="$CFLAGS -g -O0 -Wall"
+    CXXFLAGS="$CXXFLAGS -g -O0 -Wall"
 else
-    CFLAGS="$CFLAGS -O2"
+    CFLAGS="$CFLAGS -O2 -DNDEBUG"
+    CXXFLAGS="$CXXFLAGS -O2 -DNDEBUG"
 fi
 
 AC_CONFIG_FILES([Makefile src/Makefile])
