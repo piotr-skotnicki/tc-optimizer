@@ -86,9 +86,10 @@ void tc_options_help()
         "    --help    | -h       Print help\n"
         "\n"
         " e.g.:\n"
-        "    ./src/tc ./examples/stencils/heat-1d.scop.c --stencil-tiling --omp-for-codegen -b 150,25000 --debug\n"
-        "    ./src/tc ./examples/polybench/bicg.scop.c --correction-tiling --sfs-single-scheduling --omp-for-codegen -b 8\n" // --time
-        "    ./src/tc ./examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -b S1:16 -b S2:16,8 -b S3:16\n"
+        "    ./tc ../examples/polybench/gesummv.scop.c --rectangular-tiling --sfs-single-scheduling --omp-for-codegen --isl-map-tc -b 32 --debug --inline\n"
+        "    ./tc ../examples/pluto/heat-1d.scop.c --semi-diamond-tiling --omp-for-codegen --iterative-tc -b 128 --debug --inline --drop-bounds\n"
+        "    ./tc ../examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -y -b S1:16 -b S2:16,8 -b S3:16 --debug\n"
+        "    ./tc ../examples/polybench/mvt.scop.c --rectangular-tiling --lex-scheduling --serial-codegen -b 32 --report -R _PB_N=128\n"
         "\n"
     );
 }
