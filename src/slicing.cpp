@@ -351,8 +351,8 @@ __isl_give isl_set* tc_FS_set(__isl_keep isl_set* LD, __isl_keep isl_map* R, __i
     tc_debug_umap(Sprim, "S'");
     
     isl_bool exact = isl_bool_false;
-    //isl_map* Rprim_plus = tc_transitive_closure(isl_map_copy(Rprim), Sprim, &exact);
-    isl_map* Rprim_plus = tc_transitive_closure_adapter_isl_map(isl_map_copy(Rprim), Sprim, &exact);
+    isl_map* Rprim_plus = tc_transitive_closure(isl_map_copy(Rprim), Sprim, &exact);
+    //isl_map* Rprim_plus = tc_transitive_closure_adapter_isl_map(isl_map_copy(Rprim), Sprim, &exact);
     isl_map* Rprim_star = isl_map_union(isl_map_copy(Rprim_plus), tc_make_identity(Rprim));
     
     tc_debug_map(Rprim_plus, "R'^+ (exact=%d)", exact);
