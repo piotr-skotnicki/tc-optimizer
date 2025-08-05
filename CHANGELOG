@@ -1,3 +1,8 @@
+2025-08-05 Piotr Skotnicki <pskotnicki@zut.edu.pl>
+version: 0.4.2:
+    * Algorithm names unified
+    * Bug-fixing in SFS and dynamic schedulers
+---
 2025-06-17 Piotr Skotnicki <pskotnicki@zut.edu.pl>
 version: 0.4.1:
     * Diamond and semi-diamond tiling
