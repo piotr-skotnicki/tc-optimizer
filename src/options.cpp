@@ -38,7 +38,7 @@ void tc_options_help()
         "    --split-tiling               Splitting based on problematic iterations\n"
         //"    --mod-correction-inv-tiling  Tiling with GT cyclic tiles correction\n"
         "\n"
-        " Scheduler:\n"
+        " Scheduling:\n"
         "\n"
         "    --lex-scheduling               Lexicographic execution order\n"
         "    --isl-scheduling               Integer set library scheduler\n"
