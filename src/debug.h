@@ -19,6 +19,12 @@ extern int tc_debug_flag;
 
 void tc_debug(const char* msg, ...);
 
+void tc_note(const char* msg, ...);
+
+void tc_important(const char* msg, ...);
+
+void tc_success(const char* msg, ...);
+
 void tc_warn(const char* msg, ...);
 
 void tc_error(const char* msg, ...);

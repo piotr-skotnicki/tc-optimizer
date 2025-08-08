@@ -21,6 +21,45 @@ void tc_debug(const char* msg, ...)
     fflush(stderr);
 }
 
+void tc_note(const char* msg, ...)
+{
+    fprintf(stderr, "\033[1;34mNote: \033[0m");
+
+    va_list varargs;
+    va_start(varargs, msg);
+    vfprintf(stderr, msg, varargs);
+    va_end(varargs);
+
+    fprintf(stderr, "\n\n");
+    fflush(stderr);
+}
+
+void tc_important(const char* msg, ...)
+{
+    fprintf(stderr, "\033[1;35mImportant: \033[0m");
+
+    va_list varargs;
+    va_start(varargs, msg);
+    vfprintf(stderr, msg, varargs);
+    va_end(varargs);
+
+    fprintf(stderr, "\n\n");
+    fflush(stderr);
+}
+
+void tc_success(const char* msg, ...)
+{
+    fprintf(stderr, "\033[1;32mSuccess: \033[0m");
+
+    va_list varargs;
+    va_start(varargs, msg);
+    vfprintf(stderr, msg, varargs);
+    va_end(varargs);
+
+    fprintf(stderr, "\n\n");
+    fflush(stderr);
+}
+
 void tc_warn(const char* msg, ...)
 {
     fprintf(stderr, "\033[1;33mWarning: \033[0m");
