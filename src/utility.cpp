@@ -1494,7 +1494,7 @@ static isl_stat tc_collect_basic_maps_callback(__isl_take isl_basic_map* bmap, v
     return isl_stat_ok;
 }
 
-__isl_give isl_basic_map_list* tc_collect_maps(__isl_keep isl_map* map)
+__isl_give isl_basic_map_list* tc_collect_basic_maps(__isl_keep isl_map* map)
 {
     isl_basic_map_list* bmaps = isl_basic_map_list_alloc(isl_map_get_ctx(map), isl_map_n_basic_map(map));
     
