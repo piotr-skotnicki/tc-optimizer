@@ -5,7 +5,7 @@ FROM ubuntu:22.04
 LABEL maintainer="pskotnicki@zut.edu.pl"
 
 RUN apt-get update && apt-get install -y automake autoconf libtool pkg-config libgmp3-dev \
-                        libclang-dev llvm libntl-dev g++ make git clang zlib1g-dev libglpk-dev
+                        libglpk-dev libclang-dev llvm-dev libntl-dev g++ clang make git
 
 WORKDIR /app
 

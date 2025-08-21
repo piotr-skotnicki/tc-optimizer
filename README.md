@@ -80,8 +80,8 @@ Installation
 ### Dependencies:
 
 ```
-automake autoconf libtool pkg-config libgmp3-dev libclang-dev
-llvm libntl-dev g++ make git clang zlib1g-dev libglpk-dev
+automake autoconf libtool pkg-config libgmp3-dev libglpk-dev
+libclang-dev llvm-dev libntl-dev g++ clang make git
 ```
 
 ### Downloading:
