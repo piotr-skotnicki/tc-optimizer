@@ -1,0 +1,23 @@
+# TC Optimizing Compiler
+
+FROM fedora:39
+
+LABEL maintainer="pskotnicki@zut.edu.pl"
+
+RUN dnf update -y && dnf install -y automake autoconf libtool pkg-config gmp-devel \
+                        glpk-devel clang-devel llvm-devel ntl-devel g++ make git clang
+
+WORKDIR /app
+
+RUN git clone https://github.com/piotr-skotnicki/tc-optimizer.git tc
+
+WORKDIR /app/tc
+
+RUN git submodule update --init --recursive \
+    && ./autogen.sh \
+    && ./configure \
+    && make
+
+WORKDIR /app/tc/src
+
+CMD ["./tc", "--help"]
