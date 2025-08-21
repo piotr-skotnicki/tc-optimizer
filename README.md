@@ -195,13 +195,14 @@ User guide
 
 ### Getting started
 
-Effective use of the offered capabilities requires expertise in identifying loop nest classes or a series of trial-and-error attempts using the available combinations. The below suggestions should facilitate the process of finding an optimal transformation:
+Effective use of the offered capabilities requires some level of expertise in identifying loop nest classes or a series of trial-and-error attempts of combining the available options. In the process of finding an optimal transformation, the below procedure should prove helpful:
 
-1. Initially, use tile sizes `-b 32` or `-b 64` or `-b 16`. This order of evaluation should indicate if the tile size should increase or decrease.
-2. Start with `--correction-tiling`; the algorithm corrects the rectangular tiles if necessary, without the overhead of identifying strongly connected components. Experiment with other options only after generating the code for this scheme and finding the results suboptimal.
-3. Check the number of synchronization-free slices found by `--sfs-single-scheduling`/`--sfs-multiple-scheduling`/`--sfs-tile-scheduling`. If the degree of parallelism is not satisfactory, try to find a `--free-scheduling` for tiles execution. `--isl-wave-scheduling` is a viable option as well.
-4. Prefer the `--iterative-tc` method over other algorithms. `--isl-map-tc` is the secondary option if the iterative approach fails to produce a result within a reasonable time frame.
-5. If any of the transitive closure algorithms returns an inexact result, another algorithm may succeed instead. Note that `--omega-map-tc` may result in an under-approximation and invalid results.
+1. The best starting point is `--correction-tiling`. The algorithm corrects the rectangular tiles if necessary, without the overhead of identifying strongly connected components. Experiments with other options should follow only after generating the code for this scheme and finding the results suboptimal.
+2. The number of synchronization-free slices found by `--sfs-single-scheduling` / `--sfs-multiple-scheduling` / `--sfs-tile-scheduling` should offer greatest scalability. If the degree of parallelism is not satisfactory, `--free-scheduling` uses topological traversal instead. `--isl-wave-scheduling` is an option for pipelined execution.
+3. The `--iterative-tc` method was found to be the most versatile and should be preferred over other algorithms. `--isl-map-tc` is the secondary option if the iterative approach fails to produce a result within a reasonable time frame.
+4. If any of the transitive closure algorithms returns an inexact form, another algorithm may succeed instead. Note that `--omega-map-tc` may produce an under-approximation leading to invalid results and in general should be the last option to consider.
+5. The `--debug` command-line option allows to monitor the progress of the compilation pipeline by emitting all intermediate results.
+6. Experimenting with tile sizes of `-b 32`, `-b 64`, `-b 16`, in that order of evaluation, should indicate if the tile size should increase or decrease.
 
 ### Troubleshooting
 
