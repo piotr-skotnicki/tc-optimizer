@@ -170,7 +170,7 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 --out     | -o       Output file (default: stdout)
 --debug   | -d       Verbose mode
 --report             Generate tile statistics report (use -R for each parameter)
---inline             Always inline loop bounds expressions
+--[no]inline         Inline loop bound expressions (enabled by default)
 -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600
 -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600
 --cache <value>      Cache line length in bytes (default: 64)

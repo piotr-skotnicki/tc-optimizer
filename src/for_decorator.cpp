@@ -230,7 +230,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_nested(__isl_take isl_
     
     isl_bool inline_variables = isl_bool_true;
     
-    if (!tc_options_is_set(context->options, NULL, "--inline"))
+    if (!tc_options_is_inline(context->options))
     {
         if (isl_ast_expr_get_type(cond_rhs) == isl_ast_expr_op || isl_ast_expr_get_type(init) == isl_ast_expr_op)
         {
@@ -368,7 +368,7 @@ __isl_give isl_printer* tc_for_decorator_omp_parallel_for_first(__isl_take isl_p
     
     isl_bool inline_variables = isl_bool_true;
     
-    if (!tc_options_is_set(context->options, NULL, "--inline"))
+    if (!tc_options_is_inline(context->options))
     {
         if (isl_ast_expr_get_type(cond_rhs) == isl_ast_expr_op || isl_ast_expr_get_type(init) == isl_ast_expr_op)
         {

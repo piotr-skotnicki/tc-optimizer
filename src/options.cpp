@@ -76,7 +76,7 @@ void tc_options_help()
         "    --debug   | -d       Verbose mode\n"
         "    --report             Generate tile statistics report (use -R for each parameter)\n"
         //"    --time               Measure calculations time\n"
-        "    --inline             Always inline loop bounds expressions\n"
+        "    --[no]inline         Inline loop bound expressions (enabled by default)\n"
         "    -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600\n"
         "    -R <name>=<value>    Set parameter value for report generation, e.g. --report -R M=2000 -R N=2600\n"
         "    --cache <value>      Cache line length in bytes (default: " TC_STR(TC_CONF_DEFAULT_CACHE_LINE) ")\n"
@@ -272,6 +272,18 @@ int tc_options_is_verbose(struct tc_options* options)
 int tc_options_is_report(struct tc_options* options)
 {
     return tc_options_is_set(options, NULL, "--report");
+}
+
+int tc_options_is_inline(struct tc_options* options)
+{
+    int is_inline = tc_options_is_set(options, NULL, "--inline");
+    int is_noinline = tc_options_is_set(options, NULL, "--noinline");
+    if (is_inline && is_noinline)
+    {
+        tc_error("Options --inline and --noinline cannot be used together");
+        tc_die(tc_exit_code_usage);
+    }
+    return !is_noinline;
 }
 
 int tc_options_cache_line(struct tc_options* options)
@@ -630,7 +642,7 @@ void tc_options_check_spelling(struct tc_options* options)
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc",
-        "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", /*"--time", */"--use-macros",
+        "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", "--noinline", /*"--time", */"--use-macros",
         "-g", "--out", "-o",
         "-m", "--max",
         "-y", "--yes",
