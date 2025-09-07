@@ -54,7 +54,6 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
     isl_id_list* I = tc_ids_sequence(ctx, "i", isl_space_dim(space, isl_dim_set));
     isl_id_list* II = tc_ids_sequence(ctx, "ii", isl_space_dim(space, isl_dim_set));
     isl_id_list* II_k = isl_id_list_insert(isl_id_list_copy(II), 1, isl_id_alloc(ctx, "z", NULL));
-    isl_id_list* II_1_to_n = tc_ids_sub(II, 1, isl_space_dim(space, isl_dim_set));
         
     std::map<std::string, std::vector<int> > blocks = tc_options_blocks(options);
     
@@ -89,36 +88,32 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
         }
     }
     
-    int k = 1;
+    int k = 0;
     
     isl_set_list* tiles_k = isl_set_list_alloc(ctx, 1);
     
-    while (!isl_set_is_empty(tile))
+    while (!isl_set_is_empty(tile) && k <= max)
     {
         tc_debug("# k = %d", k);
-        
-        //isl_set* tile_gt = tc_tile_gt_set(tile, ii_set, II);
-        isl_set* tile_gt = tc_tile_set_of(tile, ii_set, II, &tc_tuples_tgt);
+
+        isl_set* tile_gt = tc_tile_gt_set(tile, ii_set, II);
         tc_debug_set(tile_gt, "TILE_GT_%d", k);
 
-        // If one or more elements of the card(TVLD_LT) are parametric, or varied, or greater than max
-        if (k <= max)
+        isl_set* tile_lt = tc_tile_lt_set(tile, ii_set, II);
+        tc_debug_set(tile_lt, "TILE_LT_%d", k);
+
+        // TILE_MISS = (R+(TILE) * TILE_LT)
+        isl_set* tile_miss = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_plus_normalized));
+        tile_miss = isl_set_intersect(tile_miss, tile_lt);
+        tile_miss = isl_set_coalesce(tile_miss);
+
+        tc_debug_set(tile_miss, "TILE_MISS_%d", k);
+
+        if (k < max)
         {
-            // INVALID =  R+(TILE_GT) * TILE
-            isl_set* invalid = isl_set_intersect(isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)), isl_set_copy(tile));
-            invalid = isl_set_coalesce(invalid);
-            tc_debug_set(invalid, "INVALID_%d", k);
-
-            // PROBLEMATIC = R*(INVALID) = INVALID u (R+)(INVALID)
-            isl_set* problematic = isl_set_union(invalid, isl_set_apply(isl_set_copy(invalid), isl_map_copy(R_plus_normalized)));
-            tc_debug_set(problematic, "PROBLEMATIC_%d", k);
-
-            isl_set* problematic_T = tc_project_out_params(problematic, II_1_to_n);
-            //isl_set* problematic_T = tc_project_out_params(problematic, II);
-            tc_debug_set(problematic_T, "PROBLEMATIC_T_%d", k);
-
-            // TILEk = TILE - PROBLEMATIC_T
-            isl_set* tile_k = isl_set_subtract(isl_set_copy(tile), problematic_T);
+            // TILEk = TILE - R+(TILE_MISS) - R+(TILE_GT)
+            isl_set* tile_k = isl_set_subtract(isl_set_copy(tile), isl_set_apply(tile_miss, isl_map_copy(R_plus_normalized)));
+            tile_k = isl_set_subtract(tile_k, isl_set_apply(tile_gt, isl_map_copy(R_plus_normalized)));
             tile_k = isl_set_coalesce(tile_k);
 
             tc_debug_set(tile_k, "TILE_k_%d", k);
@@ -127,50 +122,24 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
             tile = isl_set_subtract(tile, isl_set_copy(tile_k));
 
             tc_debug_set(tile, "TILE_%d", k);
-            
+
             tiles_k = isl_set_list_add(tiles_k, tile_k);
-
-            k = k + 1;
-
-            isl_set_free(tile_gt);
         }
         else
         {
-            //isl_set* tile_lt = tc_tile_lt_set(tile, ii_set, II);
-            isl_set* tile_lt = tc_tile_set_of(tile, ii_set, II, &tc_tuples_tlt);
-            tc_debug_set(tile_lt, "TILE_LT_%d", k);
-
-            // TILE_ITR = TILE - R+(TILE_GT)
-            isl_set* tile_itr = isl_set_subtract(isl_set_copy(tile), isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
-            tile_itr = isl_set_coalesce(tile_itr);
-            
-            tc_debug_set(tile_itr, "TILE_ITR_%d", k);
-
-            // TVLD_LT = (R+(TILE_ITR) * TILE_LT) - R+(TILE_GT)
-            isl_set* tvld_lt = isl_set_apply(isl_set_copy(tile_itr), isl_map_copy(R_plus_normalized));
-            tvld_lt = isl_set_intersect(tvld_lt, isl_set_copy(tile_lt));
-            tvld_lt = isl_set_subtract(tvld_lt, isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
-            tvld_lt = isl_set_coalesce(tvld_lt);
-            
-            tc_debug_set(tvld_lt, "TVLD_LT_%d", k);
-
-            // TILEk = TILE_ITR + TVLD_LT
-            isl_set* tile_k = isl_set_union(tile_itr, tvld_lt);
+            // TILEk = TILE + TILE_MISS - R+(TILE_GT)
+            isl_set* tile_k = isl_set_union(isl_set_copy(tile), tile_miss);
+            tile_k = isl_set_subtract(tile_k, isl_set_apply(tile_gt, isl_map_copy(R_plus_normalized)));
             tile_k = isl_set_coalesce(tile_k);
 
             tc_debug_set(tile_k, "TILE_k_%d", k);
-            
+
             tiles_k = isl_set_list_add(tiles_k, tile_k);
-
-            k = k + 1;
-
-            isl_set_free(tile_lt);
-            isl_set_free(tile_gt);
-
-            break;
         }
+
+        k = k + 1;
     }
-        
+
     isl_set* tile_ext = NULL;
     
     for (int i = 0; i < isl_set_list_n_set(tiles_k); ++i)
@@ -230,9 +199,6 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
     isl_map_free(R_plus_normalized);
     isl_set_free(tile);
     isl_set_free(ii_set);
-    //isl_set_free(tile_lt);
-    //isl_set_free(tile_gt);
-    isl_id_list_free(II_1_to_n);
     isl_id_list_free(II);
     isl_space_free(space);
     isl_basic_set_free(sample);
