@@ -840,6 +840,20 @@ __isl_give isl_map* tc_make_identity(__isl_take isl_map* map)
     return result;
 }
 
+__isl_give isl_map* tc_make_identity_from_set(__isl_take isl_set* set)
+{
+    isl_map* identity = isl_map_from_domain_and_range(isl_set_copy(set), isl_set_copy(set));
+
+    for (int i = 0; i < isl_map_dim(identity, isl_dim_in); ++i)
+    {
+        identity = isl_map_equate(identity, isl_dim_in, i, isl_dim_out, i);
+    }
+
+    isl_set_free(set);
+
+    return identity;
+}
+
 __isl_give isl_union_map* tc_union_map_make_identity(__isl_take isl_union_map* umap)
 {
     isl_map_list* maps = tc_collect_maps(umap);
