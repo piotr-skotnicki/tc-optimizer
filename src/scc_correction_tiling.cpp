@@ -140,28 +140,24 @@ void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options*
     tc_debug_set(tile_lt, "TILE_LT");
     
     tc_debug_set(tile_gt, "TILE_GT");
-    
-    // TILE_ITR = TILE - R+(TILE_GT)
-    isl_set* tile_itr = isl_set_subtract(isl_set_copy(tile_c), isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
-    
-    tc_debug_set(tile_itr, "TILE_ITR");
-    
-    // TVLD_LT = (R+(TILE_ITR) * TILE_LT) - R+(TILE_GT)
-    isl_set* tvld_lt = isl_set_apply(isl_set_copy(tile_itr), isl_map_copy(R_plus_normalized));
-    tvld_lt = isl_set_intersect(tvld_lt, isl_set_copy(tile_lt));
-    tvld_lt = isl_set_subtract(tvld_lt, isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
-    
-    tc_debug_set(tvld_lt, "TVLD_LT");
-    
-    // TILE_VLD = TILE_ITR + TVLD_LT
-    isl_set* tile_vld = isl_set_union(tile_itr, tvld_lt);
-    tile_vld = isl_set_coalesce(tile_vld);
-    
-    tc_debug_set(tile_vld, "TILE_VLD");
+
+    // TILE_ITL = R+(TILE) * TILE_LT
+    isl_set* tile_itl = isl_set_apply(isl_set_copy(tile_c), isl_map_copy(R_plus_normalized));
+    tile_itl = isl_set_intersect(tile_itl, isl_set_copy(tile_lt));
+    tile_itl = isl_set_coalesce(tile_itl);
+
+    tc_debug_set(tile_itl, "TILE_ITL");
+
+    // TILE_CORR = TILE + TILE_ITL - R+(TILE_GT)
+    isl_set* tile_corr = isl_set_union(isl_set_copy(tile_c), tile_itl);
+    tile_corr = isl_set_subtract(tile_corr, isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
+    tile_corr = isl_set_coalesce(tile_corr);
+
+    tc_debug_set(tile_corr, "TILE_CORR");
 
     // CORRECTION END
 
-    isl_set* tile_mc = isl_set_union(tile_a, tile_vld);
+    isl_set* tile_mc = isl_set_union(tile_a, tile_corr);
     isl_set* ii_set_mc = isl_set_union(ii_set_a, ii_set_c);
     //isl_set* ii_set_mc = tc_lift_up_set_params(isl_set_params(isl_set_copy(tile_mc)), II);
 

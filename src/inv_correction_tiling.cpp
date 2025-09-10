@@ -93,31 +93,27 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
 
     isl_map* R_plus_normalized_inv = isl_map_reverse(isl_map_copy(R_plus_normalized));
 
-    // TILE_ITR = TILE - (R+)^-1(TILE_LT)
-    isl_set* tile_itr = isl_set_subtract(isl_set_copy(tile), isl_set_apply(isl_set_copy(tile_lt), isl_map_copy(R_plus_normalized_inv)));
-    
-    tc_debug_set(tile_itr, "TILE_ITR");
-    
-    // TVLD_GT = ((R+)^-1(TILE_ITR)) * TILE_GT - (R+)^-1(TILE_LT)
-    isl_set* tvld_gt = isl_set_apply(isl_set_copy(tile_itr), isl_map_copy(R_plus_normalized_inv));
-    tvld_gt = isl_set_intersect(tvld_gt, isl_set_copy(tile_gt));
-    tvld_gt = isl_set_subtract(tvld_gt, isl_set_apply(isl_set_copy(tile_lt), isl_map_copy(R_plus_normalized_inv)));
-    
-    tc_debug_set(tvld_gt, "TVLD_GT");
-    
-    // TILE_TRG = TILE_ITR + TVLD_GT
-    isl_set* tile_trg = isl_set_union(tile_itr, tvld_gt);
-    tile_trg = isl_set_coalesce(tile_trg);
+    // TILE_ITG = ((R+)^-1)(TILE) * TILE_GT
+    isl_set* tile_itg = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_plus_normalized_inv));
+    tile_itg = isl_set_intersect(tile_itg, isl_set_copy(tile_gt));
+    tile_itg = isl_set_coalesce(tile_itg);
 
-    tc_debug_set(tile_trg, "TILE_TRG");
+    tc_debug_set(tile_itg, "TILE_ITG");
 
-    tc_debug_bool(isl_set_is_equal(tile, tile_trg), "TILE = TILE_TRG");
+    // TILE_CORR = TILE + TILE_ITG - ((R+)^-1)(TILE_LT)
+    isl_set* tile_corr = isl_set_union(isl_set_copy(tile), tile_itg);
+    tile_corr = isl_set_subtract(tile_corr, isl_set_apply(isl_set_copy(tile_lt), isl_map_copy(R_plus_normalized_inv)));
+    tile_corr = isl_set_coalesce(tile_corr);
+
+    tc_debug_set(tile_corr, "TILE_CORR");
+
+    tc_debug_bool(isl_set_is_equal(tile, tile_corr), "TILE = TILE_CORR");
 
     if (tc_options_is_report(options))
     {
         isl_set* bounds = tc_options_get_report_bounds(options, ctx);
 
-        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_trg, ii_set, II, bounds, LD, S, scop->reads, scop->writes, scop, options, blocks);
+        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_corr, ii_set, II, bounds, LD, S, scop->reads, scop->writes, scop, options, blocks);
 
         tc_tile_statistics_print(options->output, stats);
 
@@ -126,10 +122,10 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
         isl_set_free(bounds);
     }
 
-    isl_map* Rtile = tc_Rtile_map(II, tile_trg, R_normalized);
+    isl_map* Rtile = tc_Rtile_map(II, tile_corr, R_normalized);
     tc_debug_map(Rtile, "R_TILE");
     
-    tc_scheduling(scop, options, LD, S, R, ii_set, tile_trg, Rtile, II, I);
+    tc_scheduling(scop, options, LD, S, R, ii_set, tile_corr, Rtile, II, I);
 
     isl_set_free(tile_lt);
     isl_set_free(tile_gt);
