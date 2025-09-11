@@ -26,4 +26,6 @@ __isl_give isl_map* tc_map_power_adapter_isl_map(__isl_take isl_map* R, __isl_ke
 
 __isl_give isl_map* tc_map_power_adapter_isl_union_map(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact);
 
+__isl_give isl_map* tc_transitive_closure_adapter_select(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact);
+
 #endif // TC_TRANSITIVE_CLOSURE_H

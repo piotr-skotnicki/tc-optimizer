@@ -53,11 +53,12 @@ enum tc_transitive_closure_enum
 {
     tc_transitive_closure_enum_isl_map,
     tc_transitive_closure_enum_isl_union_map,
-    tc_transitive_closure_enum_floyd_warshall,
     tc_transitive_closure_enum_iterative,
-    tc_transitive_closure_enum_tarjan,
+    tc_transitive_closure_enum_floyd_warshall,
     tc_transitive_closure_enum_omega_map,
     tc_transitive_closure_enum_omega_union_map,
+    tc_transitive_closure_enum_tarjan,
+    tc_transitive_closure_enum_select,
     tc_transitive_closure_enum_unknown
 };
 

@@ -19,11 +19,11 @@ bool tc_io_confirm(struct tc_options* options, const char* question)
 
         do
         {
-            printf("%s [y/N]: ", question);
+            printf("%s [y/n]: ", question);
             fflush(stdout);
             scanf("%c", &c);
         }
-        while (c != 'Y' && c != 'y' && c != 'N' && c != 'n' && c != '\n' && c != '\r');
+        while (c != 'Y' && c != 'y' && c != 'N' && c != 'n');
 
         return (c == 'Y' || c == 'y');
     }

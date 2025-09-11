@@ -156,11 +156,12 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 ```
 --isl-map-tc           ISL normalized map transitive closure (default)
 --isl-union-map-tc     ISL union map transitive closure
---floyd-warshall-tc    Floyd-Warshall algorithm
 --iterative-tc         Iterative algorithm
+--floyd-warshall-tc    Floyd-Warshall algorithm
 --omega-map-tc         Omega normalized map transitive closure
 --omega-union-map-tc   Omega union map transitive closure
 --tarjan-tc            Tarjan algorithm for finite graphs
+--select-tc            Prompt the user for the algorithm
 ```
 
 ### Options:

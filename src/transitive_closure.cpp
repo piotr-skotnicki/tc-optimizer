@@ -2,6 +2,7 @@
 #include "tarjan_transitive_closure.h"
 #include "floyd_warshall_transitive_closure.h"
 #include "iterative_transitive_closure.h"
+#include "select_transitive_closure.h"
 #include "utility.h"
 #include "debug.h"
 #include "timer.h"
@@ -219,4 +220,9 @@ __isl_give isl_map* tc_map_power_adapter_isl_union_map(__isl_take isl_map* R, __
     isl_union_map_free(R_k_denorm);
 
     return R_k;
+}
+
+__isl_give isl_map* tc_transitive_closure_adapter_select(__isl_take isl_map* R, __isl_keep isl_union_map* S, isl_bool* exact)
+{
+    return tc_select_transitive_closure(R, S, exact);
 }

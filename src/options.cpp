@@ -63,11 +63,12 @@ void tc_options_help()
         "\n"
         "    --isl-map-tc           ISL normalized map transitive closure (default)\n"
         "    --isl-union-map-tc     ISL union map transitive closure\n"
-        "    --floyd-warshall-tc    Floyd-Warshall algorithm\n"
         "    --iterative-tc         Iterative algorithm\n"
+        "    --floyd-warshall-tc    Floyd-Warshall algorithm\n"
         "    --omega-map-tc         Omega normalized map transitive closure\n"
         "    --omega-union-map-tc   Omega union map transitive closure\n"
         "    --tarjan-tc            Tarjan algorithm for finite graphs\n"
+        "    --select-tc            Prompt the user for the algorithm\n"
         "\n"
         " Options:\n"
         "\n"
@@ -392,8 +393,8 @@ enum tc_transitive_closure_enum tc_options_transitive_closure(struct tc_options*
 {    
     enum tc_transitive_closure_enum value = tc_transitive_closure_enum_unknown;
     
-    static const char* strings[] = { "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc" };
-    static enum tc_transitive_closure_enum values[] = { tc_transitive_closure_enum_isl_map, tc_transitive_closure_enum_isl_union_map, tc_transitive_closure_enum_floyd_warshall, tc_transitive_closure_enum_iterative, tc_transitive_closure_enum_omega_map, tc_transitive_closure_enum_omega_union_map, tc_transitive_closure_enum_tarjan };
+    static const char* strings[] = { "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc", "--select-tc" };
+    static enum tc_transitive_closure_enum values[] = { tc_transitive_closure_enum_isl_map, tc_transitive_closure_enum_isl_union_map, tc_transitive_closure_enum_floyd_warshall, tc_transitive_closure_enum_iterative, tc_transitive_closure_enum_omega_map, tc_transitive_closure_enum_omega_union_map, tc_transitive_closure_enum_tarjan, tc_transitive_closure_enum_select };
     
     for (int i = 0; i < sizeof(strings) / sizeof(*strings); ++i)
     {        
@@ -641,7 +642,7 @@ void tc_options_check_spelling(struct tc_options* options)
         "--diamond-tiling", "--semi-diamond-tiling", "--strip-tiling", "--rectangular-tiling", "--correction-tiling", "--inv-correction-tiling", "--merge-tiling", "--split-tiling", "--scc-correction-tiling",
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
-        "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc",
+        "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc", "--select-tc",
         "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", "--noinline", /*"--time", */"--use-macros",
         "-g", "--out", "-o",
         "-m", "--max",

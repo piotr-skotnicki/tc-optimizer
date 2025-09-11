@@ -152,6 +152,13 @@ int main(int argc, char* argv[])
                     tc_map_power = &tc_map_power_adapter_isl_map;
                 }
                 break;
+
+                case tc_transitive_closure_enum_select:
+                {
+                    tc_transitive_closure = &tc_transitive_closure_adapter_select;
+                    tc_map_power = &tc_map_power_adapter_isl_map;
+                }
+                break;
             }
 
             enum tc_scheduling_enum scheduling = tc_options_scheduling(options);
