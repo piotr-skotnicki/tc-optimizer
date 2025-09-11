@@ -53,7 +53,7 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
     isl_basic_set* sample = isl_set_sample(isl_set_copy(LD_normalized));
     
     isl_space* space = isl_basic_set_get_space(sample);
-            
+
     isl_id_list* I = tc_ids_sequence(ctx, "i", isl_space_dim(space, isl_dim_set));
     isl_id_list* II = tc_ids_sequence(ctx, "ii", isl_space_dim(space, isl_dim_set));
             
@@ -71,14 +71,17 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
 
     isl_map* R_normalized = tc_normalize_union_map(R, S);
     tc_debug_map(R_normalized, "R_norm");
-    
+
+    isl_map* R_inv_normalized = isl_map_reverse(isl_map_copy(R_normalized));
+    tc_debug_map(R_inv_normalized, "R^(-1)_norm");
+
     isl_bool exact = isl_bool_false;
-    isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);
-    tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);
+    isl_map* R_inv_plus_normalized = tc_transitive_closure(R_inv_normalized, S, &exact);
+    tc_debug_map(R_inv_plus_normalized, "(R^(-1))+ (exact=%d)", exact);
 
     if (exact != isl_bool_true)
     {
-        tc_warn("Inexact R^+. The results can be non-optimal. Restart TC with a different transitive closure method.");
+        tc_warn("Inexact R+. The results can be non-optimal. Restart TC with a different transitive closure method.");
         if (!tc_io_confirm(options, "Continue?"))
         {
             tc_die(tc_exit_code_inexact);
@@ -91,18 +94,16 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
     tc_debug_set(tile_lt, "TILE_LT");
     tc_debug_set(tile_gt, "TILE_GT");
 
-    isl_map* R_plus_normalized_inv = isl_map_reverse(isl_map_copy(R_plus_normalized));
+    // TILE_ISG = ((R^-1)+)(TILE) * TILE_GT
+    isl_set* tile_isg = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_inv_plus_normalized));
+    tile_isg = isl_set_intersect(tile_isg, isl_set_copy(tile_gt));
+    tile_isg = isl_set_coalesce(tile_isg);
 
-    // TILE_ITG = ((R+)^-1)(TILE) * TILE_GT
-    isl_set* tile_itg = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_plus_normalized_inv));
-    tile_itg = isl_set_intersect(tile_itg, isl_set_copy(tile_gt));
-    tile_itg = isl_set_coalesce(tile_itg);
+    tc_debug_set(tile_isg, "TILE_ISG");
 
-    tc_debug_set(tile_itg, "TILE_ITG");
-
-    // TILE_CORR = TILE + TILE_ITG - ((R+)^-1)(TILE_LT)
-    isl_set* tile_corr = isl_set_union(isl_set_copy(tile), tile_itg);
-    tile_corr = isl_set_subtract(tile_corr, isl_set_apply(isl_set_copy(tile_lt), isl_map_copy(R_plus_normalized_inv)));
+    // TILE_CORR = TILE + TILE_ISG - ((R^-1)+)(TILE_LT)
+    isl_set* tile_corr = isl_set_union(isl_set_copy(tile), tile_isg);
+    tile_corr = isl_set_subtract(tile_corr, isl_set_apply(isl_set_copy(tile_lt), isl_map_copy(R_inv_plus_normalized)));
     tile_corr = isl_set_coalesce(tile_corr);
 
     tc_debug_set(tile_corr, "TILE_CORR");
@@ -124,15 +125,14 @@ void tc_algorithm_inv_correction_tiling(struct tc_scop* scop, struct tc_options*
 
     isl_map* Rtile = tc_Rtile_map(II, tile_corr, R_normalized);
     tc_debug_map(Rtile, "R_TILE");
-    
+
     tc_scheduling(scop, options, LD, S, R, ii_set, tile_corr, Rtile, II, I);
 
     isl_set_free(tile_lt);
     isl_set_free(tile_gt);
     isl_set_free(tile);
     isl_map_free(R_normalized);
-    isl_map_free(R_plus_normalized);
-    isl_map_free(R_plus_normalized_inv);
+    isl_map_free(R_inv_plus_normalized);
     isl_basic_set_free(sample);
     isl_space_free(space);
     isl_set_free(LD_normalized);
