@@ -226,8 +226,9 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
 
     tile_ext = isl_set_coalesce(tile_ext);
 
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(k));
-    tc_debug_umap(S_ext, "S_ext");
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(k));
+    tc_debug_umap(S_prim, "S_prim");
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
 
     isl_id_list* parallel_iterators = NULL;
 
@@ -242,19 +243,19 @@ void tc_scheduling_isl(struct tc_scop* scop, struct tc_options* options, __isl_t
 
     if (tc_codegen_enum_serial == codegen)
     {
-        tc_codegen_serial(scop, options, S_ext, tile_ext, k_I);
+        tc_codegen_serial(scop, options, S_prim, k_I);
     }
     else if (tc_codegen_enum_omp_cpu_for == codegen)
     {
-        tc_codegen_omp_parallel_for(scop, options, S_ext, tile_ext, k_I, parallel_iterators, 0);
+        tc_codegen_omp_parallel_for(scop, options, S_prim, k_I, parallel_iterators, 0);
     }
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
-        tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, k_I, parallel_iterators, 0);
+        tc_codegen_omp_task_for(scop, options, S_prim, k_I, parallel_iterators, 0);
     }
     else if (tc_codegen_enum_omp_gpu == codegen)
     {
-        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, k_I, parallel_iterators);
+        tc_codegen_omp_gpu(scop, options, S_prim, k_I, parallel_iterators);
     }
 
     isl_id_list_free(k);

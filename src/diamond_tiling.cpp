@@ -536,8 +536,9 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
         isl_set_free(bounds);
     }
 
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II_k));
-    tc_debug_umap(S_ext, "S_ext");
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II_k));
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
+    tc_debug_umap(S_prim, "S_prim");
 
     isl_id_list* iterators = isl_id_list_copy(II_k);
     iterators = isl_id_list_concat(iterators, isl_id_list_copy(I));
@@ -552,19 +553,19 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
 
     if (tc_codegen_enum_serial == codegen)
     {
-        tc_codegen_serial(scop, options, S_ext, tile_ext, iterators);
+        tc_codegen_serial(scop, options, S_prim, iterators);
     }
     else if (tc_codegen_enum_omp_cpu_for == codegen)
     {
-        tc_codegen_omp_parallel_for(scop, options, S_ext, tile_ext, iterators, parallel_iterators, 0);
+        tc_codegen_omp_parallel_for(scop, options, S_prim, iterators, parallel_iterators, 0);
     }
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
-        tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, parallel_iterators, 0);
+        tc_codegen_omp_task_for(scop, options, S_prim, iterators, parallel_iterators, 0);
     }
     else if (tc_codegen_enum_omp_gpu == codegen)
     {
-        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
+        tc_codegen_omp_gpu(scop, options, S_prim, iterators, II);
     }
 
     isl_union_set_free(LD);

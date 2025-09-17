@@ -41,7 +41,8 @@ void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* opt
     tile_ext = tc_lift_up_set_params(tile_ext, k_param_list);
     tile_ext = isl_set_coalesce(tile_ext);
     
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
     
     isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II)), isl_id_list_copy(I));
     
@@ -49,19 +50,19 @@ void tc_scheduling_free_schedule_rk(struct tc_scop* scop, struct tc_options* opt
     
     if (tc_codegen_enum_serial == codegen)
     {
-        tc_codegen_serial(scop, options, S_ext, tile_ext, iterators);
+        tc_codegen_serial(scop, options, S_prim, iterators);
     }
     else if (tc_codegen_enum_omp_cpu_for == codegen)
     {
-        tc_codegen_omp_parallel_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+        tc_codegen_omp_parallel_for(scop, options, S_prim, iterators, II, 0);
     }
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
-        tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+        tc_codegen_omp_task_for(scop, options, S_prim, iterators, II, 0);
     }
     else if (tc_codegen_enum_omp_gpu == codegen)
     {
-        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
+        tc_codegen_omp_gpu(scop, options, S_prim, iterators, II);
     }
     
     isl_id_list_free(k_param_list);
@@ -98,7 +99,8 @@ void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* o
         
     tile_ext = isl_set_intersect(tile_ext, FS);
                     
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
     
     isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II)), isl_id_list_copy(I));
     
@@ -106,19 +108,19 @@ void tc_scheduling_free_schedule_karl(struct tc_scop* scop, struct tc_options* o
     
     if (tc_codegen_enum_serial == codegen)
     {
-        tc_codegen_serial(scop, options, S_ext, tile_ext, iterators);
+        tc_codegen_serial(scop, options, S_prim, iterators);
     }
     else if (tc_codegen_enum_omp_cpu_for == codegen)
     {
-        tc_codegen_omp_parallel_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+        tc_codegen_omp_parallel_for(scop, options, S_prim, iterators, II, 0);
     }
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
-        tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+        tc_codegen_omp_task_for(scop, options, S_prim, iterators, II, 0);
     }
     else if (tc_codegen_enum_omp_gpu == codegen)
     {
-        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
+        tc_codegen_omp_gpu(scop, options, S_prim, iterators, II);
     }
     
     isl_id_list_free(k_param_list);
@@ -189,7 +191,8 @@ void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options*
     
     tc_debug_set(tile_ext, "TILE_EXT");
     
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II) + 1);
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
     
     isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(k_param_list), isl_id_list_copy(II)), isl_id_list_copy(I));
     
@@ -197,19 +200,19 @@ void tc_scheduling_free_schedule_finite(struct tc_scop* scop, struct tc_options*
     
     if (tc_codegen_enum_serial == codegen)
     {
-        tc_codegen_serial(scop, options, S_ext, tile_ext, iterators);
+        tc_codegen_serial(scop, options, S_prim, iterators);
     }
     else if (tc_codegen_enum_omp_cpu_for == codegen)
     {
-        tc_codegen_omp_parallel_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+        tc_codegen_omp_parallel_for(scop, options, S_prim, iterators, II, 0);
     }
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
-        tc_codegen_omp_task_for(scop, options, S_ext, tile_ext, iterators, II, 0);
+        tc_codegen_omp_task_for(scop, options, S_prim, iterators, II, 0);
     }
     else if (tc_codegen_enum_omp_gpu == codegen)
     {
-        tc_codegen_omp_gpu(scop, options, S_ext, tile_ext, iterators, II);
+        tc_codegen_omp_gpu(scop, options, S_prim, iterators, II);
     }
     
     isl_id_list_free(k_param_list);

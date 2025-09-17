@@ -21,14 +21,14 @@ void tc_scheduling_lex(struct tc_scop* scop, struct tc_options* options, __isl_t
     }
     
     isl_set* tile_ext = tc_lift_up_set_params(tile, II);
-    
     tile_ext = isl_set_coalesce(tile_ext);
     
-    isl_union_map* S_ext = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II));
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(II));
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
     
     isl_id_list* iterators = isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(I));
     
-    tc_codegen_serial(scop, options, S_ext, tile_ext, iterators);
+    tc_codegen_serial(scop, options, S_prim, iterators);
     
     isl_id_list_free(iterators);
     isl_id_list_free(I);

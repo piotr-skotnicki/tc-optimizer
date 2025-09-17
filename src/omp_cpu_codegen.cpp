@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_map* S, __isl_take isl_set* tile, __isl_keep isl_id_list* iterators, __isl_keep isl_id_list* parallel_iterators, int nested)
+void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_map* S, __isl_keep isl_id_list* iterators, __isl_keep isl_id_list* parallel_iterators, int nested)
 {
     isl_ctx* ctx = isl_union_map_get_ctx(S);
     
@@ -36,13 +36,12 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
     ast_build = isl_ast_build_set_after_each_for(ast_build, &tc_ast_visitor_after_for, visitor_context);
     ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, visitor_context);
     
-    isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
-    //S_prim = isl_union_map_compute_divs(S_prim);
-    S_prim = isl_union_map_remove_redundancies(S_prim);
-    S_prim = isl_union_map_coalesce(S_prim);
-    S_prim = isl_union_map_detect_equalities(S_prim);
+    //S = isl_union_map_compute_divs(S);
+    S = isl_union_map_remove_redundancies(S);
+    S = isl_union_map_coalesce(S);
+    S = isl_union_map_detect_equalities(S);
 
-    tc_debug_umap(S_prim, "S_prim");
+    tc_debug_umap(S, "S_prim");
 
     isl_printer* printer = isl_printer_to_str(ctx);    
     
@@ -68,7 +67,7 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
         ast_options = isl_ast_print_options_set_print_for(ast_options, &tc_for_decorator_omp_parallel_for_first, codegen_context);
     }
     
-    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S_prim);
+    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S);
     
     printer = tc_codegen_print_prologue(scop, options, printer);
     
@@ -106,7 +105,7 @@ void tc_codegen_omp_parallel_for(struct tc_scop* scop, struct tc_options* option
     tc_ast_visitor_context_free(visitor_context);
 }
 
-void tc_codegen_omp_task_for(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_map* S, __isl_take isl_set* tile, __isl_keep isl_id_list* iterators, __isl_keep isl_id_list* parallel_iterators, int nested)
+void tc_codegen_omp_task_for(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_map* S, __isl_keep isl_id_list* iterators, __isl_keep isl_id_list* parallel_iterators, int nested)
 {
     isl_ctx* ctx = isl_union_map_get_ctx(S);
     
@@ -121,8 +120,6 @@ void tc_codegen_omp_task_for(struct tc_scop* scop, struct tc_options* options, _
     visitor_context->annotations_stack = &annotations_stack;
     
     ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, visitor_context);
-
-    isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
             
     isl_printer* printer = isl_printer_to_str(ctx);    
     
@@ -144,7 +141,7 @@ void tc_codegen_omp_task_for(struct tc_scop* scop, struct tc_options* options, _
         ast_options = isl_ast_print_options_set_print_for(ast_options, &tc_for_decorator_omp_task_first, parallel_iterators);
     }
     
-    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S_prim);
+    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S);
 
     printer = tc_codegen_print_prologue(scop, options, printer);
     

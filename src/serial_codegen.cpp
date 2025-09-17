@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 
-void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_map* S, __isl_take isl_set* tile, __isl_keep isl_id_list* iterators)
+void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_take isl_union_map* S, __isl_keep isl_id_list* iterators)
 {
     isl_ctx* ctx = isl_union_map_get_ctx(S);
     
@@ -28,9 +28,7 @@ void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_t
     visitor_context->annotations_stack = &annotations_stack;
     
     ast_build = isl_ast_build_set_at_each_domain(ast_build, &tc_ast_visitor_at_each_domain, visitor_context);
-                
-    isl_union_map* S_prim = isl_union_map_intersect_range(S, isl_union_set_from_set(tile));
-            
+
     isl_printer* printer = isl_printer_to_str(ctx);
     
     printer = isl_printer_set_output_format(printer, ISL_FORMAT_C);
@@ -42,7 +40,7 @@ void tc_codegen_serial(struct tc_scop* scop, struct tc_options* options, __isl_t
         ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_codegen_print_user, NULL);
     }
 
-    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S_prim);
+    isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S);
     
     printer = tc_codegen_print_prologue(scop, options, printer);
     
