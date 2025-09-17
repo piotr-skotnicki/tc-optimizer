@@ -89,10 +89,8 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
 
     isl_set* tile;
     isl_set* ii_set;
-    //tc_tile_loop_nest(LD, S, II, I, &tile, &ii_set, blocks);
-    //tc_tile_loop_nest2(LD_unbounded, S, II, I, &tile, &ii_set, blocks);
-    //tc_tile_loop_nest3(LD, S, II, I, &tile, &ii_set, blocks);
-    tc_tile_normalized_loop_nest(LD_normalized, II, I, &tile, &ii_set, blocks);
+    //tc_tile_loop_nest(options, LD, S, II, I, &tile, &ii_set, blocks);
+    tc_tile_perfect_loop_nest(options, LD_normalized, II, I, &tile, &ii_set, blocks);
     //isl_set* tile_orig = isl_set_copy(tile);
     //isl_set* ii_set_orig = isl_set_copy(ii_set);
 

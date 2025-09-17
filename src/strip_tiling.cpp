@@ -67,7 +67,7 @@ void tc_algorithm_strip_tiling(struct tc_scop* scop, struct tc_options* options)
     isl_set* tile;
     isl_set* ii_set;
     
-    tc_tile_loop_nest(LD, S, II, I, &tile, &ii_set, blocks);
+    tc_tile_loop_nest(options, LD, S, II, I, &tile, &ii_set, blocks);
     
     tc_debug_set(tile, "TILE");
     tc_debug_set(ii_set, "II_SET");

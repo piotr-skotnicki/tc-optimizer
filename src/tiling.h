@@ -1,6 +1,8 @@
 #ifndef TC_TILING_H
 #define TC_TILING_H
 
+#include "options.h"
+
 #include <isl/id.h>
 #include <isl/set.h>
 #include <isl/map.h>
@@ -13,7 +15,13 @@
 
 __isl_give isl_set* tc_tile_set(__isl_keep isl_id_list* II, __isl_keep isl_id_list* I, const std::vector<int>& BLOCK, __isl_keep isl_set* set, __isl_keep isl_map* statement_schedule, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S);
 
+__isl_give isl_set* tc_tile_set_aligned(__isl_keep isl_id_list* II, __isl_keep isl_id_list* I, const std::vector<int>& BLOCK, __isl_keep isl_set* set, __isl_keep isl_map* statement_schedule, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S);
+
+__isl_give isl_set* tc_tile_set_perfect(__isl_keep isl_id_list* II, __isl_keep isl_id_list* I, const std::vector<int>& BLOCK, __isl_keep isl_set* set_normalized);
+
 __isl_give isl_set* tc_ii_set(__isl_keep isl_id_list* II, const std::vector<int>& BLOCK, __isl_keep isl_set* set, __isl_keep isl_map* tile_schedule, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S);
+
+__isl_give isl_set* tc_ii_set_from_tile(__isl_give isl_set* tile, __isl_keep isl_id_list* II);
 
 __isl_give isl_set* tc_tile_set_of(__isl_keep isl_set* set, __isl_keep isl_set* ii_set, __isl_keep isl_id_list* II, std::string(*f)(__isl_keep isl_id_list* lhs, __isl_keep isl_id_list* rhs));
 
@@ -39,16 +47,12 @@ __isl_give isl_map* tc_Incycles_map(__isl_keep isl_id_list* II, __isl_keep isl_s
 
 isl_bool tc_tile_check_vld(__isl_keep isl_set* tile, __isl_keep isl_set* ii_set, __isl_keep isl_id_list* II, __isl_keep isl_map* R_plus);
 
-void tc_tile_loop_nest(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tile, __isl_give isl_set** ii_set, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
+void tc_tile_loop_nest_unaligned(struct tc_options* options, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tile, __isl_give isl_set** ii_set, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
 
-void tc_tile_loop_nest2(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tiles, __isl_give isl_set** ii_sets, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
+void tc_tile_loop_nest_aligned(struct tc_options* options, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tile, __isl_give isl_set** ii_set, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
 
-void tc_tile_loop_nest3(__isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tiles, __isl_give isl_set** ii_sets, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
+void tc_tile_loop_nest(struct tc_options* options, __isl_keep isl_union_set* LD, __isl_keep isl_union_map* S, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tile, __isl_give isl_set** ii_set, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
 
-__isl_give isl_set* tc_ii_set_from_tile(__isl_give isl_set* tile, __isl_keep isl_id_list* II);
-
-__isl_give isl_set* tc_tile_normalized_set(__isl_keep isl_id_list* II, __isl_keep isl_id_list* I, const std::vector<int>& BLOCK, __isl_keep isl_set* set_normalized);
-
-void tc_tile_normalized_loop_nest(__isl_keep isl_set* LD_normalized, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tiles, __isl_give isl_set** ii_sets, const std::map<std::string, std::vector<int> >& blocks);
+void tc_tile_perfect_loop_nest(struct tc_options* options, __isl_keep isl_set* LD_normalized, __isl_keep isl_id_list* II, __isl_keep isl_id_list* I, __isl_give isl_set** tile, __isl_give isl_set** ii_set, const std::map<std::string, std::vector<int> >& blocks, const std::vector<std::vector<std::string> >& groups = std::vector<std::vector<std::string> >());
 
 #endif // TC_TILING_H

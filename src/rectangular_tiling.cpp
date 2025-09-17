@@ -42,15 +42,15 @@ void tc_algorithm_rectangular_tiling(struct tc_scop* scop, struct tc_options* op
             
     isl_id_list* I = tc_ids_sequence(ctx, "i", isl_space_dim(space, isl_dim_set));
     isl_id_list* II = tc_ids_sequence(ctx, "ii", isl_space_dim(space, isl_dim_set));
-                
+
     std::map<std::string, std::vector<int> > blocks = tc_options_blocks(options);
     
     std::vector<std::vector<std::string> > groups = tc_options_groups(options);
-        
+
     isl_set* tile;
     isl_set* ii_set;
     
-    tc_tile_loop_nest(LD, S, II, I, &tile, &ii_set, blocks, groups);
+    tc_tile_loop_nest(options, LD, S, II, I, &tile, &ii_set, blocks, groups);
     
     tc_debug_set(tile, "TILE");
     tc_debug_set(ii_set, "II_SET");

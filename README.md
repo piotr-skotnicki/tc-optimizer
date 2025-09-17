@@ -115,24 +115,21 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 ### Tiling:
 
 ```
---diamond-tiling             Diamond tiling for stencils
---semi-diamond-tiling        Diamond tiling without tile expansion
---strip-tiling               Iterative layer removal from stencils
 --rectangular-tiling         Classic hyper-rectangular tiling
 --correction-tiling          Correction of lexicographically smaller tiles
 --inv-correction-tiling      Correction of lexicographically greater tiles
 --scc-correction-tiling      Correction of strongly connected components
 --merge-tiling               Merging of strongly connected components
 --split-tiling               Splitting based on problematic iterations
+--diamond-tiling             Diamond tiling for stencils
+--semi-diamond-tiling        Diamond tiling without tile expansion
+--strip-tiling               Iterative layer removal from stencils
 ```
 
 ### Scheduling:
 
 ```
 --lex-scheduling               Lexicographic execution order
---isl-scheduling               Integer set library scheduler
---isl-wave-scheduling          Integer set library scheduler with wavefronting
---feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)
 --sfs-single-scheduling        Tiling of synchronization-free slices with single sources
 --sfs-multiple-scheduling      Tiling of synchronization-free slices with multiple sources
 --sfs-tile-scheduling          Tile-wise synchronization-free slices
@@ -140,6 +137,9 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 --free-rk-scheduling           Free scheduling based on R^k
 --free-finite-scheduling       Exact free scheduling for finite graphs
 --dynamic-free-scheduling      Dynamic free scheduling
+--isl-scheduling               Integer set library scheduler
+--isl-wave-scheduling          Integer set library scheduler with wavefronting
+--feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)
 ```
 
 ### Code generator:
@@ -170,6 +170,7 @@ tc <input.c> <tiling> <scheduling> <codegen> [<closure>] [<options>...]
 -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: 32)
 --out     | -o       Output file (default: stdout)
 --debug   | -d       Verbose mode
+--align              Align tile boundaries to space axes
 --report             Generate tile statistics report (use -R for each parameter)
 --[no]inline         Inline loop bound expressions (enabled by default)
 -D <name>=<value>    Define parameter value, e.g. -D M=2000 -D N=2600
@@ -189,6 +190,7 @@ Examples
 ./tc ../examples/pluto/heat-1d.scop.c --semi-diamond-tiling --omp-for-codegen --iterative-tc -b 128 --debug --inline --drop-bounds
 ./tc ../examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -y -b S1:16 -b S2:16,8 -b S3:16 --debug
 ./tc ../examples/polybench/mvt.scop.c --rectangular-tiling --lex-scheduling --serial-codegen -b 32 --report -R _PB_N=128
+./tc ../examples/polybench/bicg.scop.c --rectangular-tiling --sfs-tile-scheduling --omp-for-codegen --floyd-warshall-tc --align --debug -b 32
 ```
 
 User guide

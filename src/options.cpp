@@ -27,23 +27,20 @@ void tc_options_help()
         "\n"
         " Tiling:\n"
         "\n"
-        "    --diamond-tiling             Diamond tiling for stencils\n"
-        "    --semi-diamond-tiling        Diamond tiling without tile expansion\n"
-        "    --strip-tiling               Iterative layer removal from stencils\n"
         "    --rectangular-tiling         Classic hyper-rectangular tiling\n"
         "    --correction-tiling          Correction of lexicographically smaller tiles\n"
         "    --inv-correction-tiling      Correction of lexicographically greater tiles\n"
         "    --scc-correction-tiling      Correction of strongly connected components\n"
         "    --merge-tiling               Merging of strongly connected components\n"
         "    --split-tiling               Splitting based on problematic iterations\n"
+        "    --diamond-tiling             Diamond tiling for stencils\n"
+        "    --semi-diamond-tiling        Diamond tiling without tile expansion\n"
+        "    --strip-tiling               Iterative layer removal from stencils\n"
         //"    --mod-correction-inv-tiling  Tiling with GT cyclic tiles correction\n"
         "\n"
         " Scheduling:\n"
         "\n"
         "    --lex-scheduling               Lexicographic execution order\n"
-        "    --isl-scheduling               Integer set library scheduler\n"
-        "    --isl-wave-scheduling          Integer set library scheduler with wavefronting\n"
-        "    --feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)\n"
         "    --sfs-single-scheduling        Tiling of synchronization-free slices with single sources\n"
         "    --sfs-multiple-scheduling      Tiling of synchronization-free slices with multiple sources\n"
         "    --sfs-tile-scheduling          Tile-wise synchronization-free slices\n"
@@ -51,6 +48,9 @@ void tc_options_help()
         "    --free-rk-scheduling           Free scheduling based on R^k\n"
         "    --free-finite-scheduling       Exact free scheduling for finite graphs\n"
         "    --dynamic-free-scheduling      Dynamic free scheduling\n"
+        "    --isl-scheduling               Integer set library scheduler\n"
+        "    --isl-wave-scheduling          Integer set library scheduler with wavefronting\n"
+        "    --feautrier-scheduling         Integer set library scheduler (Feautrier scheduling)\n"
         "\n"
         " Code generator:\n"
         "\n"
@@ -75,6 +75,7 @@ void tc_options_help()
         "    -b <value>           Tile size, e.g. -b 256 -b S1:128,128 (default: " TC_STR(TC_CONF_DEFAULT_TILE_SIZE) ")\n"
         "    --out     | -o       Output file (default: stdout)\n"
         "    --debug   | -d       Verbose mode\n"
+        "    --align              Align tile boundaries to space axes\n"
         "    --report             Generate tile statistics report (use -R for each parameter)\n"
         //"    --time               Measure calculations time\n"
         "    --[no]inline         Inline loop bound expressions (enabled by default)\n"
@@ -91,6 +92,7 @@ void tc_options_help()
         "    ./tc ../examples/pluto/heat-1d.scop.c --semi-diamond-tiling --omp-for-codegen --iterative-tc -b 128 --debug --inline --drop-bounds\n"
         "    ./tc ../examples/polybench/trisolv.scop.c --merge-tiling --free-scheduling --omp-task-codegen -y -b S1:16 -b S2:16,8 -b S3:16 --debug\n"
         "    ./tc ../examples/polybench/mvt.scop.c --rectangular-tiling --lex-scheduling --serial-codegen -b 32 --report -R _PB_N=128\n"
+        "    ./tc ../examples/polybench/bicg.scop.c --rectangular-tiling --sfs-tile-scheduling --omp-for-codegen --floyd-warshall-tc --align --debug -b 32\n"
         "\n"
     );
 }
@@ -643,7 +645,7 @@ void tc_options_check_spelling(struct tc_options* options)
         "--lex-scheduling", "--isl-scheduling", "--isl-wave-scheduling", "--feautrier-scheduling", "--sfs-tile-scheduling", "--sfs-single-scheduling", "--sfs-multiple-scheduling", "--free-scheduling", "--free-rk-scheduling", "--free-finite-scheduling", "--dynamic-free-scheduling",
         "--serial-codegen", "--omp-for-codegen", "--omp-task-codegen", "--omp-gpu-codegen",
         "--isl-map-tc", "--isl-union-map-tc", "--floyd-warshall-tc", "--iterative-tc", "--omega-map-tc", "--omega-union-map-tc", "--tarjan-tc", "--select-tc",
-        "-b", "-R", "--report", "--cache", "-d", "--debug", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", "--noinline", /*"--time", */"--use-macros",
+        "-b", "-R", "--report", "--cache", "-d", "--debug", "--align", "-D", "--version", "-v", "--help", "-h", /*"--braces", */"--inline", "--noinline", /*"--time", */"--use-macros",
         "-g", "--out", "-o",
         "-m", "--max",
         "-y", "--yes",
