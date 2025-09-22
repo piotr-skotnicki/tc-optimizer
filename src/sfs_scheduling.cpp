@@ -52,8 +52,6 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     
     tc_debug_set_card(repr_ind, "REPR_IND");
 
-    isl_map* repr_ind_map = tc_make_identity_from_set(isl_set_copy(repr_ind));
-
     repr_ind = tc_parameterize_all(repr_ind, II);
 
     isl_bool exact = isl_bool_false;
@@ -69,27 +67,20 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
 
     isl_map* Rusc_star = NULL;
 
-    // SFS = R*(REPR_IND)
     if (isl_map_is_empty(Rusc))
     {
-        Rusc_star = repr_ind_map;
+        // R_USC*(REPR_IND) = R_USC^0(REPR_IND)
+        Rusc_star = tc_make_identity_from_set(isl_set_copy(repr_ind));
+        Rusc_star = isl_map_coalesce(Rusc_star);
     }
     else
     {
-        isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
-
-        Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
+        // R_USC*(REPR_IND) = R_USC(REPR_IND) + R_USC^0(REPR_IND)
+        Rusc_star = isl_map_union(isl_map_copy(Rusc), tc_make_identity(isl_map_copy(Rusc)));
         Rusc_star = isl_map_coalesce(Rusc_star);
-
-        tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
-
-        if (exact != isl_bool_true)
-        {
-            tc_warn("Inexact R_USC*. The results can be non-optimal. Restart TC with a different transitive closure method.");
-        }
-
-        Rusc_star = isl_map_union(Rusc_star, repr_ind_map);
     }
+
+    tc_debug_map(Rusc_star, "R_USC*");
 
     // SFS = R*(R_USC*(REPR_IND))
     isl_set* sfs = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), isl_map_copy(Rtile_star));
@@ -201,33 +192,24 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     
     tc_debug_set_card(repr_ind, "REPR_IND");
 
-    isl_map* repr_ind_map = tc_make_identity_from_set(isl_set_copy(repr_ind));
-    
     repr_ind = tc_parameterize_all(repr_ind, IR);
 
     isl_map* Rusc_star = NULL;
 
-    // SFS = R∗(REPR_IND)
     if (isl_map_is_empty(Rusc) == isl_bool_true)
     {
-        Rusc_star = repr_ind_map;
+        // R_USC*(REPR_IND) = R_USC^0(REPR_IND)
+        Rusc_star = tc_make_identity_from_set(isl_set_copy(repr_ind));
+        Rusc_star = isl_map_coalesce(Rusc_star);
     }
     else
     {
-        isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
-
-        Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
+        // R_USC*(REPR_IND) = R_USC(REPR_IND) + R_USC^0(REPR_IND)
+        Rusc_star = isl_map_union(isl_map_copy(Rusc), tc_make_identity(isl_map_copy(Rusc)));
         Rusc_star = isl_map_coalesce(Rusc_star);
-
-        tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
-
-        if (exact != isl_bool_true)
-        {
-            tc_warn("Inexact R_USC*. The results can be non-optimal. Restart TC with a different transitive closure method.");
-        }
-
-        Rusc_star = isl_map_union(Rusc_star, repr_ind_map);
     }
+
+    tc_debug_map(Rusc_star, "R_USC*");
 
     // SFS = R∗(R_USC∗(REPR_IND))
     isl_set* sfs = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), R_star_normalized);
@@ -360,33 +342,24 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     
     tc_debug_set_card(repr_ind, "REPR_IND");
 
-    isl_map* repr_ind_map = tc_make_identity_from_set(isl_set_copy(repr_ind));
-
     repr_ind = tc_parameterize_all(repr_ind, IR);
 
     isl_map* Rusc_star = NULL;
 
-    // SFS = R∗(REPR_IND)
     if (isl_map_is_empty(Rusc) == isl_bool_true)
     {
-        Rusc_star = repr_ind_map;
+        // R_USC*(REPR_IND) = R_USC^0(REPR_IND)
+        Rusc_star = tc_make_identity_from_set(isl_set_copy(repr_ind));
+        Rusc_star = isl_map_coalesce(Rusc_star);
     }
     else
     {
-        isl_map* Rusc_plus = tc_transitive_closure(isl_map_copy(Rusc), S, &exact);
-
-        Rusc_star = isl_map_union(Rusc_plus, tc_make_identity(isl_map_copy(Rusc)));
+        // R_USC*(REPR_IND) = R_USC(REPR_IND) + R_USC^0(REPR_IND)
+        Rusc_star = isl_map_union(isl_map_copy(Rusc), tc_make_identity(isl_map_copy(Rusc)));
         Rusc_star = isl_map_coalesce(Rusc_star);
-
-        tc_debug_map(Rusc_star, "R_USC* (exact=%d)", exact);
-
-        if (exact != isl_bool_true)
-        {
-            tc_warn("Inexact R_USC*. The results can be non-optimal. Restart TC with a different transitive closure method.");
-        }
-
-        Rusc_star = isl_map_union(Rusc_star, repr_ind_map);
     }
+
+    tc_debug_map(Rusc_star, "R_USC*");
 
     // SFS = R∗(R_USC∗(REPR_IND))
     isl_set* sfs = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), R_star_normalized);
