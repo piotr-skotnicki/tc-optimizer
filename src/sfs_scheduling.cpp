@@ -80,30 +80,43 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
 
     tc_debug_map(Rusc_star, "R_USC*");
 
-    repr_ind = tc_parameterize_all(repr_ind, II);
+    isl_id_list* IIR = tc_ids_sequence(ctx, "iir", isl_id_list_n_id(II));
 
-    // SFS = R*(R_USC*(REPR_IND))
-    isl_set* sfs = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), isl_map_copy(Rtile_star));
-    sfs = isl_set_coalesce(sfs);
+    repr_ind = tc_parameterize_all(repr_ind, IIR);
 
-    tc_debug_set(sfs, "SFS");
+    // SLICE = R*(R_USC*(REPR_IND))
+    isl_set* slice = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), isl_map_copy(Rtile_star));
+    slice = isl_set_coalesce(slice);
+
+    tc_debug_set(slice, "SLICE");
     
-    sfs = tc_lift_up_set_params(sfs, II);
+    isl_id_list* IIR_II = isl_id_list_concat(isl_id_list_copy(IIR), isl_id_list_copy(II));
+    isl_id_list* IIR_II_I = isl_id_list_concat(isl_id_list_copy(IIR_II), isl_id_list_copy(I));
+
+    // T_SLICE = { [II] -> [IIR] | IIR in REPR_IND and II in SLICE(IIR) }
+
+    isl_set* Tslice = tc_make_set_constraints(isl_set_copy(slice), II);
+    tc_debug_set(Tslice, "T_SLICE");
+
+    // TILE_EXT = { [IIR, II, I] | II in II_SET and IIR = T_SLICE(II) and I in TILE(II) }
+
+    isl_set* tile_ext = tc_make_set(ctx, IIR_II_I, I, "");
+    tile_ext = isl_set_intersect(tile_ext, isl_set_copy(tile));
+    tile_ext = isl_set_intersect_params(tile_ext, Tslice);
     
-    tile = tc_lift_up_set_params(tile, II);
-    
-    sfs = isl_set_add_dims(sfs, isl_dim_set, isl_id_list_n_id(II));
-    tile = isl_set_insert_dims(tile, isl_dim_set, 0, isl_id_list_n_id(II));
-    
-    isl_set* tile_ext = isl_set_intersect(isl_set_copy(sfs), isl_set_copy(tile));
+    tile_ext = tc_lift_up_set_params(tile_ext, II);
+    tile_ext = tc_lift_up_set_params(tile_ext, IIR);
+
+    tile_ext = tc_project_out_params(tile_ext, IIR_II_I);
     tile_ext = isl_set_coalesce(tile_ext);
     
-    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), 2 * isl_id_list_n_id(II));
-    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
+    tc_debug_set(tile_ext, "TILE_EXT");
     
-    isl_id_list* IR = tc_ids_sequence(ctx, "ir", isl_id_list_n_id(II));
-    isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(IR), isl_id_list_copy(II)), isl_id_list_copy(I));
-                
+    isl_union_map* S_prim = tc_extend_schedule(isl_union_map_copy(S), isl_id_list_n_id(IIR) + isl_id_list_n_id(II));
+    S_prim = isl_union_map_intersect_range(S_prim, isl_union_set_from_set(tile_ext));
+
+    isl_id_list* iterators = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(IIR), isl_id_list_copy(II)), isl_id_list_copy(I));
+
     enum tc_codegen_enum codegen = tc_options_codegen(options);
     
     if (tc_codegen_enum_serial == codegen)
@@ -112,15 +125,15 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     }
     else if (tc_codegen_enum_omp_cpu_for == codegen)
     {
-        tc_codegen_omp_parallel_for(scop, options, S_prim, iterators, IR, 0);
+        tc_codegen_omp_parallel_for(scop, options, S_prim, iterators, IIR, 0);
     }
     else if (tc_codegen_enum_omp_cpu_task == codegen)
     {
-        tc_codegen_omp_task_for(scop, options, S_prim, iterators, IR, 0);
+        tc_codegen_omp_task_for(scop, options, S_prim, iterators, IIR, 0);
     }
     else if (tc_codegen_enum_omp_gpu == codegen)
     {
-        tc_codegen_omp_gpu(scop, options, S_prim, iterators, IR);
+        tc_codegen_omp_gpu(scop, options, S_prim, iterators, IIR);
     }
 
     isl_map_free(Rtile);
@@ -129,11 +142,13 @@ void tc_scheduling_sfs_tiles(struct tc_scop* scop, struct tc_options* options, _
     isl_map_free(Rusc);
     isl_set_free(tile);
     isl_set_free(ii_set);
-    isl_set_free(sfs);
+    isl_set_free(slice);
     isl_union_set_free(LD);
     isl_union_map_free(S);
     isl_union_map_free(R);
-    isl_id_list_free(IR);
+    isl_id_list_free(IIR);
+    isl_id_list_free(IIR_II);
+    isl_id_list_free(IIR_II_I);
     isl_id_list_free(iterators);
     isl_id_list_free(II);
     isl_id_list_free(I);
@@ -165,8 +180,6 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     {
         tc_warn("Inexact R*. The results can be non-optimal. Restart TC with a different transitive closure method.");
     }
-
-    isl_id_list* IR = tc_ids_sequence(ctx, "ir", isl_set_n_dim(tile));
     
     isl_set* uds = tc_uds_set(R_normalized);
     
@@ -209,33 +222,34 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
 
     tc_debug_map(Rusc_star, "R_USC*");
 
+    isl_id_list* IR = tc_ids_sequence(ctx, "ir", isl_set_n_dim(tile));
     repr_ind = tc_parameterize_all(repr_ind, IR);
 
-    // SFS = R∗(R_USC∗(REPR_IND))
-    isl_set* sfs = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), R_star_normalized);
-    sfs = isl_set_coalesce(sfs);
+    // SLICE = R∗(R_USC∗(REPR_IND))
+    isl_set* slice = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), R_star_normalized);
+    slice = isl_set_coalesce(slice);
 
-    tc_debug_set(sfs, "SFS");
+    tc_debug_set(slice, "SLICE");
 
     isl_id_list* IR_II = isl_id_list_concat(isl_id_list_copy(IR), isl_id_list_copy(II));
     isl_id_list* IR_II_I = isl_id_list_concat(isl_id_list_copy(IR_II), isl_id_list_copy(I));
 
-    // S_SLICE = { [I] -> [IR] | I in SFS(IR) and IR in REPR_IND }
+    // I_SLICE = { [I] -> [IR] | IR in REPR_IND and I in SLICE(IR) }
 
-    isl_set* Sslice = tc_make_set_constraints(isl_set_copy(sfs), I);
-    tc_debug_set(Sslice, "Sslice");
+    isl_set* Islice = tc_make_set_constraints(isl_set_copy(slice), I);
+    tc_debug_set(Islice, "I_SLICE");
 
-    // S_TILE = { [I] -> [II] | I in TILE(II) and II in II_SET }
+    // I_TILE = { [I] -> [II] | II in II_SET and I in TILE(II) }
 
-    isl_set* Stile = tc_make_set_constraints(isl_set_copy(tile), I);
-    tc_debug_set(Stile, "Stile");
+    isl_set* Itile = tc_make_set_constraints(isl_set_copy(tile), I);
+    tc_debug_set(Itile, "I_TILE");
     
-    // TILE_EXT = { [IR, II, I] | IR = S_SLICE(I) and II in S_TILE(I) }
+    // TILE_EXT = { [IR, II, I] | I in LD and IR = S_SLICE(I) and II in S_TILE(I) }
 
     isl_set* tile_ext = tc_make_set(ctx, IR_II_I, I, "");
     tile_ext = isl_set_intersect(tile_ext, isl_set_copy(tile));
-    tile_ext = isl_set_intersect_params(tile_ext, Sslice);
-    tile_ext = isl_set_intersect_params(tile_ext, Stile);
+    tile_ext = isl_set_intersect_params(tile_ext, Islice);
+    tile_ext = isl_set_intersect_params(tile_ext, Itile);
     
     tile_ext = tc_lift_up_set_params(tile_ext, II);
     tile_ext = tc_lift_up_set_params(tile_ext, IR);
@@ -281,7 +295,7 @@ void tc_scheduling_sfs_single(struct tc_scop* scop, struct tc_options* options, 
     isl_map_free(R_plus_normalized);
     isl_set_free(tile);
     isl_set_free(ii_set);
-    isl_set_free(sfs);
+    isl_set_free(slice);
     isl_union_set_free(LD);
     isl_union_map_free(S);
     isl_union_map_free(R);
@@ -314,10 +328,7 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     {
         tc_warn("Inexact R*. The results can be non-optimal. Restart TC with a different transitive closure method.");
     }
-    
-    isl_id_list* IR = tc_ids_sequence(ctx, "ir", isl_set_n_dim(tile));
-    isl_id_list* IIR = tc_ids_sequence(ctx, "iir", isl_set_n_dim(tile));
-    
+
     isl_set* uds = tc_uds_set(R_normalized);
     
     tc_debug_set(uds, "UDS");
@@ -359,39 +370,42 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
 
     tc_debug_map(Rusc_star, "R_USC*");
 
+    isl_id_list* IR = tc_ids_sequence(ctx, "ir", isl_set_n_dim(tile));
+    isl_id_list* IIR = tc_ids_sequence(ctx, "iir", isl_set_n_dim(tile));
+
     repr_ind = tc_parameterize_all(repr_ind, IR);
 
-    // SFS = R∗(R_USC∗(REPR_IND))
-    isl_set* sfs = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), R_star_normalized);
-    sfs = isl_set_coalesce(sfs);
+    // SLICE = R∗(R_USC∗(REPR_IND))
+    isl_set* slice = isl_set_apply(isl_set_apply(repr_ind, Rusc_star), R_star_normalized);
+    slice = isl_set_coalesce(slice);
 
-    tc_debug_set(sfs, "SFS");
+    tc_debug_set(slice, "SLICE");
 
     isl_id_list* IIR_II = isl_id_list_concat(isl_id_list_copy(IIR), isl_id_list_copy(II));
     isl_id_list* IIR_II_I = isl_id_list_concat(isl_id_list_copy(IIR_II), isl_id_list_copy(I));
     isl_id_list* IR_IIR_II_I = isl_id_list_concat(isl_id_list_copy(IR), isl_id_list_copy(IIR_II_I));
 
-    // S_SLICE = { [I] -> [IR] | I in SFS(IR) and IR in REPR_IND }
+    // I_SLICE = { [I] -> [IR] | IR in REPR_IND and I in SLICE(IR) }
 
-    isl_set* Sslice = tc_make_set_constraints(isl_set_copy(sfs), I);
-    tc_debug_set(Sslice, "Sslice");
+    isl_set* Islice = tc_make_set_constraints(isl_set_copy(slice), I);
+    tc_debug_set(Islice, "I_SLICE");
 
-    // S_TILE = { [I] -> [II] | I in TILE(II) and II in II_SET }
+    // I_TILE = { [I] -> [II] | II in II_SET and I in TILE(II) }
 
-    isl_set* Stile_ii_i = tc_make_set_constraints(isl_set_copy(tile), I);
-    tc_debug_set(Stile_ii_i, "Stile");
+    isl_set* Itile_ii_i = tc_make_set_constraints(isl_set_copy(tile), I);
+    tc_debug_set(Itile_ii_i, "I_TILE");
 
-    isl_set* Stile_iir_ir = tc_make_set_constraints(isl_set_copy(tile), I);
-    Stile_iir_ir = tc_rename_params(Stile_iir_ir, II, IIR);
-    Stile_iir_ir = tc_rename_params(Stile_iir_ir, I, IR);
+    isl_set* Itile_iir_ir = tc_make_set_constraints(isl_set_copy(tile), I);
+    Itile_iir_ir = tc_rename_params(Itile_iir_ir, II, IIR);
+    Itile_iir_ir = tc_rename_params(Itile_iir_ir, I, IR);
 
-    // TILE_EXT = [IR] -> { [IIR, II, I] | IIR = S_TILE(IR) and IR = S_SLICE(I) and II in S_TILE(I) }
+    // TILE_EXT = [IR] -> { [IIR, II, I] | I in LD and IR = I_SLICE(I) and IIR = I_TILE(IR) and II in I_TILE(I) }
 
     isl_set* tile_ext = tc_make_set(ctx, IR_IIR_II_I, I, "");
     tile_ext = isl_set_intersect(tile_ext, isl_set_copy(tile));
-    tile_ext = isl_set_intersect_params(tile_ext, Sslice);
-    tile_ext = isl_set_intersect_params(tile_ext, Stile_ii_i);
-    tile_ext = isl_set_intersect_params(tile_ext, Stile_iir_ir);
+    tile_ext = isl_set_intersect_params(tile_ext, Islice);
+    tile_ext = isl_set_intersect_params(tile_ext, Itile_ii_i);
+    tile_ext = isl_set_intersect_params(tile_ext, Itile_iir_ir);
 
     tile_ext = tc_lift_up_set_params(tile_ext, II);
     tile_ext = tc_lift_up_set_params(tile_ext, IIR);
@@ -439,7 +453,7 @@ void tc_scheduling_sfs_multiple(struct tc_scop* scop, struct tc_options* options
     isl_map_free(R_plus_normalized);
     isl_set_free(tile);
     isl_set_free(ii_set);
-    isl_set_free(sfs);
+    isl_set_free(slice);
     isl_union_set_free(LD);
     isl_union_map_free(S);
     isl_union_map_free(R);
