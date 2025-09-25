@@ -309,6 +309,22 @@ West Pomeranian University of Technology \
 Faculty of Computer Science and Information Technology \
 ul. Zolnierska 49, 71-210 Szczecin, Poland
 
+Citation
+--------
+
+```bibtex
+@article{skotnicki2025tc,
+    title = {{TC}: Optimizing compiler},
+    author = {Piotr Skotnicki},
+    journal = {SoftwareX},
+    volume = {32},
+    publisher = {Elsevier},
+    year = {2025},
+    doi = {10.1016/j.softx.2025.102351},
+    issn = {2352-7110}
+}
+```
+
 References
 ----------
 

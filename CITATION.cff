@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Skotnicki
+      given-names: Piotr
+      orcid: 0000-0001-9105-911X
+  title: "TC: Optimizing compiler"
+  journal: SoftwareX
+  volume: 32
+  publisher: Elsevier
+  year: 2025
+  doi: 10.1016/j.softx.2025.102351
