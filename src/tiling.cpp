@@ -398,7 +398,7 @@ __isl_give isl_map* tc_Rtile_map(__isl_keep isl_id_list* II, __isl_keep isl_set*
     
     isl_id_list* Iprim_Ibis_IIprim_IIbis = isl_id_list_concat(isl_id_list_concat(isl_id_list_copy(Iprim), isl_id_list_copy(Ibis)), isl_id_list_concat(isl_id_list_copy(IIprim), isl_id_list_copy(IIbis)));
 
-    isl_map* Rtile = tc_make_map(ctx, Iprim_Ibis_IIprim_IIbis, IIprim, IIbis, "");
+    isl_map* Rtile = tc_make_map(ctx, Iprim_Ibis_IIprim_IIbis, IIprim, IIbis, tc_tuples_neq(IIprim, IIbis).c_str());
     
     isl_set* R_constraints = tc_make_map_constraints(isl_map_copy(R), Iprim, Ibis);
     
@@ -414,8 +414,6 @@ __isl_give isl_map* tc_Rtile_map(__isl_keep isl_id_list* II, __isl_keep isl_set*
     
     Rtile = tc_map_project_out_params(Rtile, Iprim_Ibis_IIprim_IIbis);
     
-    Rtile = isl_map_subtract(Rtile, tc_make_identity(isl_map_copy(Rtile)));
-        
     Rtile = isl_map_coalesce(Rtile);
     
     isl_id_list_free(I);
