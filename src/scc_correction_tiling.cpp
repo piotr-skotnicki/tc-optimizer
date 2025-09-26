@@ -55,7 +55,7 @@ void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options*
             
     isl_id_list* I = tc_ids_sequence(ctx, "i", isl_space_dim(space, isl_dim_set));
     isl_id_list* II = tc_ids_sequence(ctx, "ii", isl_space_dim(space, isl_dim_set));
-            
+
     std::map<std::string, std::vector<int> > blocks = tc_options_blocks(options);
     
     std::vector<std::vector<std::string> > groups = tc_options_groups(options);
@@ -73,7 +73,7 @@ void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options*
     
     isl_bool exact = isl_bool_false;
     isl_map* R_plus_normalized = tc_transitive_closure(isl_map_copy(R_normalized), S, &exact);
-        
+
     tc_debug_map(R_plus_normalized, "R^+ (exact=%d)", exact);
 
     if (exact != isl_bool_true)
@@ -89,11 +89,7 @@ void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options*
     tc_debug_map(Rtile, "R_TILE");
 
     isl_map* Rtile_plus = tc_transitive_closure(isl_map_copy(Rtile), S, &exact);
-    //isl_map* Rtile_plus = tc_transitive_closure_adapter_isl_map(isl_map_copy(Rtile), S, &exact);
-    //isl_map* Rtile_plus = tc_transitive_closure_adapter_isl_union_map(isl_map_copy(Rtile), S, &exact);
-    //isl_map* Rtile_plus = tc_transitive_closure_adapter_iterative(isl_map_copy(Rtile), S, &exact);
-    //isl_map* Rtile_plus = tc_transitive_closure_adapter_floyd_warshall(isl_map_copy(Rtile), S, &exact);    
-    
+
     Rtile_plus = isl_map_coalesce(Rtile_plus);    
     tc_debug_map(Rtile_plus, "R_TILE^+ (exact=%d)", exact);
 
@@ -110,70 +106,67 @@ void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options*
     Tcycle = isl_map_coalesce(Tcycle);
     tc_debug_map(Tcycle, "T_CYCLE");
 
-    isl_set* Incycles = isl_set_union(isl_map_domain(isl_map_copy(Tcycle)), isl_map_range(isl_map_copy(Tcycle)));
-    Incycles = isl_set_coalesce(Incycles);
-    
-    isl_map_free(Tcycle);
-
-    // II_SET_A = II_SET - IN_CYCLES
-    isl_set* ii_set_a = isl_set_subtract(isl_set_copy(ii_set), isl_set_copy(Incycles));
-    tc_debug_set(ii_set_a, "II_SET_A");
-
-    isl_set* tile_a = isl_set_intersect_params(isl_set_copy(tile), tc_make_set_constraints(isl_set_copy(ii_set_a), II));
-    tile_a = isl_set_coalesce(tile_a);
-    tc_debug_set(tile_a, "TILE_A");
-
-    // II_SET_C = II_SET * IN_CYCLES
-    isl_set* ii_set_c = isl_set_copy(Incycles);
-    //isl_set* ii_set_c = isl_set_union(isl_map_domain(isl_map_copy(Incycles)), isl_map_range(isl_map_copy(Incycles)));
-    tc_debug_set(ii_set_c, "II_SET_C");
-
-    isl_set* tile_c = isl_set_intersect_params(isl_set_copy(tile), tc_make_set_constraints(isl_set_copy(ii_set_c), II));
-    tile_c = isl_set_coalesce(tile_c);
-    tc_debug_set(tile_c, "TILE_C");
-    
     // CORRECTION
 
-    isl_set* tile_lt = tc_tile_lt_set(tile_c, ii_set_c, II);
-    isl_set* tile_gt = tc_tile_gt_set(tile_c, ii_set_c, II);
-    
-    tc_debug_set(tile_lt, "TILE_LT");
-    
-    tc_debug_set(tile_gt, "TILE_GT");
+    isl_id_list* JJ = tc_ids_sequence(ctx, "jj", isl_space_dim(space, isl_dim_set));
+    isl_id_list* II_JJ = isl_id_list_concat(isl_id_list_copy(II), isl_id_list_copy(JJ));
 
-    // TILE_ITL = R+(TILE) * TILE_LT
-    isl_set* tile_itl = isl_set_apply(isl_set_copy(tile_c), isl_map_copy(R_plus_normalized));
+    // TILE_C_LT = [II] -> { [I] | exists JJ: II,JJ in II_SET and I in TILE(JJ) and II in T_CYCLE(JJ) }
+    // TILE_C_GT = [II] -> { [I] | exists JJ: II,JJ in II_SET and I in TILE(JJ) and JJ in T_CYCLE(II) }
+
+    isl_set* Tcycle_II_JJ = tc_make_map_constraints(isl_map_copy(Tcycle), II, JJ);
+    isl_set* Tcycle_JJ_II = tc_make_map_constraints(isl_map_copy(Tcycle), JJ, II);
+
+    isl_set* ii_set_constraints = tc_make_set_constraints(isl_set_copy(ii_set), II);
+    isl_set* ii_set_constraints_JJ = tc_make_set_constraints(isl_set_copy(ii_set), JJ);
+
+    isl_set* tile_JJ = tc_rename_params(isl_set_copy(tile), II, JJ);
+
+    isl_set* tile_lt = tc_make_set(ctx, II_JJ, I, NULL);
+    tile_lt = isl_set_intersect_params(tile_lt, isl_set_copy(ii_set_constraints));
+    tile_lt = isl_set_intersect_params(tile_lt, isl_set_copy(ii_set_constraints_JJ));
+    tile_lt = isl_set_intersect_params(tile_lt, Tcycle_JJ_II);
+    tile_lt = isl_set_intersect(tile_lt, isl_set_copy(tile_JJ));
+    tile_lt = tc_project_out_params(tile_lt, JJ);
+    tile_lt = isl_set_coalesce(tile_lt);
+
+    isl_set* tile_gt = tc_make_set(ctx, II_JJ, I, NULL);
+    tile_gt = isl_set_intersect_params(tile_gt, ii_set_constraints);
+    tile_gt = isl_set_intersect_params(tile_gt, ii_set_constraints_JJ);
+    tile_gt = isl_set_intersect_params(tile_gt, Tcycle_II_JJ);
+    tile_gt = isl_set_intersect(tile_gt, tile_JJ);
+    tile_gt = tc_project_out_params(tile_gt, JJ);
+    tile_gt = isl_set_coalesce(tile_gt);
+
+    tc_debug_set(tile_lt, "TILE_LT_SCC");
+    
+    tc_debug_set(tile_gt, "TILE_GT_SCC");
+
+    // TILE_ITL = R+(TILE) * TILE_LT_SCC
+    isl_set* tile_itl = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_plus_normalized));
     tile_itl = isl_set_intersect(tile_itl, isl_set_copy(tile_lt));
     tile_itl = isl_set_coalesce(tile_itl);
 
     tc_debug_set(tile_itl, "TILE_ITL");
 
-    // TILE_CORR = TILE + TILE_ITL - R+(TILE_GT)
-    isl_set* tile_corr = isl_set_union(isl_set_copy(tile_c), tile_itl);
+    // TILE_CORR = TILE + TILE_ITL - R+(TILE_GT_SCC)
+    isl_set* tile_corr = isl_set_union(isl_set_copy(tile), tile_itl);
     tile_corr = isl_set_subtract(tile_corr, isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)));
     tile_corr = isl_set_coalesce(tile_corr);
 
-    tc_debug_set(tile_corr, "TILE_CORR");
+    tc_debug_set(tile_corr, "TILE_CORR_SCC");
 
     // CORRECTION END
 
-    isl_set* tile_mc = isl_set_union(tile_a, tile_corr);
-    isl_set* ii_set_mc = isl_set_union(ii_set_a, ii_set_c);
-    //isl_set* ii_set_mc = tc_lift_up_set_params(isl_set_params(isl_set_copy(tile_mc)), II);
+    tc_debug_set(ii_set, "II_SET_SCC");
 
-    tile_mc = isl_set_coalesce(tile_mc);
-    ii_set_mc = isl_set_coalesce(ii_set_mc);
-
-    tc_debug_set(tile_mc, "TILE_MC");
-    tc_debug_set(ii_set_mc, "II_SET_MC");
-
-    tc_debug_bool(isl_set_is_equal(tile, tile_mc), "TILE = TILE_MC");
+    tc_debug_bool(isl_set_is_equal(tile, tile_corr), "TILE = TILE_CORR_SCC");
 
     if (tc_options_is_report(options))
     {
         isl_set* bounds = tc_options_get_report_bounds(options, ctx);
         
-        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_mc, ii_set_mc, II, bounds, LD, S, scop->reads, scop->writes, scop, options, blocks);
+        struct tc_tile_statistics* stats = tc_compute_tile_statistics(tile_corr, ii_set, II, bounds, LD, S, scop->reads, scop->writes, scop, options, blocks);
         
         tc_tile_statistics_print(options->output, stats);
         
@@ -182,23 +175,23 @@ void tc_algorithm_scc_correction_tiling(struct tc_scop* scop, struct tc_options*
         isl_set_free(bounds);
     }
 
-    isl_map* Rtile_mc = tc_Rtile_map(II, tile_mc, R_normalized);
-    tc_debug_map(Rtile_mc, "R_TILE_MC");
+    isl_map* Rtile_corr_scc = tc_Rtile_map(II, tile_corr, R_normalized);
+    tc_debug_map(Rtile_corr_scc, "R_TILE_CORR_SCC");
 
-    tc_scheduling(scop, options, LD, S, R, ii_set_mc, tile_mc, Rtile_mc, II, I);
-
-    isl_set_free(tile_c);
+    tc_scheduling(scop, options, LD, S, R, ii_set, tile_corr, Rtile_corr_scc, II, I);
 
     isl_set_free(tile_lt);
     isl_set_free(tile_gt);
 
     isl_set_free(tile);
-    isl_set_free(ii_set);
 
     isl_map_free(Rtile);
     isl_map_free(Rtile_plus);
 
-    isl_set_free(Incycles);
+    isl_map_free(Tcycle);
+
+    isl_id_list_free(JJ);
+    isl_id_list_free(II_JJ);
 
     isl_map_free(R_normalized);
     isl_map_free(R_plus_normalized);
