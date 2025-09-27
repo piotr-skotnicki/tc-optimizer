@@ -207,6 +207,12 @@ int main(int argc, char* argv[])
                 }
                 break;
 
+                case tc_scheduling_enum_free_finite:
+                {
+                    tc_scheduling = &tc_scheduling_free_schedule_finite;
+                }
+                break;
+
                 case tc_scheduling_enum_isl:
                 {
                     tc_scheduling = &tc_scheduling_adapter_isl;
