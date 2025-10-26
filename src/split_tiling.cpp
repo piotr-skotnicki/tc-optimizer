@@ -102,23 +102,23 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
         isl_set* tile_lt = tc_tile_lt_set(tile, ii_set, II);
         tc_debug_set(tile_lt, "TILE_LT_%d", k);
 
-        // TILE_MISS = (R+(TILE) * TILE_LT)
-        isl_set* tile_miss = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_plus_normalized));
-        tile_miss = isl_set_intersect(tile_miss, tile_lt);
-        tile_miss = isl_set_coalesce(tile_miss);
+        // TILE_ITL = (R+(TILE) * TILE_LT)
+        isl_set* tile_itl = isl_set_apply(isl_set_copy(tile), isl_map_copy(R_plus_normalized));
+        tile_itl = isl_set_intersect(tile_itl, tile_lt);
+        tile_itl = isl_set_coalesce(tile_itl);
 
-        tc_debug_set(tile_miss, "TILE_MISS_%d", k);
+        tc_debug_set(tile_itl, "TILE_ITL_%d", k);
 
         if (k < max)
         {
-            // TILEk = TILE - R+(TILE_MISS) - R+(TILE_GT)
-            isl_set* tile_k = isl_set_subtract(isl_set_copy(tile), isl_set_apply(tile_miss, isl_map_copy(R_plus_normalized)));
+            // TILE_SPLIT_k = TILE - R+(TILE_ITL) - R+(TILE_GT)
+            isl_set* tile_k = isl_set_subtract(isl_set_copy(tile), isl_set_apply(tile_itl, isl_map_copy(R_plus_normalized)));
             tile_k = isl_set_subtract(tile_k, isl_set_apply(tile_gt, isl_map_copy(R_plus_normalized)));
             tile_k = isl_set_coalesce(tile_k);
 
             tc_debug_set(tile_k, "TILE_k_%d", k);
 
-            // TILE = TILE - TILEk
+            // TILE = TILE - TILE_SPLIT_k
             tile = isl_set_subtract(tile, isl_set_copy(tile_k));
 
             tc_debug_set(tile, "TILE_%d", k);
@@ -127,8 +127,8 @@ void tc_algorithm_split_tiling(struct tc_scop* scop, struct tc_options* options)
         }
         else
         {
-            // TILEk = TILE + TILE_MISS - R+(TILE_GT)
-            isl_set* tile_k = isl_set_union(isl_set_copy(tile), tile_miss);
+            // TILE_SPLIT_k = TILE + TILE_ITL - R+(TILE_GT)
+            isl_set* tile_k = isl_set_union(isl_set_copy(tile), tile_itl);
             tile_k = isl_set_subtract(tile_k, isl_set_apply(tile_gt, isl_map_copy(R_plus_normalized)));
             tile_k = isl_set_coalesce(tile_k);
 
