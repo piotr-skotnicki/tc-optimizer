@@ -397,37 +397,31 @@ void tc_algorithm_diamond_tiling(struct tc_scop* scop, struct tc_options* option
         tslice_curr_subspace = isl_set_coalesce(tslice_curr_subspace);
         tc_debug_set(tslice_curr_subspace, "TSLICE_CURR_SUBSPACE");
 
+        // TILE_ITL = R+(TILE_PHASE) * TILE_LT
+        isl_set* tile_itl = isl_set_apply(isl_set_copy(tile_phase), isl_map_copy(R_plus_normalized));
+        tile_itl = isl_set_intersect(tile_itl, isl_set_copy(tile_lt));
+        tile_itl = isl_set_remove_redundancies(tile_itl);
+        tile_itl = isl_set_coalesce(tile_itl);
+
+        tc_debug_set(tile_itl, "TILE_ITL");
+
+        // (R+(TILE_GT) * TSLICE_CURR_SUBSPACE)
         isl_set* tile_gt_subspace = isl_set_intersect(isl_set_apply(isl_set_copy(tile_gt), isl_map_copy(R_plus_normalized)),
                                                                     isl_set_copy(tslice_curr_subspace));
         tile_gt_subspace = isl_set_remove_redundancies(tile_gt_subspace);
         tile_gt_subspace = isl_set_coalesce(tile_gt_subspace);
 
-        // TILE_ITR = TILE_ALL - R+(TILE_GT) * TSLICE_CURR_SUBSPACE
-        isl_set* tile_itr = isl_set_subtract(isl_set_copy(tile_phase),
-                                            isl_set_copy(tile_gt_subspace));
-        tile_itr = isl_set_remove_redundancies(tile_itr);
-        tile_itr = isl_set_coalesce(tile_itr);
-        tc_debug_set(tile_itr, "TILE_ITR");
+        // TILE_CORR = TILE_PHASE + TILE_ITL - (R+(TILE_GT) * TSLICE_CURR_SUBSPACE)
+        isl_set* tile_corr = isl_set_union(isl_set_copy(tile_phase), tile_itl);
+        tile_corr = isl_set_subtract(tile_corr, tile_gt_subspace);
+        tile_corr = isl_set_remove_redundancies(tile_corr);
+        tile_corr = isl_set_coalesce(tile_corr);
 
-        // TVLD_LT = (R+(TILE_ITR) * TILE_LT) - (R+(TILE_GT) * TSLICE_CURR_SUBSPACE)
-        isl_set* tvld_lt = isl_set_apply(isl_set_copy(tile_itr), isl_map_copy(R_plus_normalized));
-        tvld_lt = isl_set_intersect(tvld_lt, isl_set_copy(tile_lt));
-        tvld_lt = isl_set_subtract(tvld_lt, isl_set_copy(tile_gt_subspace));
-        tvld_lt = isl_set_remove_redundancies(tvld_lt);
-        tvld_lt = isl_set_coalesce(tvld_lt);
+        tc_debug_set(tile_corr, "TILE_CORR");
 
-        tc_debug_set(tvld_lt, "TVLD_LT");
+        tc_debug_bool(isl_set_is_equal(tile_phase, tile_corr), "TILE_PHASE = TILE_CORR");
 
-        // TILE_VLD = TILE_ITR + TVLD_LT
-        isl_set* tile_vld = isl_set_union(tile_itr, tvld_lt);
-        tile_vld = isl_set_remove_redundancies(tile_vld);
-        tile_vld = isl_set_coalesce(tile_vld);
-
-        tc_debug_set(tile_vld, "TILE_VLD");
-
-        tc_debug_bool(isl_set_is_equal(tile_phase, tile_vld), "TILE_PHASE = TILE_VLD");
-
-        tiles_phases = isl_set_list_set_set(tiles_phases, k - 1, tile_vld);
+        tiles_phases = isl_set_list_set_set(tiles_phases, k - 1, tile_corr);
     }
 
     tc_debug("# Id extension phase");
