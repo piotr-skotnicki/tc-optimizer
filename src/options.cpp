@@ -105,7 +105,7 @@ void tc_options_credits()
         "\n"
         "Piotr Skotnicki <pskotnicki@zut.edu.pl>\n"
         "\n"
-        "West Pomeranian University of Technology\n"
+        "West Pomeranian University of Technology in Szczecin\n"
         "Faculty of Computer Science and Information Technology\n"
         "ul. Zolnierska 49, 71-210 Szczecin, Poland\n"
         "\n"

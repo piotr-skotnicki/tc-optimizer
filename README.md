@@ -305,7 +305,7 @@ In case of questions/problems/bugs, please contact:
 
 Piotr Skotnicki \<<pskotnicki@zut.edu.pl>\>
 
-West Pomeranian University of Technology \
+West Pomeranian University of Technology in Szczecin \
 Faculty of Computer Science and Information Technology \
 ul. Zolnierska 49, 71-210 Szczecin, Poland
 
