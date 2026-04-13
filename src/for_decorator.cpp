@@ -522,7 +522,7 @@ __isl_give isl_printer* tc_for_decorator_omp_for_first(__isl_take isl_printer* p
     return printer;
 }
 
-__isl_give isl_printer* tc_for_decorator_omp_teams_distribute_parallel_for(__isl_take isl_printer* printer, __isl_take isl_ast_print_options* options, __isl_keep isl_ast_node* node, void* user)
+__isl_give isl_printer* tc_for_decorator_omp_teams_loop(__isl_take isl_printer* printer, __isl_take isl_ast_print_options* options, __isl_keep isl_ast_node* node, void* user)
 {
     isl_ctx* ctx = isl_printer_get_ctx(printer);
     
@@ -629,7 +629,7 @@ __isl_give isl_printer* tc_for_decorator_omp_teams_distribute_parallel_for(__isl
         //////////////
         
         printer = isl_printer_start_line(printer);
-        printer = isl_printer_print_str(printer, "#pragma omp target teams distribute parallel for schedule(static,1) thread_limit(32)");
+        printer = isl_printer_print_str(printer, "#pragma omp target teams loop");
         printer = isl_printer_end_line(printer);
     }
 

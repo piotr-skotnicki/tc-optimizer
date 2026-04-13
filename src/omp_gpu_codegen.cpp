@@ -48,7 +48,7 @@ void tc_codegen_omp_gpu(struct tc_scop* scop, struct tc_options* options, __isl_
     codegen_context->options = options;
     codegen_context->scop = scop;
     
-    ast_options = isl_ast_print_options_set_print_for(ast_options, &tc_for_decorator_omp_teams_distribute_parallel_for, codegen_context);
+    ast_options = isl_ast_print_options_set_print_for(ast_options, &tc_for_decorator_omp_teams_loop, codegen_context);
     ast_options = isl_ast_print_options_set_print_user(ast_options, &tc_codegen_print_user, NULL);
     
     isl_ast_node* ast_tile = isl_ast_build_ast_from_schedule(ast_build, S);
